@@ -1,0 +1,85 @@
+more general question: who is the product owner? we are designing a backend specifically
+so are they aware of what a rest api is?
+are we going to talk more about confluence?
+create a jira card for database setup?
+are we still doing the drop all / create all thing on startup?
+
+wc-1:
+    should drink name be unique?
+    any constraints on purchasing cost? above 0?
+    should we constrain the list of available units?
+    should we cosnstrain the list of available allergens?
+    does allergens need to be broken out into a separate table? store as a string?
+
+    also couldn't allergens be computed from the list of ingredients? simply mark an ingredient as a potential allergen
+    if ingredients are always shown to customers
+
+wc-16:
+    what does "active" customeer mean?
+    are first and last name required?
+    do we accept any kind of phone number? only usa?
+
+wc-21:
+    what does "active" vendor mean?
+    is "email" a generic company email, or the email of the contact person?
+    usa phone number again?
+
+wc-31:
+    any constraints on the format of the promo code?
+    any constraints on the discount percentage (this should be a decimal)
+    no restrictions on promotions? just a flat discount on everything?
+    start date and end date--assuming this is for our current time zone?
+
+wc-26:
+    constraints on role?
+    hourly rate should be decimal
+
+wc-11:
+    needs to baked_goods rather than baked_good
+    limits on description? (where does this text need to fit?)
+    decimal instead of float
+    do baked goods not depend on ingredients?
+
+wc-6:
+    active means the drink is for sale?
+    should type be a limited list of options?
+    does_production cost need to always be in sync? risky to store in a column
+    format of markup percentage? 1.xx or 0.xx?
+    all sale/retail prices are pre-tax?
+    any validation on drink categories? (does a drink have to contain tea leaves to be called tea?)
+
+wc-10:
+    deactivating drinks is tricky because they depend on ingredients
+    if an ingredient is updated what happens to the drink?
+
+wc-36:
+    after this is implemented, are all endpoints protected?
+
+
+wc-39:
+    why is this not in the backlog? seems relevant
+
+ingredient
+customer
+vendor
+promotion
+employee
+baked_good
+drink
+    has many ingredients
+
+
+============================================
+
+Take Aways from Meeting:
+
+ingredients should be distinct by vendor
+write up a card for initial database creation / setup
+name should be unique to vendor
+active has no meaning at the moment for ingredient
+
+ingredients
+
+
+CREATE A NEW CARD
+when an ingredient becomes inactive, the recipe's that are associated with it should be marked inactive
