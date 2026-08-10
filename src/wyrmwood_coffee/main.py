@@ -1,9 +1,7 @@
-import subprocess
 from contextlib import asynccontextmanager
-from pathlib import Path
 from typing import Annotated
 
-from fastapi import Depends, FastAPI, status
+from fastapi import Depends, FastAPI, HTTPException, status
 from sqlalchemy.orm import Session
 
 from wyrmwood_coffee.database import Base, engine, get_db
@@ -23,15 +21,23 @@ async def lifespan(app: FastAPI):
 
 
 app = FastAPI(lifespan=lifespan)
+from wyrmwood_coffee.models.ingredient import (
+    Ingredient,
+    IngredientCreate,
+    IngredientRead,
+    IngredientUpdate,
+)
+
+app = FastAPI(
+    title="Wyrmwood Coffee API",
+    version="1.0.0",
+    description="Backend API for managing ingredients.",
+)
 
 DbSession = Annotated[Session, Depends(get_db)]
 
 
-def dev():
-    subprocess.run(["fastapi", "dev", str(Path(__file__))])
-
-
-@app.get("/")
+@app.get("/", tags=["Health"])
 def root():
     return {"message": "Welcome to Wyrmwood Coffee!"}
 
@@ -63,3 +69,64 @@ def create_vendor(session: DbSession, payload: VendorCreate):
     session.add(new_vendor)
     session.commit()
     return new_vendor
+
+
+@app.post(
+    "/ingredients",
+    response_model=IngredientRead,
+    status_code=status.HTTP_201_CREATED,
+    tags=["Ingredients"],
+)
+def create_ingredient(payload: IngredientCreate, db: Session = Depends(get_db)):
+    db_item = Ingredient(**payload.model_dump())
+    db.add(db_item)
+    db.commit()
+    db.refresh(db_item)
+    return db_item
+
+
+@app.get("/ingredients", response_model=list[IngredientRead], tags=["Ingredients"])
+def get_ingredients(db: Session = Depends(get_db)):
+    return db.query(Ingredient).filter(Ingredient.active == True).all()
+
+
+@app.get(
+    "/ingredients/{ingredient_id}", response_model=IngredientRead, tags=["Ingredients"]
+)
+def get_ingredient(ingredient_id: int, db: Session = Depends(get_db)):
+    item = db.query(Ingredient).filter(Ingredient.id == ingredient_id).first()
+    if not item:
+        raise HTTPException(status_code=404, detail="Ingredient not found")
+    return item
+
+
+@app.put(
+    "/ingredients/{ingredient_id}", response_model=IngredientRead, tags=["Ingredients"]
+)
+def update_ingredient(
+    ingredient_id: int, payload: IngredientUpdate, db: Session = Depends(get_db)
+):
+    item = db.query(Ingredient).filter(Ingredient.id == ingredient_id).first()
+    if not item:
+        raise HTTPException(status_code=404, detail="Ingredient not found")
+
+    update_data = payload.model_dump(exclude_unset=True)
+    for key, value in update_data.items():
+        setattr(item, key, value)
+
+    db.commit()
+    db.refresh(item)
+    return item
+
+
+@app.delete(
+    "/ingredients/{ingredient_id}", status_code=status.HTTP_200_OK, tags=["Ingredients"]
+)
+def delete_ingredient(ingredient_id: int, db: Session = Depends(get_db)):
+    item = db.query(Ingredient).filter(Ingredient.id == ingredient_id).first()
+    if not item:
+        raise HTTPException(status_code=404, detail="Ingredient not found")
+
+    item.active = False
+    db.commit()
+    return {"message": "Ingredient deactivated"}
