@@ -1,10 +1,10 @@
 {
   "info": {
-    "_postman_id": "ad8f675a-2337-4389-aa93-03e2d628acc5",
+    "_postman_id": "7272f8f6-93ea-43aa-8bcb-8ed1e48b73d3",
     "name": "Wyrmwood Coffee",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-    "_exporter_id": "56711512",
-    "_collection_link": "https://go.postman.co/collection/56711512-ad8f675a-2337-4389-aa93-03e2d628acc5?source=collection_link"
+    "_exporter_id": "56711533",
+    "_collection_link": "https://go.postman.co/collection/56711533-7272f8f6-93ea-43aa-8bcb-8ed1e48b73d3?source=collection_link"
   },
   "item": [
     {
@@ -120,6 +120,180 @@
               "port": "8000",
               "path": [
                 "customers"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Ingredients",
+      "item": [
+        {
+          "name": "post ingredients",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"name\": \"Sugar\",\r\n  \"purchasing_cost\": 3.5,\r\n  \"unit_amount\": 1000,\r\n  \"unit_of_measure\": \"ml\",\r\n  \"allergens\": [\"corn\"],\r\n  \"vendor_id\": 1,\r\n  \"active\": true\r\n}\r\n",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://127.0.0.1:8000/ingredients",
+              "protocol": "http",
+              "host": [
+                "127",
+                "0",
+                "0",
+                "1"
+              ],
+              "port": "8000",
+              "path": [
+                "ingredients"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete ingredient",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"name\": \"Sugar\",\r\n  \"purchasing_cost\": 3.5,\r\n  \"unit_amount\": 1000,\r\n  \"unit_of_measure\": \"ml\",\r\n  \"allergens\": [\"corn\"],\r\n  \"vendor_id\": 1,\r\n  \"active\": true\r\n}\r\n",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://127.0.0.1:8000/ingredients/",
+              "protocol": "http",
+              "host": [
+                "127",
+                "0",
+                "0",
+                "1"
+              ],
+              "port": "8000",
+              "path": [
+                "ingredients",
+                ""
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update ingredient",
+          "request": {
+            "method": "PUT",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"name\": \"\",\r\n  \"purchasing_cost\": ,\r\n  \"unit_amount\": ,\r\n  \"unit_of_measure\": \"\",\r\n  \"vendor_id\": ,\r\n  \"allergens\": [],\r\n  \"active\": \r\n}\r\n",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://127.0.0.1:8000/ingredients",
+              "protocol": "http",
+              "host": [
+                "127",
+                "0",
+                "0",
+                "1"
+              ],
+              "port": "8000",
+              "path": [
+                "ingredients"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "get all ingredients",
+          "protocolProfileBehavior": {
+            "disableCookies": false,
+            "followRedirects": true,
+            "strictSSL": false
+          },
+          "request": {
+            "method": "GET",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://127.0.0.1:8000/ingredients",
+              "protocol": "http",
+              "host": [
+                "127",
+                "0",
+                "0",
+                "1"
+              ],
+              "port": "8000",
+              "path": [
+                "ingredients"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "New Request",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": ""
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "get ingredient by ID",
+          "protocolProfileBehavior": {
+            "disableCookies": false,
+            "followRedirects": true,
+            "strictSSL": false
+          },
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://127.0.0.1:8000/ingredients/",
+              "protocol": "http",
+              "host": [
+                "127",
+                "0",
+                "0",
+                "1"
+              ],
+              "port": "8000",
+              "path": [
+                "ingredients",
+                ""
               ]
             }
           },

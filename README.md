@@ -23,3 +23,5 @@ Run test suite:
 ```shell
 uv run pytest
 ```
+pip install alembic
+alembic init alembic
