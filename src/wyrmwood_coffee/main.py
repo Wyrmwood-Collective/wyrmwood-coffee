@@ -4,7 +4,9 @@ from pathlib import Path
 
 from fastapi import FastAPI
 
+from wyrmwood_coffee.models.promotions import Promotion
 from wyrmwood_coffee.database import Base, engine
+
 
 
 @asynccontextmanager
