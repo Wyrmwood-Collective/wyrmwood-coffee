@@ -37,11 +37,14 @@ class PromotionCreate(BaseModel):
 @field_validator("promo_code")
 @classmethod
 def validate_promo_code(cls, value: str) -> str:
-    allowed_characters = value.replace(" ", "").replace("_", "")
+    normalized_character = value.replace(" ", "").replace("_", "")
 
-    if not allowed_characters.isalpha():
+    if not normalized_character:
+        raise ValueError("Promo code must contain at least one letter.")
+
+    if not normalized_character.isalpha():
         raise ValueError(
-            "Promo code must only contain letters, spaces, and underscores."
+            "Promo code may contain only letters, spaces, and underscores."
         )
 
     if value != value.upper():

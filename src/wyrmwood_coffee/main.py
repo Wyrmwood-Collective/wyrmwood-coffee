@@ -4,9 +4,8 @@ from pathlib import Path
 
 from fastapi import FastAPI
 
-from wyrmwood_coffee.models.promotions import Promotion
+from routers.promotions import router as promotions_router
 from wyrmwood_coffee.database import Base, engine
-
 
 
 @asynccontextmanager
@@ -17,6 +16,7 @@ async def lifespan(app: FastAPI):
 
 
 app = FastAPI(lifespan=lifespan)
+app.include_router(promotions_router)
 
 
 def dev():

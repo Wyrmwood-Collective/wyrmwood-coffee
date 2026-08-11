@@ -1,3 +1,5 @@
+from typing import Annotated
+
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy import Select
 from sqlalchemy.orm import Session
@@ -9,10 +11,8 @@ from wyrmwood_coffee.models.promotions import (
     PromotionRead,
 )
 
-router = APIRouter(
-    prefix="/promotions",
-    tags=["promotions"]
-)
+router = APIRouter(prefix="/promotions", tags=["promotions"])
+
 
 @router.post(
     "",
@@ -21,9 +21,11 @@ router = APIRouter(
 )
 def create_promotion(
     promotion_data: PromotionCreate,
-    db: Session = Depends(get_db),
+    db: Annotated[Session, Depends(get_db)],
 ):
-    existing_promotion = db.scalar(Select(Promotion).where(Promotion.promo_code == promotion_data.promo_code))
+    existing_promotion = db.scalar(
+        Select(Promotion).where(Promotion.promo_code == promotion_data.promo_code)
+    )
     if existing_promotion:
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,
