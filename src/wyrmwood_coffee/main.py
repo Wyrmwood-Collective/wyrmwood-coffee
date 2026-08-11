@@ -13,16 +13,17 @@ from wyrmwood_coffee.models.vendor import (
     VendorCreate,
     VendorRead,
 )
+from wyrmwood_coffee.routers import employees
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     Base.metadata.create_all(bind=engine)
     yield
-    Base.metadata.drop_all(bind=engine)
 
 
 app = FastAPI(lifespan=lifespan)
+app.include_router(employees.router)
 
 DbSession = Annotated[Session, Depends(get_db)]
 

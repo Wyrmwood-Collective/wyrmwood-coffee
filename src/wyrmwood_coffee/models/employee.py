@@ -5,7 +5,6 @@ from typing import Annotated
 
 from pydantic import (
     BaseModel,
-    ConfigDict,
     Field,
     PositiveInt,
     StringConstraints,
@@ -132,7 +131,5 @@ class EmployeeCreate(EmployeeBase):
 
 class EmployeeRead(EmployeeBase):
     """Employee schema returned from the system."""
-
-    model_config = ConfigDict(from_attributes=True)
 
     id: PositiveInt = Field(title=EMPLOYEE_ID_TITLE, description=EMPLOYEE_ID_DESC)
