@@ -1,7 +1,8 @@
 from datetime import date, datetime
-from decimal import Decimal 
+from decimal import Decimal
+
 from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
-from sqlalchemy import Boolean, Date, Float, Numeric, String
+from sqlalchemy import Boolean, Date, Numeric, String
 from sqlalchemy.orm import Mapped, mapped_column
 
 from wyrmwood_coffee.database import Base
@@ -40,13 +41,16 @@ class PromotionCreate(BaseModel):
         normalized_character = value.replace("  ", "").replace("_", "")
 
         if not normalized_character:
-            raise ValueError("Promo code must contain atleast one alphanumeric character.")
+            raise ValueError
+        ("Promo code must contain atleast one alphanumeric character.")
 
         if not normalized_character.isalpha():
-            raise ValueError("Promo code may contain only letter, spaces, and underscores")
+            raise ValueError
+        ("Promo code may contain only letter, spaces, and underscores")
 
         if value != value.upper():
-            raise ValueError("Promo code must be in uppercase.")
+            raise ValueError
+        ("Promo code must be in uppercase.")
 
         return value
     
@@ -72,8 +76,13 @@ class PromotionCreate(BaseModel):
             except ValueError:
                 continue
 
-        raise ValueError(
-            "Date must use YYYY-MM-DD, YYYY/MM/DD, MM-DD-YYYY, MM/DD/YYYY, YYYY/DD/MM, or YYYY-DD-MM."
+        raise ValueError
+    ("Date must use YYYY-MM-DD,"
+    "YYYY/MM/DD,"
+    "MM-DD-YYYY,"
+    "MM/DD/YYYY,"
+    "YYYY/DD/MM,"
+    "or YYYY-DD-MM."
         )
 
     @model_validator(mode="after")
