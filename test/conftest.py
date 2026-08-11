@@ -1,17 +1,20 @@
 import os
 import subprocess
+from typing import cast
 
 import pytest
+from fastapi.testclient import TestClient
 from sqlalchemy import create_engine, event
 from sqlalchemy.engine import make_url
 from sqlalchemy.orm import sessionmaker
 
-from wyrmwood_coffee.database import Base
+from wyrmwood_coffee.database import Base, get_db
+from wyrmwood_coffee.main import app
 from wyrmwood_coffee.settings import settings
 
 
 def create_test_database(db_url: str) -> None:
-    url = make_url(settings.test_database_url)
+    url = make_url(cast(str, settings.test_database_url))
 
     env = os.environ.copy()
     if url.password:
@@ -31,7 +34,7 @@ def create_test_database(db_url: str) -> None:
 
 
 def destroy_test_database(db_name: str) -> None:
-    url = make_url(settings.test_database_url)
+    url = make_url(cast(str, settings.test_database_url))
 
     env = os.environ.copy()
     if url.password:
@@ -52,8 +55,8 @@ def destroy_test_database(db_name: str) -> None:
 
 @pytest.fixture(scope="session")
 def db_engine(request):
-    db_name = settings.test_database_url.split("/")[-1]
-    db_url = settings.test_database_url
+    db_name = cast(str, settings.test_database_url).split("/")[-1]
+    db_url = cast(str, settings.test_database_url)
     create_test_database(db_name)
     request.addfinalizer(lambda: destroy_test_database(db_name))
 
@@ -83,3 +86,10 @@ def db_session(db_engine):
     session.close()
     transaction.rollback()
     connection.close()
+
+
+@pytest.fixture()
+def client(db_session):
+    app.dependency_overrides[get_db] = lambda: db_session
+    yield TestClient(app)
+    del app.dependency_overrides[get_db]
