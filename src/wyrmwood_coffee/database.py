@@ -1,4 +1,3 @@
-
 import sys
 
 from sqlalchemy import create_engine
@@ -21,7 +20,6 @@ match settings.app_environment:
             sys.exit(
                 "Error: TEST_DATABASE_URL is not set. Please configure it before running."  # noqa: E501
             )
-
 
 
 SessionLocal = sessionmaker(

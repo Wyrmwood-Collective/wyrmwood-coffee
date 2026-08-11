@@ -20,7 +20,7 @@ class Promotion(Base):
     )
 
     discount_percentage: Mapped[Decimal] = mapped_column(
-        Numeric(5,2),
+        Numeric(5, 2),
         nullable=False,
     )
     start_date: Mapped[date] = mapped_column(Date, nullable=False)
@@ -33,7 +33,6 @@ class PromotionCreate(BaseModel):
     discount_percentage: Decimal = Field(ge=0, le=100)
     start_date: date
     end_date: date
-
 
     @field_validator("promo_code")
     @classmethod
@@ -53,7 +52,6 @@ class PromotionCreate(BaseModel):
         ("Promo code must be in uppercase.")
 
         return value
-    
 
     @field_validator("start_date", "end_date", mode="before")
     @classmethod
@@ -77,13 +75,15 @@ class PromotionCreate(BaseModel):
                 continue
 
         raise ValueError
-    ("Date must use YYYY-MM-DD,"
-    "YYYY/MM/DD,"
-    "MM-DD-YYYY,"
-    "MM/DD/YYYY,"
-    "YYYY/DD/MM,"
-    "or YYYY-DD-MM."
-        )
+
+    (
+        "Date must use YYYY-MM-DD,"
+        "YYYY/MM/DD,"
+        "MM-DD-YYYY,"
+        "MM/DD/YYYY,"
+        "YYYY/DD/MM,"
+        "or YYYY-DD-MM."
+    )
 
     @model_validator(mode="after")
     def validate_dates(self):
