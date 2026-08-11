@@ -18,7 +18,7 @@ def create_test_database(db_url: str) -> None:
 
     env = os.environ.copy()
     if url.password:
-        env["PASSWORD"] = url.password
+        env["PGPASSWORD"] = url.password
 
     args = ["createdb"]
     if url.username:
@@ -38,7 +38,7 @@ def destroy_test_database(db_name: str) -> None:
 
     env = os.environ.copy()
     if url.password:
-        env["PASSWORD"] = url.password
+        env["PGPASSWORD"] = url.password
 
     args = ["dropdb"]
     if url.username:
