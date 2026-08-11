@@ -12,6 +12,8 @@ jobs:
 
     env:
       DATABASE_URL: postgresql+psycopg://root:root@localhost:5432/wyrmwood_coffee_test
+      APP_ENVIRONMENT: test
+      TEST_DATABASE_URL: postgresql+psycopg://root:root@localhost:5432/wyrmwood_coffee_test
 
     services:
       postgres:
