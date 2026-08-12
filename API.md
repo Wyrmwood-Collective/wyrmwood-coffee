@@ -7,6 +7,7 @@
 | Method | Path | Requires Auth | Description |
 | --- | --- | --- | --- |
 | `GET` | `/` | No | [Welcome Message](#get-) |
+| `POST` | `/employees` | No | [Create Employee](#post-employees) |
 | `POST` | `/vendors` | No | [Create Vendor](#post-vendors) |
 
 ### `GET` /
@@ -20,6 +21,30 @@ Returns a simple welcome message. Used as a basic liveness check for the service
 | Status | Description | Body |
 | --- | --- | --- |
 | `200` | The welcome message | `application/json` `{ "message": string }` |
+
+[Back to Summary](#summary)
+
+---
+
+### `POST` /employees
+
+**Create Employee**
+
+Create a new employee and persist it to the database.
+
+Returns the created employee without the password field.
+
+**Request body** (required)
+
+`application/json` — [`EmployeeCreate`](#employeecreate)
+
+**Responses**
+
+| Status | Description | Body |
+| --- | --- | --- |
+| `201` | The newly created employee | `application/json` [`EmployeeRead`](#employeeread) |
+| `409` | An employee with that username already exists. | `application/json` `{ "detail": string }` |
+| `422` | The provided EmployeeCreate is malformed or invalid. | `application/json` [`HTTPValidationError`](#httpvalidationerror) |
 
 [Back to Summary](#summary)
 
@@ -50,6 +75,38 @@ and each vendor contact.
 ---
 
 ## Schemas
+
+### EmployeeCreate
+
+Input schema for creating a new employee. Does not include `id`, since this will be assigned on creation. The password is hashed before it is stored.
+
+| Field | Type | Required | Notes |
+| --- | --- | --- | --- |
+| `active` | bool | no | Whether the employee is currently active; defaults to `true` |
+| `first_name` | string | yes | The employee's first name, min length `1` |
+| `last_name` | string | yes | The employee's last name, min length `1` |
+| `role` | string | yes | The employee's role; one of `employee`, `manager`, `admin` |
+| `hourly_rate` | decimal | yes | The employee's hourly rate in dollars, must be greater than `0`, at most 10 digits and 2 decimal places |
+| `hire_date` | date | yes | The date the employee was hired |
+| `term_date` | date \| null | no | The date the employee was terminated, if applicable; defaults to `null`; must be later than `hire_date` |
+| `username` | string | yes | The employee's username for system access, min length `1`, must be unique |
+| `password` | string | yes | The employee's password; min length `8`, must include a capital letter, a number, and a special character from !@#$%^&*()_+-=[]{};':"\\|,.<>/?`~ |
+
+### EmployeeRead
+
+Represents an employee returned from the system. Does not include `password`.
+
+| Field | Type | Required | Notes |
+| --- | --- | --- | --- |
+| `id` | int | yes | The unique identifier of the employee |
+| `active` | bool | yes | Whether the employee is currently active |
+| `first_name` | string | yes | The employee's first name |
+| `last_name` | string | yes | The employee's last name |
+| `role` | string | yes | The employee's role; one of `employee`, `manager`, `admin` |
+| `hourly_rate` | decimal | yes | The employee's hourly rate in dollars, at most 10 digits and 2 decimal places |
+| `hire_date` | date | yes | The date the employee was hired |
+| `term_date` | date \| null | no | The date the employee was terminated, if applicable; must be later than `hire_date` |
+| `username` | string | yes | The employee's username for system access |
 
 ### HTTPValidationError
 
