@@ -17,34 +17,32 @@ router = APIRouter(tags=["employees"])
     "/employees",
     status_code=status.HTTP_201_CREATED,
     response_model=EmployeeRead,
+    response_description="The newly created employee",
+    responses={
+        409: {"description": "An employee with that username already exists."},
+        422: {"description": "The provided EmployeeCreate is malformed or invalid."},
+    },
 )
 def create_employee(
-    employee: EmployeeCreate,
-    db: Annotated[Session, Depends(get_db)],
-) -> Employee:
-    """Create a new employee and persist it to the database.
-
-    Args:
-        employee: The employee payload to create.
-        db: Database session dependency.
-
-    Returns:
-        The created employee without the password field.
-
-    Raises:
-        HTTPException: If the username is already taken.
+    session: Annotated[Session, Depends(get_db)],
+    payload: EmployeeCreate,
+) -> EmployeeRead:
     """
-    employee_data = employee.model_dump()
+    Create a new employee and persist it to the database.
+
+    Returns the created employee without the password field.
+    """
+    employee_data = payload.model_dump()
     employee_data["password"] = hash_password(employee_data["password"])
     new_employee = Employee(**employee_data)
-    db.add(new_employee)
+    session.add(new_employee)
     try:
-        db.commit()
+        session.commit()
     except IntegrityError:
-        db.rollback()
+        session.rollback()
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,
-            detail="Username already exists",
+            detail="An employee with that username already exists.",
         ) from None
-    db.refresh(new_employee)
-    return new_employee
+    session.refresh(new_employee)
+    return EmployeeRead.model_validate(new_employee)
