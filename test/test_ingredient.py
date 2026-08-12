@@ -1,48 +1,15 @@
-from fastapi.testclient import TestClient
-from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
+import pytest
 
-from wyrmwood_coffee.database import get_db
-from wyrmwood_coffee.main import app
-from wyrmwood_coffee.models.ingredient import Base
+from wyrmwood_coffee.models.ingredient import Ingredient, IngredientRead
 
 # ---------------------------------------------------------
-# TEST DATABASE (SQLite in-memory)
-# ---------------------------------------------------------
-SQLALCHEMY_DATABASE_URL = "sqlite:///:memory:"
-
-engine = create_engine(
-    SQLALCHEMY_DATABASE_URL, connect_args={"check_same_thread": False}
-)
-
-TestingSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
-
-# Create tables for tests
-Base.metadata.create_all(bind=engine)
-
-
-# ---------------------------------------------------------
-# Override get_db for tests
-# ---------------------------------------------------------
-def override_get_db():
-    db = TestingSessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
-
-
-app.dependency_overrides[get_db] = override_get_db
-
-client = TestClient(app)
-
-# ---------------------------------------------------------
-# TESTS
+# Base Fixture
 # ---------------------------------------------------------
 
 
-def test_api_create_ingredient():
-    payload = {
+@pytest.fixture
+def ingredient_valid_kwargs():
+    return {
         "name": "Sugar",
         "vendor": "Domino",
         "purchasing_cost": 3.5,
@@ -51,39 +18,170 @@ def test_api_create_ingredient():
         "allergens": ["corn"],
     }
 
-    response = client.post("/ingredients", json=payload)
+
+# ---------------------------------------------------------
+# Mutated Fixtures
+# ---------------------------------------------------------
+
+
+@pytest.fixture
+def ingredient_missing_name_kwargs(ingredient_valid_kwargs):
+    kwargs = dict(ingredient_valid_kwargs)
+    del kwargs["name"]
+    return kwargs
+
+
+@pytest.fixture
+def ingredient_whitespace_name_kwargs(ingredient_valid_kwargs):
+    return ingredient_valid_kwargs | {"name": "   "}
+
+
+@pytest.fixture
+def ingredient_invalid_cost_kwargs(ingredient_valid_kwargs):
+    return ingredient_valid_kwargs | {"purchasing_cost": "free"}
+
+
+@pytest.fixture
+def ingredient_invalid_unit_amount_kwargs(ingredient_valid_kwargs):
+    return ingredient_valid_kwargs | {"unit_amount": -10}
+
+
+@pytest.fixture
+def ingredient_missing_vendor_kwargs(ingredient_valid_kwargs):
+    kwargs = dict(ingredient_valid_kwargs)
+    del kwargs["vendor"]
+    return kwargs
+
+
+@pytest.fixture
+def ingredient_invalid_unit_of_measure_kwargs(ingredient_valid_kwargs):
+    return ingredient_valid_kwargs | {"unit_of_measure": "invalid-unit"}
+
+
+@pytest.fixture
+def ingredient_invalid_allergens_kwargs(ingredient_valid_kwargs):
+    return ingredient_valid_kwargs | {"allergens": "corn"}  # must be list
+
+
+@pytest.fixture
+def ingredient_inactive_kwargs(ingredient_valid_kwargs):
+    return ingredient_valid_kwargs | {"active": False}
+
+
+# ---------------------------------------------------------
+# Creation Tests
+# ---------------------------------------------------------
+
+
+def test_create_ingredient_should_return_ingredient(client, ingredient_valid_kwargs):
+    response = client.post("/ingredients", json=ingredient_valid_kwargs)
     assert response.status_code == 201
 
-    data = response.json()
-    assert data["name"] == "Sugar"
-    assert data["vendor"] == "Domino"
-    assert data["allergens"] == ["corn"]
+    ingredient = IngredientRead(**response.json())
 
-
-def test_api_get_ingredient_by_id():
-    # First create ingredient
-    payload = {
-        "name": "Salt",
-        "vendor": "Morton",
-        "purchasing_cost": 2.0,
-        "unit_amount": 500,
-        "unit_of_measure": "g",
-        "allergens": [],
+    expected = ingredient_valid_kwargs | {
+        "id": ingredient.id,
+        "active": True,
     }
 
-    create_response = client.post("/ingredients", json=payload)
+    assert ingredient.model_dump(mode="json") == expected
+
+
+def test_create_ingredient_should_persist_to_db(
+    db_session, client, ingredient_valid_kwargs
+):
+    response = client.post("/ingredients", json=ingredient_valid_kwargs)
+    ingredient = db_session.get(Ingredient, response.json()["id"])
+    assert ingredient is not None
+
+
+# ---------------------------------------------------------
+# Validation Tests (422)
+# ---------------------------------------------------------
+
+
+def test_create_ingredient_with_missing_name_should_return_422(
+    client, ingredient_missing_name_kwargs
+):
+    response = client.post("/ingredients", json=ingredient_missing_name_kwargs)
+    assert response.status_code == 422
+
+
+def test_create_ingredient_with_whitespace_name_should_return_422(
+    client, ingredient_whitespace_name_kwargs
+):
+    response = client.post("/ingredients", json=ingredient_whitespace_name_kwargs)
+    assert response.status_code == 422
+
+
+def test_create_ingredient_with_invalid_cost_should_return_422(
+    client, ingredient_invalid_cost_kwargs
+):
+    response = client.post("/ingredients", json=ingredient_invalid_cost_kwargs)
+    assert response.status_code == 422
+
+
+def test_create_ingredient_with_invalid_unit_amount_should_return_422(
+    client, ingredient_invalid_unit_amount_kwargs
+):
+    response = client.post("/ingredients", json=ingredient_invalid_unit_amount_kwargs)
+    assert response.status_code == 422
+
+
+def test_create_ingredient_with_missing_vendor_should_return_422(
+    client, ingredient_missing_vendor_kwargs
+):
+    response = client.post("/ingredients", json=ingredient_missing_vendor_kwargs)
+    assert response.status_code == 422
+
+
+def test_create_ingredient_with_invalid_unit_of_measure_should_return_422(
+    client, ingredient_invalid_unit_of_measure_kwargs
+):
+    response = client.post(
+        "/ingredients", json=ingredient_invalid_unit_of_measure_kwargs
+    )
+    assert response.status_code == 422
+
+
+def test_create_ingredient_with_invalid_allergens_should_return_422(
+    client, ingredient_invalid_allergens_kwargs
+):
+    response = client.post("/ingredients", json=ingredient_invalid_allergens_kwargs)
+    assert response.status_code == 422
+
+
+# ---------------------------------------------------------
+# Active Flag Test
+# ---------------------------------------------------------
+
+
+def test_create_ingredient_with_active_false_should_return_inactive_ingredient(
+    client, ingredient_inactive_kwargs
+):
+    response = client.post("/ingredients", json=ingredient_inactive_kwargs)
+    assert response.status_code == 201
+    assert response.json()["active"] is False
+
+
+# ---------------------------------------------------------
+# Retrieval Tests
+# ---------------------------------------------------------
+
+
+def test_get_ingredient_by_id_should_return_ingredient(client, ingredient_valid_kwargs):
+    create_response = client.post("/ingredients", json=ingredient_valid_kwargs)
     ingredient_id = create_response.json()["id"]
 
-    # Now fetch it
     response = client.get(f"/ingredients/{ingredient_id}")
     assert response.status_code == 200
 
-    data = response.json()
-    assert data["name"] == "Salt"
-    assert data["vendor"] == "Morton"
+    ingredient = IngredientRead(**response.json())
+    assert ingredient.name == ingredient_valid_kwargs["name"]
+    assert ingredient.vendor == ingredient_valid_kwargs["vendor"]
 
 
-def test_api_get_all_ingredients():
+def test_get_all_ingredients_should_return_list(client):
     response = client.get("/ingredients")
     assert response.status_code == 200
     assert isinstance(response.json(), list)

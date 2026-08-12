@@ -1,10 +1,7 @@
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, confloat, conlist, constr
 from sqlalchemy import Boolean, Column, Float, Integer, String
 from sqlalchemy.dialects.postgresql import ARRAY
 from sqlalchemy.orm import declarative_base
-
-allergens = Column(ARRAY(String), default=list)
-
 
 Base = declarative_base()
 
@@ -22,43 +19,61 @@ class Ingredient(Base):
     purchasing_cost = Column(Float, nullable=False)
     unit_amount = Column(Float, nullable=False)
     unit_of_measure = Column(String, nullable=False)
-
     allergens = Column(ARRAY(String), default=list)
 
 
 # ---------------------------------------------------------
-# PYDANTIC SCHEMAS (Pydantic v2 compliant)
+# PYDANTIC SCHEMAS (Pydantic v2)
 # ---------------------------------------------------------
+
+VALID_UNITS = {"ml", "g", "kg", "oz", "lb", "l"}
 
 
 class IngredientBase(BaseModel):
-    active: bool | None = True
-    name: str | None = None
-    vendor: str | None = None
-    purchasing_cost: float | None = None
-    unit_amount: float | None = None
+    active: bool = True
+
+    # Required string fields with whitespace stripping
+    name: constr(strip_whitespace=True, min_length=1) | None = None
+    vendor: constr(strip_whitespace=True, min_length=1) | None = None
+
+    # Numeric validation
+    purchasing_cost: confloat(gt=0) | None = None
+    unit_amount: confloat(gt=0) | None = None
+
+    # Unit validation
     unit_of_measure: str | None = None
 
-    # FIX: mutable default must use Field(default_factory=list)
-    allergens: list[str] = Field(default_factory=list)
+    # List validation
+    allergens: conlist(str, min_length=0) = Field(default_factory=list)
+
+    @classmethod
+    def validate_unit(cls, value):
+        if value not in VALID_UNITS:
+            raise ValueError(
+                f"unit_of_measure must be one of: {', '.join(VALID_UNITS)}"
+            )
+        return value
 
 
 class IngredientCreate(IngredientBase):
-    # Required fields for creation
-    name: str
-    vendor: str
-    purchasing_cost: float
-    unit_amount: float
+    name: constr(strip_whitespace=True, min_length=1)
+    vendor: constr(strip_whitespace=True, min_length=1)
+    purchasing_cost: confloat(gt=0)
+    unit_amount: confloat(gt=0)
     unit_of_measure: str
+
+    # Custom validation hook
+    @classmethod
+    def model_validate(cls, data):
+        model = super().model_validate(data)
+        model.unit_of_measure = cls.validate_unit(model.unit_of_measure)
+        return model
 
 
 class IngredientUpdate(IngredientBase):
-    # All fields optional for partial updates
     pass
 
 
 class IngredientRead(IngredientBase):
     id: int
-
-    # Pydantic v2: from_attributes replaces orm_mode
     model_config = {"from_attributes": True}
