@@ -118,7 +118,7 @@ def test_create_promotion_number_entry(client):
 
     assert response.status_code == 422
     assert (
-        "Promo code may contain only letter, spaces, and underscores"
+        "Promo code may contain only letters, spaces, and underscores"
         in response.json()["detail"][0]["msg"]
     )
 
@@ -157,7 +157,7 @@ def test_create_promotion_invalid_character(client):
 
     assert response.status_code == 422
     assert (
-        "Promo code may contain only letter, spaces, and underscores"
+        "Promo code may contain only letters, spaces, and underscores"
         in response.json()["detail"][0]["msg"]
     )
 
