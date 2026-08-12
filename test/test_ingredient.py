@@ -3,19 +3,45 @@ import pytest
 from wyrmwood_coffee.models.ingredient import Ingredient, IngredientRead
 
 # ---------------------------------------------------------
-# Base Fixture
+# Vendor Fixture (Ingredients require vendor_id)
 # ---------------------------------------------------------
 
 
 @pytest.fixture
-def ingredient_valid_kwargs():
+def vendor_kwargs():
+    return {
+        "name": "Domino Sugar Co",
+        "contacts": [
+            {
+                "name": "John Smith",
+                "role": "Sales Rep",
+                "email": "john@domino.com",
+                "phone": "555-555-5555",
+            }
+        ],
+    }
+
+
+@pytest.fixture
+def vendor_id(client, vendor_kwargs):
+    response = client.post("/vendors", json=vendor_kwargs)
+    return response.json()["id"]
+
+
+# ---------------------------------------------------------
+# Base Ingredient Fixture
+# ---------------------------------------------------------
+
+
+@pytest.fixture
+def ingredient_valid_kwargs(vendor_id):
     return {
         "name": "Sugar",
-        "vendor": "Domino",
         "purchasing_cost": 3.5,
         "unit_amount": 1000,
         "unit_of_measure": "ml",
         "allergens": ["corn"],
+        "vendor_id": vendor_id,
     }
 
 
@@ -44,13 +70,6 @@ def ingredient_invalid_cost_kwargs(ingredient_valid_kwargs):
 @pytest.fixture
 def ingredient_invalid_unit_amount_kwargs(ingredient_valid_kwargs):
     return ingredient_valid_kwargs | {"unit_amount": -10}
-
-
-@pytest.fixture
-def ingredient_missing_vendor_kwargs(ingredient_valid_kwargs):
-    kwargs = dict(ingredient_valid_kwargs)
-    del kwargs["vendor"]
-    return kwargs
 
 
 @pytest.fixture
@@ -128,13 +147,6 @@ def test_create_ingredient_with_invalid_unit_amount_should_return_422(
     assert response.status_code == 422
 
 
-def test_create_ingredient_with_missing_vendor_should_return_422(
-    client, ingredient_missing_vendor_kwargs
-):
-    response = client.post("/ingredients", json=ingredient_missing_vendor_kwargs)
-    assert response.status_code == 422
-
-
 def test_create_ingredient_with_invalid_unit_of_measure_should_return_422(
     client, ingredient_invalid_unit_of_measure_kwargs
 ):
@@ -178,7 +190,7 @@ def test_get_ingredient_by_id_should_return_ingredient(client, ingredient_valid_
 
     ingredient = IngredientRead(**response.json())
     assert ingredient.name == ingredient_valid_kwargs["name"]
-    assert ingredient.vendor == ingredient_valid_kwargs["vendor"]
+    assert ingredient.vendor_id == ingredient_valid_kwargs["vendor_id"]
 
 
 def test_get_all_ingredients_should_return_list(client):

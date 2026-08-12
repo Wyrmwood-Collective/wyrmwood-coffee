@@ -82,6 +82,11 @@ def create_vendor(session: DbSession, payload: VendorCreate):
     return new_vendor
 
 
+# ---------------------------------------------------------
+# INGREDIENT ENDPOINTS (Updated)
+# ---------------------------------------------------------
+
+
 @app.post(
     "/ingredients",
     response_model=IngredientRead,
@@ -89,20 +94,44 @@ def create_vendor(session: DbSession, payload: VendorCreate):
     tags=["Ingredients"],
 )
 def create_ingredient(payload: IngredientCreate, db: Session = Depends(get_db)):
-    db_item = Ingredient(**payload.model_dump())
-    db.add(db_item)
+    # Ensure vendor exists
+    vendor = db.get(Vendor, payload.vendor_id)
+    if vendor is None:
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            detail="Vendor does not exist",
+        )
+
+    ingredient = Ingredient(
+        name=payload.name,
+        purchasing_cost=payload.purchasing_cost,
+        unit_amount=payload.unit_amount,
+        unit_of_measure=payload.unit_of_measure,
+        allergens=payload.allergens,
+        vendor_id=payload.vendor_id,
+        active=payload.active,
+    )
+
+    db.add(ingredient)
     db.commit()
-    db.refresh(db_item)
-    return db_item
+    db.refresh(ingredient)
+
+    return IngredientRead.model_validate(ingredient)
 
 
-@app.get("/ingredients", response_model=list[IngredientRead], tags=["Ingredients"])
+@app.get(
+    "/ingredients",
+    response_model=list[IngredientRead],
+    tags=["Ingredients"],
+)
 def get_ingredients(db: Session = Depends(get_db)):
     return db.query(Ingredient).filter(Ingredient.active == True).all()
 
 
 @app.get(
-    "/ingredients/{ingredient_id}", response_model=IngredientRead, tags=["Ingredients"]
+    "/ingredients/{ingredient_id}",
+    response_model=IngredientRead,
+    tags=["Ingredients"],
 )
 def get_ingredient(ingredient_id: int, db: Session = Depends(get_db)):
     item = db.query(Ingredient).filter(Ingredient.id == ingredient_id).first()
@@ -112,10 +141,14 @@ def get_ingredient(ingredient_id: int, db: Session = Depends(get_db)):
 
 
 @app.put(
-    "/ingredients/{ingredient_id}", response_model=IngredientRead, tags=["Ingredients"]
+    "/ingredients/{ingredient_id}",
+    response_model=IngredientRead,
+    tags=["Ingredients"],
 )
 def update_ingredient(
-    ingredient_id: int, payload: IngredientUpdate, db: Session = Depends(get_db)
+    ingredient_id: int,
+    payload: IngredientUpdate,
+    db: Session = Depends(get_db),
 ):
     item = db.query(Ingredient).filter(Ingredient.id == ingredient_id).first()
     if not item:
@@ -131,7 +164,9 @@ def update_ingredient(
 
 
 @app.delete(
-    "/ingredients/{ingredient_id}", status_code=status.HTTP_200_OK, tags=["Ingredients"]
+    "/ingredients/{ingredient_id}",
+    status_code=status.HTTP_200_OK,
+    tags=["Ingredients"],
 )
 def delete_ingredient(ingredient_id: int, db: Session = Depends(get_db)):
     item = db.query(Ingredient).filter(Ingredient.id == ingredient_id).first()
