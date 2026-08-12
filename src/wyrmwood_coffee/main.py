@@ -5,6 +5,12 @@ from fastapi import Depends, FastAPI, HTTPException, status
 from sqlalchemy.orm import Session
 
 from wyrmwood_coffee.database import Base, engine, get_db
+from wyrmwood_coffee.models.ingredient import (
+    Ingredient,
+    IngredientCreate,
+    IngredientRead,
+    IngredientUpdate,
+)
 from wyrmwood_coffee.models.vendor import (
     Vendor,
     VendorContact,
@@ -21,17 +27,22 @@ async def lifespan(app: FastAPI):
 
 
 app = FastAPI(lifespan=lifespan)
-from wyrmwood_coffee.models.ingredient import (
-    Ingredient,
-    IngredientCreate,
-    IngredientRead,
-    IngredientUpdate,
-)
+
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    # Create tables on startup
+    Base.metadata.create_all(bind=engine)
+    yield
+    # Drop tables on shutdown (your original behavior)
+    Base.metadata.drop_all(bind=engine)
+
 
 app = FastAPI(
     title="Wyrmwood Coffee API",
     version="1.0.0",
     description="Backend API for managing ingredients.",
+    lifespan=lifespan,
 )
 
 DbSession = Annotated[Session, Depends(get_db)]

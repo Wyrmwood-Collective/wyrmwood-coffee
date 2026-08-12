@@ -1,6 +1,10 @@
 from pydantic import BaseModel, Field
-from sqlalchemy import JSON, Boolean, Column, Float, Integer, String
+from sqlalchemy import Boolean, Column, Float, Integer, String
+from sqlalchemy.dialects.postgresql import ARRAY
 from sqlalchemy.orm import declarative_base
+
+allergens = Column(ARRAY(String), default=list)
+
 
 Base = declarative_base()
 
@@ -19,8 +23,7 @@ class Ingredient(Base):
     unit_amount = Column(Float, nullable=False)
     unit_of_measure = Column(String, nullable=False)
 
-    # JSON works in PostgreSQL AND SQLite
-    allergens = Column(JSON, default=list)
+    allergens = Column(ARRAY(String), default=list)
 
 
 # ---------------------------------------------------------
