@@ -6,6 +6,7 @@ from typing import Annotated
 from fastapi import Depends, FastAPI, status
 from sqlalchemy.orm import Session
 
+from routers.promotions import router as promotions_router
 from wyrmwood_coffee.database import Base, engine, get_db
 from wyrmwood_coffee.models.vendor import (
     Vendor,
@@ -25,6 +26,8 @@ async def lifespan(app: FastAPI):
 app = FastAPI(lifespan=lifespan)
 
 DbSession = Annotated[Session, Depends(get_db)]
+
+app.include_router(promotions_router)
 
 
 def dev():
