@@ -10,6 +10,7 @@
 | `POST` | `/customers` | No | [Create Customer](#post-customers) |
 | `POST` | `/employees` | No | [Create Employee](#post-employees) |
 | `POST` | `/vendors` | No | [Create Vendor](#post-vendors) |
+| `POST` | `/promotions` | No | [Create Promotion](#post-promotions) |
 
 ### `GET` /
 
@@ -94,6 +95,31 @@ and each vendor contact.
 | --- | --- | --- |
 | `201` | The newly created vendor | `application/json` [`VendorRead`](#vendorread) |
 | `422` | Validation Error | `application/json` [`HTTPValidationError`](#httpvalidationerror) |
+
+[Back to Summary](#summary)
+
+---
+
+### `POST` /promotions
+
+**Create Promotion**
+
+Create a new promotion with an active status, promo code, discount percentage,
+start date, and end date.
+
+Returns the created promotion, including its generated ID.
+
+**Request body** (required)
+
+`application/json` — [`PromotionCreate`](#promotioncreate)
+
+**Responses**
+
+| Status | Description                                         | Body                                                             |
+| ------ | --------------------------------------------------- | ---------------------------------------------------------------- |
+| `201`  | The newly created promotion                         | `application/json` [`PromotionRead`](#promotionread)              |
+| `409`  | A promotion with the provided promo code exists     | `application/json` error detail                                   |
+| `422`  | Validation Error                                    | `application/json` [`HTTPValidationError`](#httpvalidationerror) |
 
 [Back to Summary](#summary)
 
@@ -235,3 +261,30 @@ Represents a vendor and its associated contacts.
 | `type` | string | yes |  |
 | `input` | any | no |  |
 | `ctx` | object | no |  |
+
+
+### PromotionCreate
+
+Input schema for creating a new promotion. Does not include `id`, since this
+will be assigned on creation.
+
+| Field                 | Type    | Required | Notes                                                                      |
+| --------------------- | ------- | -------- | -------------------------------------------------------------------------- |
+| `active`              | bool    | yes      | Whether or not the promotion is active                                     |
+| `promo_code`          | string  | yes      | Must contain uppercase letters only; spaces and underscores are permitted  |
+| `discount_percentage` | decimal | yes      | Must be numeric and between `0` and `100`                                  |
+| `start_date`           | date    | yes      | Promotion start date; must use one of the supported date formats           |
+| `end_date`             | date    | yes      | Promotion end date; cannot occur before `start_date`                       |
+
+### PromotionRead
+
+Represents a promotion returned by the API.
+
+| Field                 | Type    | Required | Notes                                      |
+| --------------------- | ------- | -------- | ------------------------------------------ |
+| `id`                  | int     | yes      | The promotion's unique identifier          |
+| `active`              | bool    | yes      | Whether or not the promotion is active     |
+| `promo_code`          | string  | yes      | The promotion code                         |
+| `discount_percentage` | decimal | yes      | The percentage discount                    |
+| `start_date`           | date    | yes      | The promotion start date                   |
+| `end_date`             | date    | yes      | The promotion end date                     |
