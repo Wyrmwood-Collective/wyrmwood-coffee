@@ -1,7 +1,7 @@
 # Wyrmwood Collective Coffee Shop API
 
 - [Group Jira](https://catalystit.atlassian.net/jira/software/projects/WC/summary)
-- [Group Confluence](https://catalystit.atlassian.net/wiki/home)
+- [Group Confluence](https://catalystit.atlassian.net/wiki/spaces/WC1/overview)
 
 ## Development Setup
 
