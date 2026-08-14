@@ -57,11 +57,7 @@ class Customer(Base):
 
 
 class CustomerBase(BaseModel):
-    """
-    Base schema of a customer in the system.
-
-    At least email or phone must be provided.
-    """
+    """Base schema of a customer in the system."""
 
     active: Annotated[
         bool,
@@ -103,7 +99,11 @@ class CustomerBase(BaseModel):
 
 
 class CustomerCreate(CustomerBase):
-    """Payload for creating a new customer."""
+    """
+    Payload for creating a new customer.
+
+    At least email or phone must be provided.
+    """
 
     model_config = ConfigDict(from_attributes=True)
 

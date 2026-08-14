@@ -11,7 +11,7 @@ router = APIRouter()
     "",
     status_code=status.HTTP_201_CREATED,
     response_model=CustomerRead,
-    response_description="The newly created Customer",
+    response_description="The newly created customer",
     responses={
         status.HTTP_409_CONFLICT: {
             "description": "A customer with the given email or phone already exists"
