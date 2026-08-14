@@ -150,3 +150,4 @@ Tests for the same handler should be ordered so that tests for successful respon
 - `404`: The `REQUEST_MODEL` was not found.
 - `409`: A `REQUEST_MODEL` with that `ATTRIBUTE` already exists.
 - `422`: The provided `REQUEST_MODEL` is malformed or invalid.
+- `422`: The provided path parameter is malformed or invalid.

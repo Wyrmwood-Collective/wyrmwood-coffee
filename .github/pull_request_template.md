@@ -9,4 +9,4 @@
 - [ ] I added docstrings where appropriate
 - [ ] I updated `API.md` with a description of my endpoints and schemas
 
-[If you are unsure about anthing, write a comment or question here!]
+[If you are unsure about anything, write a comment or question here!]
