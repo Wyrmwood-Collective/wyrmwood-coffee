@@ -1,7 +1,7 @@
 from datetime import date
 from decimal import Decimal
 
-from pydantic import BaseModel, ConfigDict, Field, model_validator
+from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 from sqlalchemy import Boolean, Date, Numeric, String
 from sqlalchemy.orm import Mapped, mapped_column
 
@@ -32,13 +32,22 @@ class PromotionCreate(BaseModel):
     """Request model used when creating a new promotion."""
 
     active: bool
-    promo_code: str = Field(pattern=r"^[ _]*[A-Z][A-Z _]*$")
+    promo_code: str = Field(pattern=r"^[A-Z _]+$")
     discount_percentage: Decimal = Field(
         ge=0,
         le=100,
     )
     start_date: date
     end_date: date
+
+    @field_validator("promo_code")
+    @classmethod
+    def validate_promo_code(cls, value: str) -> str:
+        """Require the promo code to contain at least one letter."""
+        if not any(character.isalpha() for character in value):
+            raise ValueError("Promo code must contain at least one letter.")
+
+        return value
 
     @model_validator(mode="after")
     def validate_dates(self):
@@ -54,5 +63,4 @@ class PromotionRead(PromotionCreate):
 
     id: int
 
-    # Allows Pydantic to build the response from a SQLAlchemy Promotion object.
     model_config = ConfigDict(from_attributes=True)

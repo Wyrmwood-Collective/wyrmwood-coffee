@@ -1,9 +1,12 @@
+from decimal import Decimal
+
 import pytest
+
+from wyrmwood_coffee.models.promotions import Promotion, PromotionRead
 
 
 @pytest.fixture
-def promotion_data():
-    """Return a valid promotion request payload."""
+def promotion_kwargs():
     return {
         "active": True,
         "promo_code": "SUMMER_SALE",
@@ -13,243 +16,326 @@ def promotion_data():
     }
 
 
-def test_create_promotion_valid_entry(client, promotion_data):
-    """Verify that a valid promotion is successfully created."""
+@pytest.fixture
+def promotion_missing_promo_code_kwargs(promotion_kwargs):
+    kwargs = dict(promotion_kwargs)
+    del kwargs["promo_code"]
+    return kwargs
 
+
+@pytest.fixture
+def promotion_blank_promo_code_kwargs(promotion_kwargs):
+    return promotion_kwargs | {"promo_code": " "}
+
+
+@pytest.fixture
+def promotion_numeric_promo_code_kwargs(promotion_kwargs):
+    return promotion_kwargs | {"promo_code": 101}
+
+
+@pytest.fixture
+def promotion_lowercase_promo_code_kwargs(promotion_kwargs):
+    return promotion_kwargs | {"promo_code": "summersale"}
+
+
+@pytest.fixture
+def promotion_invalid_character_kwargs(promotion_kwargs):
+    return promotion_kwargs | {"promo_code": "!@$&*"}
+
+
+@pytest.fixture
+def promotion_invalid_start_date_kwargs(promotion_kwargs):
+    return promotion_kwargs | {"start_date": "2006/01/03"}
+
+
+@pytest.fixture
+def promotion_invalid_end_date_month_first_kwargs(promotion_kwargs):
+    return promotion_kwargs | {"end_date": "09-08-2003"}
+
+
+@pytest.fixture
+def promotion_invalid_end_date_day_middle_kwargs(promotion_kwargs):
+    return promotion_kwargs | {"end_date": "2003-31-09"}
+
+
+@pytest.fixture
+def promotion_invalid_end_date_year_middle_kwargs(promotion_kwargs):
+    return promotion_kwargs | {"end_date": "09-2009-04"}
+
+
+@pytest.fixture
+def promotion_start_date_after_end_date_kwargs(promotion_kwargs):
+    return promotion_kwargs | {
+        "start_date": "2026-04-05",
+        "end_date": "2026-04-01",
+    }
+
+
+@pytest.fixture
+def promotion_discount_too_high_kwargs(promotion_kwargs):
+    return promotion_kwargs | {"discount_percentage": 101}
+
+
+@pytest.fixture
+def promotion_negative_discount_kwargs(promotion_kwargs):
+    return promotion_kwargs | {"discount_percentage": -9}
+
+
+@pytest.fixture
+def promotion_non_numeric_discount_kwargs(promotion_kwargs):
+    return promotion_kwargs | {"discount_percentage": "RADIO!"}
+
+
+@pytest.fixture
+def promotion_symbol_discount_kwargs(promotion_kwargs):
+    return promotion_kwargs | {"discount_percentage": "_"}
+
+
+# ==========================================
+# CREATE OPERATIONS
+# ==========================================
+
+# --------------------
+# Successful Responses
+# --------------------
+
+
+def test_create_promotion_should_return_promotion(
+    client,
+    promotion_kwargs,
+):
     response = client.post(
         "/promotions",
-        json=promotion_data,
+        json=promotion_kwargs,
     )
 
-    # A valid promotion should be created successfully.
     assert response.status_code == 201
 
+    promotion = PromotionRead(**response.json())
 
-def test_create_promotion_no_entry(
+    expected = promotion_kwargs | {
+        "id": promotion.id,
+        "discount_percentage": (
+            f"{Decimal(str(promotion_kwargs['discount_percentage'])):.2f}"
+        ),
+    }
+
+    assert promotion.model_dump(mode="json") == expected
+
+
+# --------------------
+# Error / Invalid Responses
+# --------------------
+
+
+def test_create_promotion_with_missing_promo_code_should_return_422(
     client,
-    promotion_data,
+    promotion_missing_promo_code_kwargs,
 ):
-    """Verify that an empty promo code is rejected."""
-    promotion_data["promo_code"] = ""
-
     response = client.post(
         "/promotions",
-        json=promotion_data,
+        json=promotion_missing_promo_code_kwargs,
     )
 
     assert response.status_code == 422
 
 
-def test_create_promotion_duplicate_entry(client, promotion_data):
-    """Verify that a duplicate promo code returns a 409 conflict."""
-
-    # Create the promotion.
+def test_create_promotion_with_duplicate_promo_code_should_return_409(
+    client,
+    promotion_kwargs,
+):
     first_response = client.post(
         "/promotions",
-        json=promotion_data,
+        json=promotion_kwargs,
     )
 
     assert first_response.status_code == 201
 
-    # Attempt to create another promotion with the same promo code.
     duplicate_response = client.post(
         "/promotions",
-        json=promotion_data,
+        json=promotion_kwargs,
     )
 
     assert duplicate_response.status_code == 409
 
 
-def test_create_promotion_space_entry(
+def test_create_promotion_with_blank_promo_code_should_return_422(
     client,
-    promotion_data,
+    promotion_blank_promo_code_kwargs,
 ):
-    """Verify that a promo code containing only spaces is rejected."""
-    promotion_data["promo_code"] = " "
-
     response = client.post(
         "/promotions",
-        json=promotion_data,
-    )
-    assert response.status_code == 422
-
-
-def test_create_promotion_number_entry(
-    client,
-    promotion_data,
-):
-    """Verify that a numeric promo code is rejected."""
-    promotion_data["promo_code"] = 101
-
-    response = client.post(
-        "/promotions",
-        json=promotion_data,
+        json=promotion_blank_promo_code_kwargs,
     )
 
     assert response.status_code == 422
 
 
-def test_create_promotion_lowercase_entry(
+def test_create_promotion_with_numeric_promo_code_should_return_422(
     client,
-    promotion_data,
+    promotion_numeric_promo_code_kwargs,
 ):
-    """Verify that a lowercase promo code is rejected."""
-    promotion_data["promo_code"] = "summersale"
-
     response = client.post(
         "/promotions",
-        json=promotion_data,
+        json=promotion_numeric_promo_code_kwargs,
     )
 
     assert response.status_code == 422
 
 
-def test_create_promotion_invalid_character(
+def test_create_promotion_with_lowercase_promo_code_should_return_422(
     client,
-    promotion_data,
+    promotion_lowercase_promo_code_kwargs,
 ):
-    """Verify that unsupported characters in a promo code are rejected."""
-    promotion_data["promo_code"] = "!@$&*"
-
     response = client.post(
         "/promotions",
-        json=promotion_data,
+        json=promotion_lowercase_promo_code_kwargs,
     )
 
     assert response.status_code == 422
 
 
-def test_create_promotion_invalid_start_date_backslash(
+def test_create_promotion_with_invalid_promo_code_character_should_return_422(
     client,
-    promotion_data,
+    promotion_invalid_character_kwargs,
 ):
-    """Verify that a start date using slashes is rejected."""
-    promotion_data["start_date"] = "2006/01/03"
-
     response = client.post(
         "/promotions",
-        json=promotion_data,
+        json=promotion_invalid_character_kwargs,
     )
 
     assert response.status_code == 422
 
 
-def test_create_promotion_invalid_end_date_start_with_month(
+def test_create_promotion_with_invalid_start_date_should_return_422(
     client,
-    promotion_data,
+    promotion_invalid_start_date_kwargs,
 ):
-    """Verify that an end date beginning with the month is rejected."""
-    promotion_data["end_date"] = "09-08-2003"
-
     response = client.post(
         "/promotions",
-        json=promotion_data,
+        json=promotion_invalid_start_date_kwargs,
     )
 
     assert response.status_code == 422
 
 
-def test_create_promotion_invalid_end_date_day_in_middle(
+def test_create_promotion_with_month_first_end_date_should_return_422(
     client,
-    promotion_data,
+    promotion_invalid_end_date_month_first_kwargs,
 ):
-    """Verify that an end date with an invalid month/day order is rejected."""
-    promotion_data["end_date"] = "2003-31-09"
-
     response = client.post(
         "/promotions",
-        json=promotion_data,
+        json=promotion_invalid_end_date_month_first_kwargs,
     )
 
     assert response.status_code == 422
 
 
-def test_create_promotion_invalid_end_date_year_in_middle(
+def test_create_promotion_with_invalid_end_date_day_order_should_return_422(
     client,
-    promotion_data,
+    promotion_invalid_end_date_day_middle_kwargs,
 ):
-    """Verify that an end date with the year in the middle is rejected."""
-    promotion_data["end_date"] = "09-2009-04"
-
     response = client.post(
         "/promotions",
-        json=promotion_data,
+        json=promotion_invalid_end_date_day_middle_kwargs,
     )
 
     assert response.status_code == 422
 
 
-def test_create_promotion_start_date_after_end_date(
+def test_create_promotion_with_invalid_end_date_year_order_should_return_422(
     client,
-    promotion_data,
+    promotion_invalid_end_date_year_middle_kwargs,
 ):
-    """Verify that an end date before the start date is rejected."""
-    promotion_data["start_date"] = "2026-04-05"
-    promotion_data["end_date"] = "2026-04-01"
-
     response = client.post(
         "/promotions",
-        json=promotion_data,
+        json=promotion_invalid_end_date_year_middle_kwargs,
     )
 
     assert response.status_code == 422
 
 
-def test_create_promotion_discount_too_high(
+def test_create_promotion_with_start_date_after_end_date_should_return_422(
     client,
-    promotion_data,
+    promotion_start_date_after_end_date_kwargs,
 ):
-    """Verify that a discount percentage greater than 100 is rejected."""
-    promotion_data["discount_percentage"] = 101
-
     response = client.post(
         "/promotions",
-        json=promotion_data,
+        json=promotion_start_date_after_end_date_kwargs,
     )
 
     assert response.status_code == 422
 
 
-def test_create_promotion_discount_too_low(
+def test_create_promotion_with_discount_too_high_should_return_422(
     client,
-    promotion_data,
+    promotion_discount_too_high_kwargs,
 ):
-    """Verify that a discount percentage below zero is rejected."""
-    promotion_data["discount_percentage"] = -9
-
     response = client.post(
         "/promotions",
-        json=promotion_data,
+        json=promotion_discount_too_high_kwargs,
     )
 
     assert response.status_code == 422
 
 
-def test_create_promotion_discount_percentage_not_numeric_letter(
+def test_create_promotion_with_negative_discount_should_return_422(
     client,
-    promotion_data,
+    promotion_negative_discount_kwargs,
 ):
-    """Verify that a letter discount percentage is rejected."""
-    promotion_data["discount_percentage"] = "RADIO!"
-
     response = client.post(
         "/promotions",
-        json=promotion_data,
+        json=promotion_negative_discount_kwargs,
     )
 
     assert response.status_code == 422
 
 
-def test_create_promotion_discount_percentage_not_numeric_symbol(
+def test_create_promotion_with_non_numeric_discount_should_return_422(
     client,
-    promotion_data,
+    promotion_non_numeric_discount_kwargs,
 ):
-    """Verify that a symbolic discount percentage is rejected."""
-    promotion_data["discount_percentage"] = "_"
-
     response = client.post(
         "/promotions",
-        json=promotion_data,
+        json=promotion_non_numeric_discount_kwargs,
     )
 
     assert response.status_code == 422
+
+
+def test_create_promotion_with_symbol_discount_should_return_422(
+    client,
+    promotion_symbol_discount_kwargs,
+):
+    response = client.post(
+        "/promotions",
+        json=promotion_symbol_discount_kwargs,
+    )
+
+    assert response.status_code == 422
+
+
+# --------------------
+# Side Effects
+# --------------------
+
+
+def test_create_promotion_should_persist_to_db(
+    db_session,
+    client,
+    promotion_kwargs,
+):
+    response = client.post(
+        "/promotions",
+        json=promotion_kwargs,
+    )
+
+    promotion = db_session.get(
+        Promotion,
+        response.json()["id"],
+    )
+
+    assert promotion is not None
+    assert promotion.promo_code == promotion_kwargs["promo_code"]
+    assert promotion.discount_percentage == Decimal("50.00")
+    assert promotion.active == promotion_kwargs["active"]

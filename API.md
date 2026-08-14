@@ -118,7 +118,7 @@ Returns the created promotion, including its generated ID.
 | Status | Description                                         | Body                                                             |
 | ------ | --------------------------------------------------- | ---------------------------------------------------------------- |
 | `201`  | The newly created promotion                         | `application/json` [`PromotionRead`](#promotionread)              |
-| `409`  | A promotion with the provided promo code exists     | `application/json` error detail                                   |
+| `409`  | A promotion with the promo code already exists     | `application/json` error detail                                   |
 | `422`  | Validation Error                                    | `application/json` [`HTTPValidationError`](#httpvalidationerror) |
 
 [Back to Summary](#summary)
