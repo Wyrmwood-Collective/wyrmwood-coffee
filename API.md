@@ -7,6 +7,7 @@
 | Method | Path | Requires Auth | Description |
 | --- | --- | --- | --- |
 | `GET` | `/` | No | [Welcome Message](#get-) |
+| `POST` | `/customers` | No | [Create Customer](#post-customers) |
 | `POST` | `/employees` | No | [Create Employee](#post-employees) |
 | `POST` | `/vendors` | No | [Create Vendor](#post-vendors) |
 
@@ -21,6 +22,30 @@ Returns a simple welcome message. Used as a basic liveness check for the service
 | Status | Description | Body |
 | --- | --- | --- |
 | `200` | The welcome message | `application/json` `{ "message": string }` |
+
+[Back to Summary](#summary)
+
+---
+
+### `POST` /customers
+
+**Create Customer**
+
+Create a new customer record.
+
+Both email and phone must be unique.
+
+**Request body** (required)
+
+`application/json` — [`CustomerCreate`](#customercreate)
+
+**Responses**
+
+| Status | Description | Body |
+| --- | --- | --- |
+| `201` | The newly created customer. | `application/json` [`CustomerRead`](#customerread) |
+| `409` | A customer with the given email or phone already exists. | `application/json` `{ "detail": string }` |
+| `422` | Missing or invalid values. | `application/json` [`HTTPValidationError`](#httpvalidationerror) |
 
 [Back to Summary](#summary)
 
@@ -75,6 +100,48 @@ and each vendor contact.
 ---
 
 ## Schemas
+
+### CustomerBase
+
+Base schema of a customer in the system. At least `email` or `phone` must be provided.
+
+| Field | Type | Required | Notes |
+| --- | --- | --- | --- |
+| `active` | bool | no | Whether the customer is currently active; defaults to `true` |
+| `first_name` | string | yes | The customer's first name, min length of `1` |
+| `last_name` | string | yes | The customer's last name, min length of `1` |
+| `email` | string | yes, if `phone=None` | The customer's email; syntax must be a proper email address, and defaults to `None` |
+| `phone` | string | yes, if `email=None` | The customer's phone number; must match pattern `\d{3}-\d{3}-\d{4}`, and defaults to `None` |
+| `loyalty_points` | int | no | The customer's loyalty points, defaults to `0` |
+
+### CustomerCreate
+
+Input schema for creating a new customer. At least `email` or `phone` must be provided. Does not include `id`, since this will be assigned on creation.
+
+| Field | Type | Required | Notes |
+| --- | --- | --- | --- |
+| `active` | bool | no | Whether the customer is currently active; defaults to `true` |
+| `first_name` | string | yes | The customer's first name, min length of `1` |
+| `last_name` | string | yes | The customer's last name, min length of `1` |
+| `email` | string | yes, if `phone=None` | The customer's email; syntax must be a proper email address, and defaults to `None` |
+| `phone` | string | yes, if `email=None` | The customer's phone number; must match pattern `\d{3}-\d{3}-\d{4}`, and defaults to `None` |
+| `loyalty_points` | int | no | The customer's loyalty points, defaults to `0` |
+| `loyalty_expires_at` | datetime | no | The expiration date of the customer's loyalty points; set to one year after customer record creation |
+
+### CustomerRead
+
+Represents a customer in the system.
+
+| Field | Type | Required | Notes |
+| --- | --- | --- | --- |
+| `active` | bool | no | Whether the customer is currently active; defaults to `true` |
+| `first_name` | string | yes | The customer's first name, min length of `1` |
+| `last_name` | string | yes | The customer's last name, min length of `1` |
+| `email` | string | yes, if `phone=None` | The customer's email; syntax must be a proper email address, and defaults to `None` |
+| `phone` | string | yes, if `email=None` | The customer's phone number; must match pattern `\d{3}-\d{3}-\d{4}`, and defaults to `None` |
+| `loyalty_points` | int | no | The customer's loyalty points, defaults to `0` |
+| `id` | int | yes | The unique identifier of the customer |
+| `loyalty_expires_at` | datetime | no | The expiration date of the customer's loyalty points; set to one year after customer record creation |
 
 ### EmployeeCreate
 
