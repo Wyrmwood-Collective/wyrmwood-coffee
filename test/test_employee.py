@@ -1,9 +1,12 @@
+from datetime import date
 from decimal import Decimal
 
 import bcrypt
 import pytest
+from sqlalchemy import func, select
 
-from wyrmwood_coffee.models.employee import Employee, EmployeeRead
+from wyrmwood_coffee.models.employee import EMPLOYEE_ID_MAX, Employee, EmployeeRead
+from wyrmwood_coffee.security import hash_password
 
 
 @pytest.fixture
@@ -106,6 +109,159 @@ def employee_missing_password_kwargs(employee_kwargs):
     kwargs = dict(employee_kwargs)
     del kwargs["password"]
     return kwargs
+
+
+def _persist_employee(db_session, kwargs):
+    employee = Employee(
+        active=kwargs["active"],
+        first_name=kwargs["first_name"],
+        last_name=kwargs["last_name"],
+        role=kwargs["role"],
+        hourly_rate=Decimal(str(kwargs["hourly_rate"])),
+        hire_date=date.fromisoformat(kwargs["hire_date"]),
+        username=kwargs["username"],
+        password=hash_password(kwargs["password"]),
+    )
+    db_session.add(employee)
+    db_session.commit()
+    db_session.refresh(employee)
+    return employee
+
+
+@pytest.fixture
+def persisted_employee(db_session, employee_kwargs):
+    return _persist_employee(db_session, employee_kwargs)
+
+
+@pytest.fixture
+def persisted_inactive_employee(db_session, employee_inactive_kwargs):
+    return _persist_employee(db_session, employee_inactive_kwargs)
+
+
+@pytest.fixture
+def persisted_employees(db_session, employee_kwargs):
+    second_kwargs = employee_kwargs | {
+        "first_name": "Grace",
+        "last_name": "Hopper",
+        "username": "ghopper",
+    }
+    first = _persist_employee(db_session, employee_kwargs)
+    second = _persist_employee(db_session, second_kwargs)
+    return first, second
+
+
+@pytest.fixture
+def unused_employee_id(db_session):
+    def _unused_employee_id():
+        max_id = db_session.scalar(select(func.max(Employee.id))) or 0
+        return max_id + 1
+
+    return _unused_employee_id
+
+
+def test_get_employee_should_return_employee(
+    client, persisted_employees, employee_kwargs
+):
+    target, other = persisted_employees
+    response = client.get(f"/employees/{target.id}")
+    assert response.status_code == 200
+
+    employee = EmployeeRead(**response.json())
+    expected = {
+        key: value for key, value in employee_kwargs.items() if key != "password"
+    } | {
+        "id": target.id,
+        "term_date": None,
+        "hourly_rate": f"{Decimal(str(employee_kwargs['hourly_rate'])):.2f}",
+    }
+    assert employee.model_dump(mode="json") == expected
+    assert employee.id != other.id
+    assert "password" not in response.json()
+    assert "password" not in EmployeeRead.model_fields
+
+
+def test_get_employee_with_inactive_employee_should_return_employee(
+    client, persisted_inactive_employee
+):
+    response = client.get(f"/employees/{persisted_inactive_employee.id}")
+    assert response.status_code == 200
+    assert response.json()["id"] == persisted_inactive_employee.id
+    assert response.json()["active"] is False
+
+
+def test_get_employee_with_leading_zero_id_should_return_employee(
+    client, persisted_employee
+):
+    response = client.get(f"/employees/0{persisted_employee.id}")
+    assert response.status_code == 200
+    assert response.json()["id"] == persisted_employee.id
+
+
+def test_get_employee_with_trailing_slash_should_return_employee(
+    client, persisted_employee
+):
+    response = client.get(f"/employees/{persisted_employee.id}/")
+    assert response.status_code == 200
+    assert response.json()["id"] == persisted_employee.id
+
+
+def test_get_employee_with_padded_whitespace_id_should_return_employee(
+    client, persisted_employee
+):
+    leading = client.get(f"/employees/%20{persisted_employee.id}")
+    trailing = client.get(f"/employees/{persisted_employee.id}%20")
+    assert leading.status_code == 200
+    assert trailing.status_code == 200
+    assert leading.json()["id"] == persisted_employee.id
+    assert trailing.json()["id"] == persisted_employee.id
+
+
+def test_get_employee_with_nonexistent_id_should_return_404(client, unused_employee_id):
+    response = client.get(f"/employees/{unused_employee_id()}")
+    assert response.status_code == 404
+    assert response.json()["detail"] == "The employee was not found."
+
+
+def test_get_employee_with_zero_id_should_return_422(client):
+    response = client.get("/employees/0")
+    assert response.status_code == 422
+
+
+def test_get_employee_with_negative_id_should_return_422(client):
+    response = client.get("/employees/-1")
+    assert response.status_code == 422
+
+
+def test_get_employee_with_non_integer_id_should_return_422(client):
+    response = client.get("/employees/abc")
+    assert response.status_code == 422
+
+
+def test_get_employee_with_internal_whitespace_id_should_return_422(
+    client, persisted_employee
+):
+    response = client.get(f"/employees/{persisted_employee.id}%205")
+    assert response.status_code == 422
+
+
+def test_get_employee_with_only_whitespace_id_should_return_422(client):
+    response = client.get("/employees/%20%20")
+    assert response.status_code == 422
+
+
+def test_get_employee_with_float_id_should_return_422(client):
+    response = client.get("/employees/1.5")
+    assert response.status_code == 422
+
+
+def test_get_employee_with_id_exceeding_postgres_integer_max_should_return_422(client):
+    response = client.get(f"/employees/{EMPLOYEE_ID_MAX + 1}")
+    assert response.status_code == 422
+
+
+def test_get_employee_with_overflowing_id_should_return_422(client):
+    response = client.get("/employees/99999999999999999999")
+    assert response.status_code == 422
 
 
 def test_create_employee_should_return_employee(client, employee_kwargs):

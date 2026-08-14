@@ -8,7 +8,6 @@ from pydantic import (
     BaseModel,
     ConfigDict,
     Field,
-    PositiveInt,
     StringConstraints,
     field_validator,
     model_validator,
@@ -58,6 +57,9 @@ EMPLOYEE_PASSWORD_DESC = (
 
 EMPLOYEE_ID_TITLE = "Employee ID"
 EMPLOYEE_ID_DESC = "The unique identifier of the employee"
+EMPLOYEE_ID_MAX = 2_147_483_647
+
+EmployeeId = Annotated[int, Field(gt=0, le=EMPLOYEE_ID_MAX)]
 
 PASSWORD_SPECIAL_CHARS = r"!@#$%^&*()_+\-=\[\]{};':\"\\|,.<>\/?`~"
 
@@ -159,4 +161,4 @@ class EmployeeRead(EmployeeBase):
 
     model_config = ConfigDict(from_attributes=True)
 
-    id: PositiveInt = Field(title=EMPLOYEE_ID_TITLE, description=EMPLOYEE_ID_DESC)
+    id: EmployeeId = Field(title=EMPLOYEE_ID_TITLE, description=EMPLOYEE_ID_DESC)

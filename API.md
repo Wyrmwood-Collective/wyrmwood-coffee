@@ -9,6 +9,7 @@
 | `GET` | `/` | No | [Welcome Message](#get-) |
 | `POST` | `/baked-goods` | No | [Create Baked Good](#post-baked-goods) |
 | `POST` | `/customers` | No | [Create Customer](#post-customers) |
+| `GET` | `/employees/{id}` | No | [Get Employee](#get-employeesid) |
 | `POST` | `/employees` | No | [Create Employee](#post-employees) |
 | `POST` | `/vendors` | No | [Create Vendor](#post-vendors) |
 | `POST` | `/promotions` | No | [Create Promotion](#post-promotions) |
@@ -69,6 +70,32 @@ Both email and phone must be unique.
 | `201` | The newly created customer. | `application/json` [`CustomerRead`](#customerread) |
 | `409` | A customer with the given email or phone already exists. | `application/json` `{ "detail": string }` |
 | `422` | Missing or invalid values. | `application/json` [`HTTPValidationError`](#httpvalidationerror) |
+
+[Back to Summary](#summary)
+
+---
+
+### `GET` /employees/{id}
+
+**Get Employee**
+
+Retrieve a single employee by ID.
+
+Returns the employee without the password field.
+
+**Path parameters**
+
+| Name | Type | Required | Notes |
+| --- | --- | --- | --- |
+| `id` | int | yes | The unique identifier of the employee; must be a positive integer at most 2,147,483,647 |
+
+**Responses**
+
+| Status | Description | Body |
+| --- | --- | --- |
+| `200` | The requested employee | `application/json` [`EmployeeRead`](#employeeread) |
+| `404` | The employee was not found. | `application/json` `{ "detail": string }` |
+| `422` | The provided path parameter is malformed or invalid. | `application/json` [`HTTPValidationError`](#httpvalidationerror) |
 
 [Back to Summary](#summary)
 
