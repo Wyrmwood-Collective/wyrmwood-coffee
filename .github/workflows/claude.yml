@@ -1,0 +1,69 @@
+name: Verify Style Guidelines
+
+on:
+  pull_request:
+    branches: ['sprint/**']
+    types: [opened, synchronize, reopened]
+
+permissions:
+  contents: read
+  pull-requests: write
+  id-token: write
+
+jobs:
+  guideline-check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
+      - name: Check PR against contribution guidelines
+        id: check
+        uses: anthropics/claude-code-action@v1
+        with:
+          settings: |
+            {
+              "permissions": {
+                "allow": ["Bash(gh:*)", "Bash(git diff:*)", "Bash(git log:*)", "Bash(git show:*)", "Read", "Glob", "Grep"]
+              }
+            }
+          claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          prompt: |
+            Read CONTRIBUTING.md in this repository.
+            Review the diff for PR #${{ github.event.pull_request.number }}
+            in ${{ github.repository }}.
+            Decide whether the PR follows the contribution guidelines.
+          claude_args: |
+            --effort medium
+            --json-schema '{"type":"object","properties":{"passes":{"type":"boolean"},"reason":{"type":"string"}},"required":["passes","reason"]}'
+
+      - name: Post explanation on PR
+        if: always()
+        uses: actions/github-script@v9
+        env:
+          STRUCTURED_OUTPUT: ${{ steps.check.outputs.structured_output }}
+        with:
+          script: |
+              if (!process.env.STRUCTURED_OUTPUT) {
+              core.setFailed('No structured output from the check step — see its logs above.');
+              return;
+              }
+              const output = JSON.parse(process.env.STRUCTURED_OUTPUT);
+              github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              body: `**Contribution guideline check:** ${output.passes ? '✅ Passed' : '❌ Failed'}\n\n${output.reason}`
+              });
+
+      - name: Gate on result
+        env:
+          STRUCTURED_OUTPUT: ${{ steps.check.outputs.structured_output }}
+        run: |
+          passes=$(echo "$STRUCTURED_OUTPUT" | jq -r .passes)
+          if [ "$passes" != "true" ]; then
+              echo "PR does not meet contribution guidelines."
+              exit 1
+          fi
