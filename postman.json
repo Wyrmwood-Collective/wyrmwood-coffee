@@ -1,10 +1,10 @@
 {
   "info": {
-    "_postman_id": "3c02acbf-cfe5-4bab-bc65-4f2c73b03267",
+    "_postman_id": "ad8f675a-2337-4389-aa93-03e2d628acc5",
     "name": "Wyrmwood Coffee",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-    "_exporter_id": "56711438",
-    "_collection_link": "https://go.postman.co/collection/56711438-3c02acbf-cfe5-4bab-bc65-4f2c73b03267?source=collection_link"
+    "_exporter_id": "56711512",
+    "_collection_link": "https://go.postman.co/collection/56711512-ad8f675a-2337-4389-aa93-03e2d628acc5?source=collection_link"
   },
   "item": [
     {
@@ -64,6 +64,62 @@
               "port": "8000",
               "path": [
                 "vendors"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Customer",
+      "item": [
+        {
+          "name": "Create Customer",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  ""
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            },
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  ""
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"first_name\": \"SpongeBob\",\r\n    \"last_name\": \"SquarePants\",\r\n    \"email\": \"ilovegary@bikinibottom.com\",\r\n    \"phone\": \"929-573-0156\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "localhost:8000/customers",
+              "host": [
+                "localhost"
+              ],
+              "port": "8000",
+              "path": [
+                "customers"
               ]
             }
           },
