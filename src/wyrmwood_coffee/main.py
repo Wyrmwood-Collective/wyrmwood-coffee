@@ -6,6 +6,7 @@ from fastapi import FastAPI
 
 from wyrmwood_coffee.database import Base, engine
 from wyrmwood_coffee.routers import customers, employees, vendors
+from wyrmwood_coffee.routers.promotions import router as promotions_router
 
 
 @asynccontextmanager
@@ -19,6 +20,8 @@ app.include_router(employees.router)
 
 app.include_router(customers.router, prefix="/customers", tags=["Customers"])
 app.include_router(vendors.router, prefix="/vendors", tags=["Vendors"])
+
+app.include_router(promotions_router)
 
 
 def dev():
