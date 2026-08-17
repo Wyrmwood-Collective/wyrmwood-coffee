@@ -1,5 +1,15 @@
 # Contribution Guidelines
 
+## Imports
+
+Use absolute imports (`from wyrmwood_coffee.models.customer import Customer`, not `from .customer import Customer`).
+
+## Module Names
+
+Use singular names for modules in `models` (`ingredient.py`).
+Use plural names for modules in `routers` (`ingredients.py`).
+Use plural names for modules in `test` (`test_ingredients.py`).
+
 ## Database
 
 **Table Naming:** Plural, snake case (`customers`, `baked_goods`)
@@ -9,6 +19,14 @@
 **Sprint Branch Naming:** `sprint/1`, `sprint/2`, etc.
 
 **Feature Branch Naming:** `feature/wc-11` (use the Jira issue key, lowercased)
+
+## SQLAlchemy/Pydantic Model Names
+
+SQLAlchemy models should be named after the singular form of the resource (`Customer`).
+
+Each resource should have Pydantic schemas named `{Resource}Create` and `{Resource}Read`, mirroring the name of the associated ORM model (`Vendor` -> `VendorCreate`, `VendorRead`).
+
+If a resource's `Create` schema is embedded as a field on another resource's `Create` schema, and it omits a field that would otherwise be implied by that nesting (such as a foreign key to the parent), suffix it `{Resource}CreateNested` instead of `{Resource}Create` (for example, `VendorContactCreateNested` is embedded in `VendorCreate.contacts`, omitting `vendor_id`).
 
 ## FastAPI Handlers
 
@@ -106,12 +124,15 @@ The database session object should be called `session`.
 )
 ```
 
-## Commit Messages
+## Commits and Pull Requests
 
-All commits should begin with an uppercase letter and should not end with a period.
+All commits should begin with an uppercase letter and should not end with a period. Prefer commit messages that begin with present-tense imperative verbs ("Add Customer models", "Update README").
 
-The last commit of a feature branch should start with the Jira key of the card the branch is for, followed by a description of the commit.
-For example, `WC-1 Add IngredientCreate Pydantic model`, or `WC-4 Add tests for update_ingredient handler`.
+Commits within a feature branch (`feature/*`) need not be atomic (that is, a snapshot is not required to be in a working state or pass all tests), though it is still highly encouraged.
+
+Commit chains made up mostly of fixups, work-in-progress snapshots, or "address feedback"/"typo" commits should be squashed into a smaller set of meaningful commits before merging into the sprint branch. Or in other words, each commit should represent a coherent, meaningful change, even if that change is nonatomic.
+
+Pull request titles must start with the Jira key of the card the branch is for, followed by the title of the Jira card (for example, "WC-1 Create Ingredient").
 
 ## Tests
 
@@ -151,3 +172,17 @@ Tests for the same handler should be ordered so that tests for successful respon
 - `409`: A `REQUEST_MODEL` with that `ATTRIBUTE` already exists.
 - `422`: The provided `REQUEST_MODEL` is malformed or invalid.
 - `422`: The provided path parameter is malformed or invalid.
+
+## Postman
+
+Endpoints should be organized into folders named after the plural form of their primary resource ("Customers", "Baked Goods"), and be arranged in the same order as the route handlers.
+The endpoints should follow the same naming convention as the handlers, except with proper spacing and capitalization ("Create Customer", "List Vendors").
+
+If an endpoint accepts a request body (e.g., `create_vendor`), a default/example request body should be provided.
+When submitted it should produce a successful response.
+
+## API Documentation
+
+API documentation in `API.md` should follow the existing formatting.
+All schemas should be ordered alphabetically.
+All rows in the Summary section should include a link to the detailed endpoint description, and all schema references should be linked to the appropriate schema description.
