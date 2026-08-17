@@ -1,10 +1,10 @@
 {
   "info": {
-    "_postman_id": "b40694d4-d7e7-42bc-bc42-34407944f8ec",
+    "_postman_id": "0fdde47e-c939-44ef-aa29-c6e761aca7b0",
     "name": "Wyrmwood Coffee",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-    "_exporter_id": "56711438",
-    "_collection_link": "https://go.postman.co/collection/56711438-b40694d4-d7e7-42bc-bc42-34407944f8ec?source=collection_link"
+    "_exporter_id": "56711512",
+    "_collection_link": "https://go.postman.co/collection/56711512-0fdde47e-c939-44ef-aa29-c6e761aca7b0?source=collection_link"
   },
   "item": [
     {
@@ -40,8 +40,26 @@
       ]
     },
     {
-      "name": "Customer",
+      "name": "Customers",
       "item": [
+        {
+          "name": "List Customers",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "localhost:8000/customers",
+              "host": [
+                "localhost"
+              ],
+              "port": "8000",
+              "path": [
+                "customers"
+              ]
+            }
+          },
+          "response": []
+        },
         {
           "name": "Create Customer",
           "event": [
@@ -96,7 +114,7 @@
       ]
     },
     {
-      "name": "Employee",
+      "name": "Employees",
       "item": [
         {
           "name": "Get Employee",
@@ -179,7 +197,7 @@
       ]
     },
     {
-      "name": "Vendor",
+      "name": "Vendors",
       "item": [
         {
           "name": "Create Vendor",
