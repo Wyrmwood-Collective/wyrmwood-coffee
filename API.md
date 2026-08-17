@@ -12,6 +12,7 @@
 | `GET` | `/employees/{id}` | No | [Get Employee](#get-employeesid) |
 | `POST` | `/employees` | No | [Create Employee](#post-employees) |
 | `POST` | `/vendors` | No | [Create Vendor](#post-vendors) |
+| `GET` | `/promotions` | No | [List Promotions](#get-promotions) |
 | `POST` | `/promotions` | No | [Create Promotion](#post-promotions) |
 
 ### `GET` /
@@ -149,6 +150,22 @@ and each vendor contact.
 
 ---
 
+### `GET` /promotions
+
+**List Promotions**
+
+Return all Promotions currently stored in the system.
+
+**Responses**
+
+| Status | Description | Body |
+| --- | --- | --- |
+| `200` | The list of Promotions | `application/json` array of [`PromotionRead`](#promotionread) |
+
+[Back to Summary](#summary)
+
+---
+
 ### `POST` /promotions
 
 **Create Promotion**
@@ -164,11 +181,11 @@ Returns the created promotion, including its generated ID.
 
 **Responses**
 
-| Status | Description                                         | Body                                                             |
-| ------ | --------------------------------------------------- | ---------------------------------------------------------------- |
-| `201`  | The newly created promotion                         | `application/json` [`PromotionRead`](#promotionread)              |
-| `409`  | A promotion with the promo code already exists     | `application/json` error detail                                   |
-| `422`  | Validation Error                                    | `application/json` [`HTTPValidationError`](#httpvalidationerror) |
+| Status | Description | Body |
+| --- | --- | --- |
+| `201` | The newly created promotion | `application/json` [`PromotionRead`](#promotionread) |
+| `409` | A Promotion with that promo code already exists. | `application/json` `{ "detail": string }` |
+| `422` | The provided PromotionCreate is malformed or invalid. | `application/json` [`HTTPValidationError`](#httpvalidationerror) |
 
 [Back to Summary](#summary)
 
