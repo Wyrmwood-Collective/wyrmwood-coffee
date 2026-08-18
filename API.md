@@ -6,7 +6,9 @@
 
 | Method | Path | Requires Auth | Description |
 | --- | --- | --- | --- |
+
 | `GET` | `/` | No | [Welcome Message](#get-) |
+| `GET`  | `/promotions` | No | [Read All Promotions](#get-promotions) |
 | `POST` | `/customers` | No | [Create Customer](#post-customers) |
 | `POST` | `/employees` | No | [Create Employee](#post-employees) |
 | `POST` | `/vendors` | No | [Create Vendor](#post-vendors) |
@@ -27,7 +29,21 @@ Returns a simple welcome message. Used as a basic liveness check for the service
 [Back to Summary](#summary)
 
 ---
+### `GET` /promotions
 
+**Read All Promotions**
+
+Return all Promotions currently stored in the system.
+
+**Responses**
+
+| Status | Description                                      | Body                                                      |
+| ------ | ------------------------------------------------ | --------------------------------------------------------- |
+| `200`  | The Promotions were retrieved successfully.      | `application/json` array of [`PromotionRead`](#promotionread) |
+
+[Back to Summary](#summary)
+
+---
 ### `POST` /customers
 
 **Create Customer**

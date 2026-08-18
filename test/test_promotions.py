@@ -17,6 +17,44 @@ def promotion_kwargs():
 
 
 @pytest.fixture
+def second_promotion_kwargs(promotion_kwargs):
+    return promotion_kwargs | {
+        "promo_code": "WINTER_SALE",
+        "discount_percentage": 25,
+        "start_date": "2026-12-01",
+        "end_date": "2026-12-31",
+    }
+
+
+def test_list_promotions_with_multiple_promotions_should_return_all_promotions(
+    db_session,
+    client,
+    promotion_kwargs,
+    second_promotion_kwargs,
+):
+    first_promotion = Promotion(**promotion_kwargs)
+    second_promotion = Promotion(**second_promotion_kwargs)
+
+    db_session.add_all(
+        [
+            first_promotion,
+            second_promotion,
+        ]
+    )
+    db_session.commit()
+
+    response = client.get("/promotions")
+
+    assert response.status_code == 200
+    assert len(response.json()) == 2
+
+    promo_codes = [promotion["promo_code"] for promotion in response.json()]
+
+    assert promotion_kwargs["promo_code"] in promo_codes
+    assert second_promotion_kwargs["promo_code"] in promo_codes
+
+
+@pytest.fixture
 def promotion_missing_promo_code_kwargs(promotion_kwargs):
     kwargs = dict(promotion_kwargs)
     del kwargs["promo_code"]

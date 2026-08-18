@@ -71,6 +71,24 @@
         }
       ]
     },
+  {
+  "name": "Read All Promotions",
+  "request": {
+    "method": "GET",
+    "header": [],
+    "url": {
+      "raw": "localhost:8000/promotions",
+      "host": [
+        "localhost"
+      ],
+      "port": "8000",
+      "path": [
+        "promotions"
+      ]
+    }
+  },
+  "response": []
+},
     {
       "name": "Vendor",
       "item": [
