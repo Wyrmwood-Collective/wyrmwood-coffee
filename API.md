@@ -7,6 +7,7 @@
 | Method | Path | Requires Auth | Description |
 | --- | --- | --- | --- |
 | `GET` | `/` | No | [Welcome Message](#get-) |
+| `POST` | `/baked-goods` | No | [Create Baked Good](#post-baked-goods) |
 | `POST` | `/customers` | No | [Create Customer](#post-customers) |
 | `POST` | `/employees` | No | [Create Employee](#post-employees) |
 | `POST` | `/vendors` | No | [Create Vendor](#post-vendors) |
@@ -23,6 +24,27 @@ Returns a simple welcome message. Used as a basic liveness check for the service
 | Status | Description | Body |
 | --- | --- | --- |
 | `200` | The welcome message | `application/json` `{ "message": string }` |
+
+[Back to Summary](#summary)
+
+---
+
+### `POST` /baked-goods
+
+**Create Baked Good**
+
+Create a new baked good.
+
+**Request body** (required)
+
+`application/json` — [`BakedGoodCreate`](#bakedgoodcreate)
+
+**Responses**
+
+| Status | Description | Body |
+| --- | --- | --- |
+| `201` | The newly created baked good | `application/json` [`BakedGoodRead`](#bakedgoodread) |
+| `422` | The provided BakedGoodCreate is malformed or invalid. | `application/json` [`HTTPValidationError`](#httpvalidationerror) |
 
 [Back to Summary](#summary)
 
@@ -126,6 +148,33 @@ Returns the created promotion, including its generated ID.
 ---
 
 ## Schemas
+
+### BakedGoodCreate
+
+Input schema for creating a new baked good. Does not include `id`, since this will be assigned on creation.
+
+| Field | Type | Required | Notes |
+| --- | --- | --- | --- |
+| `active` | bool | no | Whether or not the baked good is active; defaults to `true` |
+| `name` | string | yes | The name of the baked good, min length `1` |
+| `description` | string | yes | A description of the baked good, min length `1` |
+| `purchase_cost` | decimal | yes | The purchase cost, in dollars per baked good; must be `>= 0`, at most 10 digits and 2 decimal places |
+| `retail_price` | decimal | yes | The retail price, in dollars per baked good; must be `>= 0`, at most 10 digits and 2 decimal places |
+| `allergens` | array[string] | yes | A list of any allergens present in the baked good |
+
+### BakedGoodRead
+
+The baked good representation returned to an API client.
+
+| Field | Type | Required | Notes |
+| --- | --- | --- | --- |
+| `id` | int | yes | The unique identifier for this baked good |
+| `active` | bool | no | Whether or not the baked good is active; defaults to `true` |
+| `name` | string | yes | The name of the baked good |
+| `description` | string | yes | A description of the baked good |
+| `purchase_cost` | decimal | yes | The purchase cost, in dollars per baked good |
+| `retail_price` | decimal | yes | The retail price, in dollars per baked good |
+| `allergens` | array[string] | yes | A list of any allergens present in the baked good |
 
 ### CustomerBase
 

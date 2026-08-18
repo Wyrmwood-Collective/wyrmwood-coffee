@@ -1,12 +1,100 @@
 {
   "info": {
-    "_postman_id": "ad8f675a-2337-4389-aa93-03e2d628acc5",
+    "_postman_id": "b40694d4-d7e7-42bc-bc42-34407944f8ec",
     "name": "Wyrmwood Coffee",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-    "_exporter_id": "56711512",
-    "_collection_link": "https://go.postman.co/collection/56711512-ad8f675a-2337-4389-aa93-03e2d628acc5?source=collection_link"
+    "_exporter_id": "56711438",
+    "_collection_link": "https://go.postman.co/collection/56711438-b40694d4-d7e7-42bc-bc42-34407944f8ec?source=collection_link"
   },
   "item": [
+    {
+      "name": "Baked Goods",
+      "item": [
+        {
+          "name": "Create Baked Good",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"name\": \"Chocolate Croissant\",\r\n    \"description\": \"A flaky croissant filled with rich chocolate.\",\r\n    \"purchase_cost\": \"1.50\",\r\n    \"retail_price\": \"3.25\",\r\n    \"allergens\": [\"gluten\", \"dairy\"]\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "localhost:8000/baked-goods",
+              "host": [
+                "localhost"
+              ],
+              "port": "8000",
+              "path": [
+                "baked-goods"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Customer",
+      "item": [
+        {
+          "name": "Create Customer",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  ""
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            },
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  ""
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"first_name\": \"SpongeBob\",\r\n    \"last_name\": \"SquarePants\",\r\n    \"email\": \"ilovegary@bikinibottom.com\",\r\n    \"phone\": \"929-573-0156\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "localhost:8000/customers",
+              "host": [
+                "localhost"
+              ],
+              "port": "8000",
+              "path": [
+                "customers"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
     {
       "name": "Employee",
       "item": [
@@ -96,62 +184,6 @@
               "port": "8000",
               "path": [
                 "vendors"
-              ]
-            }
-          },
-          "response": []
-        }
-      ]
-    },
-    {
-      "name": "Customer",
-      "item": [
-        {
-          "name": "Create Customer",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  ""
-                ],
-                "type": "text/javascript",
-                "packages": {},
-                "requests": {}
-              }
-            },
-            {
-              "listen": "prerequest",
-              "script": {
-                "exec": [
-                  ""
-                ],
-                "type": "text/javascript",
-                "packages": {},
-                "requests": {}
-              }
-            }
-          ],
-          "request": {
-            "method": "POST",
-            "header": [],
-            "body": {
-              "mode": "raw",
-              "raw": "{\r\n    \"first_name\": \"SpongeBob\",\r\n    \"last_name\": \"SquarePants\",\r\n    \"email\": \"ilovegary@bikinibottom.com\",\r\n    \"phone\": \"929-573-0156\"\r\n}",
-              "options": {
-                "raw": {
-                  "language": "json"
-                }
-              }
-            },
-            "url": {
-              "raw": "localhost:8000/customers",
-              "host": [
-                "localhost"
-              ],
-              "port": "8000",
-              "path": [
-                "customers"
               ]
             }
           },
