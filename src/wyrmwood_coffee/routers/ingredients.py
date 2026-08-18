@@ -1,4 +1,5 @@
 from fastapi import APIRouter, HTTPException, status
+from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError
 
 from wyrmwood_coffee.dependencies import DbSession
@@ -10,6 +11,44 @@ from wyrmwood_coffee.models.ingredient import (
 from wyrmwood_coffee.models.vendor import Vendor
 
 router = APIRouter(prefix="/ingredients", tags=["Ingredients"])
+
+
+@router.get(
+    "",
+    status_code=status.HTTP_200_OK,
+    response_model=list[IngredientRead],
+    response_description="The list of ingredients",
+)
+def list_ingredients(session: DbSession) -> list[IngredientRead]:
+    """
+    Returns a list of all ingredient records in the system.
+    """
+    ingredients = session.scalars(select(Ingredient)).all()
+    return [IngredientRead.model_validate(ingredient) for ingredient in ingredients]
+
+
+@router.get(
+    "/{id}",
+    status_code=status.HTTP_200_OK,
+    response_model=IngredientRead,
+    response_description="The requested ingredient",
+    responses={
+        404: {"description": "The ingredient was not found."},
+        422: {"description": "The provided path parameter is malformed or invalid."},
+    },
+)
+def get_ingredient(id: int, session: DbSession) -> IngredientRead:
+    """
+    Retrieve a single ingredient by ID.
+    """
+    ingredient = session.get(Ingredient, id)
+    if not ingredient:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="The ingredient was not found.",
+        )
+
+    return IngredientRead.model_validate(ingredient)
 
 
 @router.post(

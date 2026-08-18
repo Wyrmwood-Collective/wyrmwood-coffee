@@ -6,6 +6,7 @@ from wyrmwood_coffee.dependencies import DbSession
 from wyrmwood_coffee.models.promotions import (
     Promotion,
     PromotionCreate,
+    PromotionId,
     PromotionRead,
 )
 
@@ -27,6 +28,40 @@ def list_promotions(session: DbSession) -> list[PromotionRead]:
     promotions = session.scalars(select(Promotion)).all()
 
     return [PromotionRead.model_validate(promotion) for promotion in promotions]
+
+
+@router.get(
+    "/{id}",
+    status_code=status.HTTP_200_OK,
+    response_model=PromotionRead,
+    response_description="The requested Promotion",
+    responses={
+        404: {
+            "description": "The promotion was not found.",
+        },
+        422: {
+            "description": "The provided path parameter is malformed or invalid.",
+        },
+    },
+)
+def get_promotion(
+    session: DbSession,
+    id: PromotionId,
+) -> PromotionRead:
+    """
+    Retrieve a single Promotion by ID.
+
+    Returns the requested Promotion.
+    """
+    promotion = session.get(Promotion, id)
+
+    if promotion is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="The promotion was not found.",
+        )
+
+    return PromotionRead.model_validate(promotion)
 
 
 @router.post(
