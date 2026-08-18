@@ -170,6 +170,7 @@ Tests for the same handler should be ordered so that tests for successful respon
 - `204` (deletion): The `REQUEST_MODEL` was deleted successfully.
 - `404`: The `REQUEST_MODEL` was not found.
 - `409`: A `REQUEST_MODEL` with that `ATTRIBUTE` already exists.
+- `409`: A `REQUEST_MODEL` with that `ATTRIBUTE_1` and `ATTRIBUTE_2` already exists.
 - `422`: The provided `REQUEST_MODEL` is malformed or invalid.
 - `422`: The provided path parameter is malformed or invalid.
 
