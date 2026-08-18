@@ -1,10 +1,10 @@
 {
   "info": {
-    "_postman_id": "b40694d4-d7e7-42bc-bc42-34407944f8ec",
+    "_postman_id": "b817566b-55c6-4fc9-9e7f-7fc712460d2a",
     "name": "Wyrmwood Coffee",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-    "_exporter_id": "56711438",
-    "_collection_link": "https://go.postman.co/collection/56711438-b40694d4-d7e7-42bc-bc42-34407944f8ec?source=collection_link"
+    "_exporter_id": "56711533",
+    "_collection_link": "https://go.postman.co/collection/56711533-b817566b-55c6-4fc9-9e7f-7fc712460d2a?source=collection_link"
   },
   "item": [
     {
@@ -120,6 +120,49 @@
               "port": "8000",
               "path": [
                 "employees"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Ingredients",
+      "item": [
+        {
+          "name": "Create Ingredient",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const baseUrl = pm.variables.get(\"base_url\") || \"http://localhost:8000\";\r\n\r\nconst vendorRequest = {\r\n    url: `${baseUrl}/vendors`,\r\n    method: 'POST',\r\n    header: { 'Content-Type': 'application/json' },\r\n    body: {\r\n        mode: 'raw',\r\n        raw: JSON.stringify({\r\n            name: \"Domino Sugar Co\",\r\n            contacts: [{\r\n                name: \"John Smith\",\r\n                role: \"Sales Rep\",\r\n                email: \"john@domino.com\",\r\n                phone: \"555-555-5555\"\r\n            }]\r\n        })\r\n    }\r\n};\r\n\r\npm.sendRequest(vendorRequest, function (err, res) {\r\n    if (!err && res.code === 201) {\r\n        pm.variables.set(\"dynamic_vendor_id\", res.json().id);\r\n    }\r\n});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"name\": \"Sugar\",\r\n    \"purchasing_cost\": 3.5,\r\n    \"unit_amount\": 1000,\r\n    \"unit_of_measure\": \"g\",\r\n    \"allergens\": [\"corn\"],\r\n    \"vendor_id\": {{dynamic_vendor_id}},\r\n    \"active\": true\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "localhost:8000/ingredients",
+              "host": [
+                "localhost"
+              ],
+              "port": "8000",
+              "path": [
+                "ingredients"
               ]
             }
           },

@@ -12,6 +12,7 @@
 | `POST` | `/employees` | No | [Create Employee](#post-employees) |
 | `POST` | `/vendors` | No | [Create Vendor](#post-vendors) |
 | `POST` | `/promotions` | No | [Create Promotion](#post-promotions) |
+| `POST` | `/ingredients` | No | [Create Ingredient](#post-ingredients) |
 
 ### `GET` /
 
@@ -147,6 +148,29 @@ Returns the created promotion, including its generated ID.
 
 ---
 
+### `POST` /ingredients
+
+**Create Ingredient**
+
+Creates a new ingredient and links it to an existing vendor.
+
+**Request body** (required)
+
+`application/json` — [`IngredientCreate`](#ingredientcreate)
+
+**Responses**
+
+| Status | Description | Body |
+| --- | --- | --- |
+| `201` | The newly created ingredient | `application/json` [`IngredientRead`](#ingredientread) |
+| `404` | The Vendor was not found. | `application/json` |
+| `409` | An Ingredient with that name already exists. | `application/json` `{ "detail": string }` |
+| `422` | The provided IngredientCreate is malformed or invalid. | `application/json` [`HTTPValidationError`](#httpvalidationerror) |
+
+[Back to Summary](#summary)
+
+---
+
 ## Schemas
 
 ### BakedGoodCreate
@@ -256,6 +280,71 @@ Represents an employee returned from the system. Does not include `password`.
 | --- | --- | --- | --- |
 | `detail` | array[[`ValidationError`](#validationerror)] | no |  |
 
+### IngredientCreate
+
+Input schema for creating a new ingredient. Does not include `id`, since this will be assigned on creation.
+
+| Field | Type | Required | Notes |
+| --- | --- | --- | --- |
+| `active` | bool | no | Whether or not the ingredient is active; defaults to `true` |
+| `name` | string | yes | The name of the ingredient, min length `1` |
+| `purchasing_cost` | float | yes | The cost to purchase the ingredient; must be `> 0` |
+| `unit_amount` | float | yes | The amount per unit of measure; must be `> 0` |
+| `unit_of_measure` | string | yes | The unit used to measure this ingredient. Must be one of: g, kg, oz, lb, fl oz, mL, L, gal, pumps, scoops, shots, dashes |
+| `vendor_id` | int | yes | The ID of the vendor supplying this ingredient |
+| `allergens` | array[string] | no | A list of allergens present in the ingredient |
+
+### IngredientRead
+
+The ingredient representation returned to an API client.
+
+| Field | Type | Required | Notes |
+| --- | --- | --- | --- |
+| `id` | int | yes | The unique identifier for this ingredient |
+| `active` | bool | yes | Whether or not the ingredient is active |
+| `name` | string | yes | The name of the ingredient |
+| `purchasing_cost` | float | yes | The cost to purchase the ingredient |
+| `unit_amount` | float | yes | The amount per unit of measure |
+| `unit_of_measure` | string | yes | The unit used to measure this ingredient. Must be one of: g, kg, oz, lb, fl oz, mL, L, gal, pumps, scoops, shots, dashes |
+| `vendor_id` | int | yes | The ID of the vendor supplying this ingredient |
+| `allergens` | array[string] | yes | A list of allergens present in the ingredient |
+
+### PromotionCreate
+
+Input schema for creating a new promotion. Does not include `id`, since this
+will be assigned on creation.
+
+| Field                 | Type    | Required | Notes                                                                      |
+| --------------------- | ------- | -------- | -------------------------------------------------------------------------- |
+| `active`              | bool    | yes      | Whether or not the promotion is active                                     |
+| `promo_code`          | string  | yes      | Must contain uppercase letters only; spaces and underscores are permitted  |
+| `discount_percentage` | decimal | yes      | Must be numeric and between `0` and `100`                                  |
+| `start_date`           | date    | yes      | Promotion start date; must use one of the supported date formats           |
+| `end_date`             | date    | yes      | Promotion end date; cannot occur before `start_date`                       |
+
+### PromotionRead
+
+Represents a promotion returned by the API.
+
+| Field                 | Type    | Required | Notes                                      |
+| --------------------- | ------- | -------- | ------------------------------------------ |
+| `id`                  | int     | yes      | The promotion's unique identifier          |
+| `active`              | bool    | yes      | Whether or not the promotion is active     |
+| `promo_code`          | string  | yes      | The promotion code                         |
+| `discount_percentage` | decimal | yes      | The percentage discount                    |
+| `start_date`           | date    | yes      | The promotion start date                   |
+| `end_date`             | date    | yes      | The promotion end date                     |
+
+### ValidationError
+
+| Field | Type | Required | Notes |
+| --- | --- | --- | --- |
+| `loc` | array[string \| int] | yes |  |
+| `msg` | string | yes |  |
+| `type` | string | yes |  |
+| `input` | any | no |  |
+| `ctx` | object | no |  |
+
 ### VendorContactCreateNested
 
 Input schema for a contact nested inside a [`VendorCreate`](#vendorcreate) payload. Does not include `id` or `vendor_id`, since these are assigned on creation.
@@ -300,40 +389,3 @@ Represents a vendor and its associated contacts.
 | `active` | bool | yes | Whether or not the vendor is active |
 | `name` | string | yes | The name of the vendor |
 | `contacts` | array[[`VendorContactRead`](#vendorcontactread)] | yes | The list of this vendor's contacts |
-
-### ValidationError
-
-| Field | Type | Required | Notes |
-| --- | --- | --- | --- |
-| `loc` | array[string \| int] | yes |  |
-| `msg` | string | yes |  |
-| `type` | string | yes |  |
-| `input` | any | no |  |
-| `ctx` | object | no |  |
-
-
-### PromotionCreate
-
-Input schema for creating a new promotion. Does not include `id`, since this
-will be assigned on creation.
-
-| Field                 | Type    | Required | Notes                                                                      |
-| --------------------- | ------- | -------- | -------------------------------------------------------------------------- |
-| `active`              | bool    | yes      | Whether or not the promotion is active                                     |
-| `promo_code`          | string  | yes      | Must contain uppercase letters only; spaces and underscores are permitted  |
-| `discount_percentage` | decimal | yes      | Must be numeric and between `0` and `100`                                  |
-| `start_date`           | date    | yes      | Promotion start date; must use one of the supported date formats           |
-| `end_date`             | date    | yes      | Promotion end date; cannot occur before `start_date`                       |
-
-### PromotionRead
-
-Represents a promotion returned by the API.
-
-| Field                 | Type    | Required | Notes                                      |
-| --------------------- | ------- | -------- | ------------------------------------------ |
-| `id`                  | int     | yes      | The promotion's unique identifier          |
-| `active`              | bool    | yes      | Whether or not the promotion is active     |
-| `promo_code`          | string  | yes      | The promotion code                         |
-| `discount_percentage` | decimal | yes      | The percentage discount                    |
-| `start_date`           | date    | yes      | The promotion start date                   |
-| `end_date`             | date    | yes      | The promotion end date                     |

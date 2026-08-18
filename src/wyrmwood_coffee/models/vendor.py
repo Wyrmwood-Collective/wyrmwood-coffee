@@ -89,6 +89,7 @@ class Vendor(Base):
 
     id: Mapped[int] = mapped_column(primary_key=True)
     active: Mapped[bool] = mapped_column(server_default=true())
+
     name: Mapped[str] = mapped_column(String, nullable=False)
 
     contacts: Mapped[list["VendorContact"]] = relationship(back_populates="vendor")
