@@ -1,16 +1,43 @@
 """Employee API routes."""
 
-from typing import Annotated
-
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, HTTPException, status
 from sqlalchemy.exc import IntegrityError
-from sqlalchemy.orm import Session
 
-from wyrmwood_coffee.database import get_db
-from wyrmwood_coffee.models.employee import Employee, EmployeeCreate, EmployeeRead
+from wyrmwood_coffee.dependencies import DbSession
+from wyrmwood_coffee.models.employee import (
+    Employee,
+    EmployeeCreate,
+    EmployeeId,
+    EmployeeRead,
+)
 from wyrmwood_coffee.security import hash_password
 
 router = APIRouter(tags=["employees"])
+
+
+@router.get(
+    "/employees/{id}",
+    status_code=status.HTTP_200_OK,
+    response_model=EmployeeRead,
+    response_description="The requested employee",
+    responses={
+        404: {"description": "The employee was not found."},
+        422: {"description": "The provided path parameter is malformed or invalid."},
+    },
+)
+def get_employee(session: DbSession, id: EmployeeId) -> EmployeeRead:
+    """
+    Retrieve a single employee by ID.
+
+    Returns the employee without the password field.
+    """
+    employee = session.get(Employee, id)
+    if employee is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="The employee was not found.",
+        )
+    return EmployeeRead.model_validate(employee)
 
 
 @router.post(
@@ -24,7 +51,7 @@ router = APIRouter(tags=["employees"])
     },
 )
 def create_employee(
-    session: Annotated[Session, Depends(get_db)],
+    session: DbSession,
     payload: EmployeeCreate,
 ) -> EmployeeRead:
     """
