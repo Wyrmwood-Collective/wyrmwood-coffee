@@ -179,8 +179,7 @@ Tests for the same handler should be ordered so that tests for successful respon
 Endpoints should be organized into folders named after the plural form of their primary resource ("Customers", "Baked Goods"), and be arranged in the same order as the route handlers.
 The endpoints should follow the same naming convention as the handlers, except with proper spacing and capitalization ("Create Customer", "List Vendors").
 
-If an endpoint accepts a request body (e.g., `create_vendor`), a default/example request body should be provided.
-When submitted it should produce a successful response.
+If an endpoint accepts a request body (e.g., `create_vendor`), a default/example request body should be provided. The example must be well-formed and satisfy the request schema, but it is not required to succeed against a fresh database (it may assume the existence of resources it depends on). For example, `create_ingredient`'s example body may reference a `vendor_id` that doesn't exist yet, as long as the body itself is otherwise valid.
 
 ## API Documentation
 
