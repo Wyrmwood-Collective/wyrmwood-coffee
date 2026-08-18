@@ -11,6 +11,7 @@ from wyrmwood_coffee.routers.promotions import router as promotions_router
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
+    Base.metadata.drop_all(bind=engine)
     Base.metadata.create_all(bind=engine)
     yield
 
