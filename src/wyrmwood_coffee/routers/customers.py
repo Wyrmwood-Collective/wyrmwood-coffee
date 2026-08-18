@@ -3,7 +3,12 @@ from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError
 
 from wyrmwood_coffee.dependencies import DbSession
-from wyrmwood_coffee.models.customer import Customer, CustomerCreate, CustomerRead
+from wyrmwood_coffee.models.customer import (
+    Customer,
+    CustomerCreate,
+    CustomerId,
+    CustomerRead,
+)
 
 router = APIRouter()
 
@@ -20,6 +25,29 @@ def list_customers(session: DbSession) -> list[CustomerRead]:
     """
     customers = session.scalars(select(Customer)).all()
     return [CustomerRead.model_validate(c) for c in customers]
+
+
+@router.get(
+    "/{id}",
+    status_code=status.HTTP_200_OK,
+    response_model=CustomerRead,
+    response_description="The requested customer",
+    responses={
+        404: {"description": "The customer was not found."},
+        422: {"description": "The provided path parameter is malformed or invalid."},
+    },
+)
+def get_customer(session: DbSession, id: CustomerId) -> CustomerRead:
+    """
+    Retrieve a single customer by ID.
+    """
+    customer = session.get(Customer, id)
+    if customer is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="The customer was not found.",
+        )
+    return CustomerRead.model_validate(customer)
 
 
 @router.post(

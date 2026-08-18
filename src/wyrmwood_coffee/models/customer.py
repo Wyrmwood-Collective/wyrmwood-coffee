@@ -42,6 +42,10 @@ CUSTOMER_LOYALTY_EXPIRATION_DATE_DESC = (
 CUSTOMER_ID_TITLE = "Customer ID"
 CUSTOMER_ID_DESC = "The generated ID of the customer"
 
+CUSTOMER_ID_MAX = 2_147_483_647
+
+CustomerId = Annotated[int, Field(gt=0, le=CUSTOMER_ID_MAX)]
+
 
 class Customer(Base):
     __tablename__ = "customers"
