@@ -1,10 +1,10 @@
 {
   "info": {
-    "_postman_id": "0fdde47e-c939-44ef-aa29-c6e761aca7b0",
+    "_postman_id": "b817566b-55c6-4fc9-9e7f-7fc712460d2a",
     "name": "Wyrmwood Coffee",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-    "_exporter_id": "56711512",
-    "_collection_link": "https://go.postman.co/collection/56711512-0fdde47e-c939-44ef-aa29-c6e761aca7b0?source=collection_link"
+    "_exporter_id": "56711533",
+    "_collection_link": "https://go.postman.co/collection/56711533-b817566b-55c6-4fc9-9e7f-7fc712460d2a?source=collection_link"
   },
   "item": [
     {
@@ -40,26 +40,8 @@
       ]
     },
     {
-      "name": "Customers",
+      "name": "Customer",
       "item": [
-        {
-          "name": "List Customers",
-          "request": {
-            "method": "GET",
-            "header": [],
-            "url": {
-              "raw": "localhost:8000/customers",
-              "host": [
-                "localhost"
-              ],
-              "port": "8000",
-              "path": [
-                "customers"
-              ]
-            }
-          },
-          "response": []
-        },
         {
           "name": "Create Customer",
           "event": [
@@ -114,27 +96,8 @@
       ]
     },
     {
-      "name": "Employees",
+      "name": "Employee",
       "item": [
-        {
-          "name": "Get Employee",
-          "request": {
-            "method": "GET",
-            "header": [],
-            "url": {
-              "raw": "localhost:8000/employees/1",
-              "host": [
-                "localhost"
-              ],
-              "port": "8000",
-              "path": [
-                "employees",
-                "1"
-              ]
-            }
-          },
-          "response": []
-        },
         {
           "name": "Create Employee",
           "request": {
@@ -169,23 +132,12 @@
       "item": [
         {
           "name": "Create Ingredient",
-          "event": [
-            {
-              "listen": "prerequest",
-              "script": {
-                "type": "text/javascript",
-                "exec": [
-                  ""
-                ]
-              }
-            }
-          ],
           "request": {
             "method": "POST",
             "header": [],
             "body": {
               "mode": "raw",
-              "raw": "{\r\n    \"name\": \"High frutouse corn sryup\",\r\n    \"purchasing_cost\": 3.5,\r\n    \"unit_amount\": 1000,\r\n    \"unit_of_measure\": \"g\",\r\n    \"allergens\": [\"corn\"],\r\n    \"vendor_id\": 1,\r\n    \"active\": true\r\n}",
+              "raw": "{\r\n    \"name\": \" Dragon Coffee Beans\",\r\n    \"purchasing_cost\": 3.5,\r\n    \"unit_amount\": 100.90,\r\n    \"unit_of_measure\": \"g\",\r\n    \"allergens\": [\"beans\"],\r\n    \"vendor_id\": 1,\r\n    \"active\": true\r\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -210,24 +162,6 @@
     {
       "name": "Promotions",
       "item": [
-        {
-          "name": "List Promotions",
-          "request": {
-            "method": "GET",
-            "header": [],
-            "url": {
-              "raw": "localhost:8000/promotions",
-              "host": [
-                "localhost"
-              ],
-              "port": "8000",
-              "path": [
-                "promotions"
-              ]
-            }
-          },
-          "response": []
-        },
         {
           "name": "Create Promotion",
           "request": {
@@ -258,7 +192,7 @@
       ]
     },
     {
-      "name": "Vendors",
+      "name": "Vendor",
       "item": [
         {
           "name": "Create Vendor",

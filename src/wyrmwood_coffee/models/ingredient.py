@@ -15,7 +15,6 @@ if TYPE_CHECKING:
 class Ingredient(Base):
     __tablename__ = "ingredients"
 
-    # SATISFIES AC: name combined with vendor are unique
     __table_args__ = (
         UniqueConstraint("name", "vendor_id", name="uq_ingredient_name_vendor"),
     )
@@ -23,19 +22,17 @@ class Ingredient(Base):
     id: Mapped[int] = mapped_column(primary_key=True, index=True)
     active: Mapped[bool] = mapped_column(default=True)
 
-    name: Mapped[str] = mapped_column()
-    purchasing_cost: Mapped[Decimal] = mapped_column(Numeric(10, 2))
-    unit_amount: Mapped[float] = mapped_column()
-    unit_of_measure: Mapped[str] = mapped_column()
+    name: Mapped[str] = mapped_column(nullable=False)
+    purchasing_cost: Mapped[Decimal] = mapped_column(Numeric(10, 2), nullable=False)
+    unit_amount: Mapped[Decimal] = mapped_column(Numeric(10, 2), nullable=False)
+    unit_of_measure: Mapped[str] = mapped_column(nullable=False)
     allergens: Mapped[list[str]] = mapped_column(ARRAY(String), default=list)
 
     vendor_id: Mapped[int] = mapped_column(ForeignKey("vendors.id"))
 
-    # A simple, one-way relationship that won't crash the Vendor model mapping
     vendor: Mapped["Vendor"] = relationship()
 
 
-# SATISFIES AC: Exact list of valid units of measure
 VALID_UNITS = {
     "g",
     "kg",
@@ -59,14 +56,16 @@ class IngredientBase(BaseModel):
     purchasing_cost: Annotated[Decimal, Field(gt=0)] = Field(
         title="Purchasing Cost", description="The cost to purchase the ingredient"
     )
-    unit_amount: Annotated[float, Field(gt=0)] = Field(
+    unit_amount: Annotated[Decimal, Field(gt=0)] = Field(
         title="Unit Amount", description="The amount per unit of measure"
     )
     unit_of_measure: str = Field(
         title="Unit of Measure", description="The unit used to measure this ingredient"
     )
     vendor_id: int = Field(
-        title="Vendor ID", description="The ID of the vendor supplying this ingredient"
+        gt=0,
+        title="Vendor ID",
+        description="The ID of the vendor supplying this ingredient",
     )
 
     active: bool = Field(
