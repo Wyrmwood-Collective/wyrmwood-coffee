@@ -18,20 +18,20 @@ router = APIRouter(prefix="/ingredients", tags=["Ingredients"])
     response_model=IngredientRead,
     response_description="The newly created Ingredient",
     responses={
-        404: {"description": "The Vendor was not found."},
+        404: {"description": "The vendor was not found."},
         409: {
-            "description": "An Ingredient with that name and vendor ID already exists."
+            "description": "An ingredient with that name and vendor ID already exists."
         },
         422: {"description": "The provided IngredientCreate is malformed or invalid."},
     },
 )
 def create_ingredient(session: DbSession, payload: IngredientCreate) -> IngredientRead:
-    """Creates a new ingredient and links it to an existing vendor."""
+    """Create a new ingredient and link it to an existing vendor."""
     vendor = session.get(Vendor, payload.vendor_id)
     if vendor is None:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail="The Vendor was not found.",
+            detail="The vendor was not found.",
         )
 
     ingredient = Ingredient(
@@ -52,7 +52,7 @@ def create_ingredient(session: DbSession, payload: IngredientCreate) -> Ingredie
         session.rollback()
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,
-            detail="An Ingredient with that name and vendor ID already exists.",
+            detail="An ingredient with that name and vendor ID already exists.",
         ) from err
     session.refresh(ingredient)
 

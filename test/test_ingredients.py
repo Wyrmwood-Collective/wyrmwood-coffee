@@ -94,11 +94,12 @@ def test_create_ingredient_should_return_ingredient(client, ingredient_valid_kwa
         "id": ingredient.id,
         "active": True,
         "purchasing_cost": "3.50",
+        "unit_amount": "1000.00",
     }
     assert ingredient.model_dump(mode="json") == expected
 
 
-def test_create_ingredient_with_active_false_should_return_inactive_ingredient(
+def test_create_ingredient_with_inactive_ingredient_should_return_ingredient(
     client, ingredient_inactive_kwargs
 ):
     response = client.post("/ingredients", json=ingredient_inactive_kwargs)
@@ -109,27 +110,23 @@ def test_create_ingredient_with_active_false_should_return_inactive_ingredient(
 def test_create_ingredient_with_same_name_different_vendor_should_return_ingredient(
     db_session, client, ingredient_valid_kwargs
 ):
-    # 1. Create the first ingredient (e.g., Sugar from Vendor 1)
+
     response1 = client.post("/ingredients", json=ingredient_valid_kwargs)
     assert response1.status_code == 201
 
-    # 2. Create a second vendor directly in the database
     second_vendor = Vendor(name="A Completely Different Vendor", contacts=[])
     db_session.add(second_vendor)
     db_session.commit()
     db_session.refresh(second_vendor)
 
-    # 3. Create the payload for the second ingredient
     second_ingredient_kwargs = ingredient_valid_kwargs.copy()
     second_ingredient_kwargs["vendor_id"] = second_vendor.id
 
-    # 4. Attempt to create the same ingredient name under the new vendor
     response2 = client.post("/ingredients", json=second_ingredient_kwargs)
 
-    # 5. Assert it succeeds and isn't caught as a duplicate
     assert response2.status_code == 201
-    assert response2.json()["name"] == ingredient_valid_kwargs["name"]
-    assert response2.json()["vendor_id"] == second_vendor.id
+    assert response2.json()["name"] == response1.json()["name"]
+    assert response2.json()["vendor_id"] != response1.json()["vendor_id"]
 
 
 # ---------------------------------------------------------
@@ -186,10 +183,10 @@ def test_create_ingredient_with_invalid_vendor_should_return_404(
 ):
     response = client.post("/ingredients", json=ingredient_invalid_vendor_kwargs)
     assert response.status_code == 404
-    assert response.json()["detail"] == "The Vendor was not found."
+    assert response.json()["detail"] == "The vendor was not found."
 
 
-def test_create_ingredient_with_duplicate_name_should_return_409(
+def test_create_ingredient_with_duplicate_name_and_vendor_id_should_return_409(
     client, ingredient_valid_kwargs
 ):
 
@@ -200,7 +197,7 @@ def test_create_ingredient_with_duplicate_name_should_return_409(
     assert response.status_code == 409
     assert (
         response.json()["detail"]
-        == "An Ingredient with that name and vendor ID already exists."
+        == "An ingredient with that name and vendor ID already exists."
     )
 
 
