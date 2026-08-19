@@ -8,6 +8,7 @@
 | --- | --- | --- | --- |
 | `GET` | `/` | No | [Welcome Message](#get-) |
 | `POST` | `/baked-goods` | No | [Create Baked Good](#post-baked-goods) |
+| `GET` | `/customers` | No | [List Customers](#get-customers) |
 | `POST` | `/customers` | No | [Create Customer](#post-customers) |
 | `GET` | `/employees/{id}` | No | [Get Employee](#get-employeesid) |
 | `POST` | `/employees` | No | [Create Employee](#post-employees) |
@@ -46,6 +47,22 @@ Create a new baked good.
 | --- | --- | --- |
 | `201` | The newly created baked good | `application/json` [`BakedGoodRead`](#bakedgoodread) |
 | `422` | The provided BakedGoodCreate is malformed or invalid. | `application/json` [`HTTPValidationError`](#httpvalidationerror) |
+
+[Back to Summary](#summary)
+
+---
+
+### `GET` /customers
+
+**List Customers**
+
+Returns a list of all customer records in the system.
+
+**Responses**
+
+| Status | Description | Body |
+| --- | --- | --- |
+| `200` | The list of all customers in the system, or an empty list if none exist. | `application/json` `array of` [`CustomerRead`](#customerread) |
 
 [Back to Summary](#summary)
 

@@ -1,3 +1,4 @@
+import itertools
 from datetime import datetime
 
 import pytest
@@ -14,6 +15,165 @@ def base_customer_kwargs():
         "email": "ilovegary@bikinibottom.com",
         "phone": "929-573-0156",
     }
+
+
+@pytest.fixture()
+def make_customer(db_session):
+    counter = itertools.count(1)
+
+    def _make_customer(**kwargs):
+        n = next(counter)
+        defaults = {
+            "active": True,
+            "first_name": "SpongeBob",
+            "last_name": "SquarePants",
+            "email": f"ilovegary+{n}@bikinibottom.com",
+            "phone": f"929-573-{n:04d}",
+            "loyalty_points": 0,
+            "loyalty_expires_at": datetime.now(),
+        }
+        defaults.update(kwargs)
+        customer = Customer(**defaults)
+        db_session.add(customer)
+        db_session.commit()
+        db_session.refresh(customer)
+        return customer
+
+    return _make_customer
+
+
+# ==========================================
+# READ OPERATIONS
+# ==========================================
+
+
+# --------------------
+# Successful Responses
+# --------------------
+def test_list_customers_should_return_empty_list(client):
+    response = client.get("/customers")
+    assert response.status_code == 200
+    assert response.json() == []
+
+
+def test_list_customers_should_return_list_of_single_customer(client, make_customer):
+    customer_1 = make_customer()
+    response = client.get("/customers")
+    assert response.status_code == 200
+
+    body = response.json()
+    assert len(body) == 1
+    assert body[0]["email"] == customer_1.email
+    assert body[0]["id"] == customer_1.id
+    assert body[0]["first_name"] == customer_1.first_name
+
+
+def test_list_customers_should_return_list_of_multiple_customers(client, make_customer):
+    customer_1 = make_customer()
+    customer_2 = make_customer(
+        first_name="Gary",
+        last_name="Wilson, Jr.",
+        email="meowmeow@bikinibottom.com",
+        phone="929-421-8975",
+    )
+
+    response = client.get("/customers")
+    assert response.status_code == 200
+
+    body = response.json()
+    assert len(body) == 2
+
+    emails = {c["email"] for c in body}
+    assert emails == {customer_1.email, customer_2.email}
+
+    phones = {c["phone"] for c in body}
+    assert phones == {customer_1.phone, customer_2.phone}
+
+
+def test_list_customers_with_inactive_customer_should_return_all_customers(
+    client, make_customer
+):
+    customer_1 = make_customer()
+    customer_2 = make_customer(
+        active=False,
+        first_name="Pearl",
+        last_name="Krabs",
+        email="boysdontcryfan@bikinibottom.com",
+        phone=None,
+    )
+    response = client.get("/customers")
+    assert response.status_code == 200
+
+    body = response.json()
+    assert len(body) == 2
+
+    emails = {c["email"] for c in body}
+    assert emails == {customer_1.email, customer_2.email}
+
+    phones = {c["phone"] for c in body}
+    assert phones == {customer_1.phone, customer_2.phone}
+
+
+def test_list_customers_with_unset_optional_fields_should_return_null(
+    client, make_customer
+):
+    customer_1 = make_customer(
+        first_name="Flying", last_name="Dutchman", phone="881-972-3740", email=None
+    )
+    response = client.get("/customers")
+    assert response.status_code == 200
+
+    body = response.json()
+    assert len(body) == 1
+    assert body[0]["email"] is None
+    assert body[0]["id"] == customer_1.id
+    assert body[0]["last_name"] == customer_1.last_name
+
+
+# --------------------
+# Side Effects
+# --------------------
+
+
+def test_list_customers_should_not_modify_data(db_session, client, make_customer):
+    make_customer()
+    db_session.commit()
+
+    before = db_session.query(Customer).all()
+    before_snapshot = [
+        (
+            c.id,
+            c.active,
+            c.first_name,
+            c.last_name,
+            c.email,
+            c.phone,
+            c.loyalty_points,
+            c.loyalty_expires_at,
+        )
+        for c in before
+    ]
+
+    client.get("/customers")
+    db_session.expire_all()
+
+    after = db_session.query(Customer).all()
+    after_snapshot = [
+        (
+            c.id,
+            c.active,
+            c.first_name,
+            c.last_name,
+            c.email,
+            c.phone,
+            c.loyalty_points,
+            c.loyalty_expires_at,
+        )
+        for c in after
+    ]
+
+    assert before_snapshot == after_snapshot
+    assert len(after) == 1
 
 
 # ==========================================

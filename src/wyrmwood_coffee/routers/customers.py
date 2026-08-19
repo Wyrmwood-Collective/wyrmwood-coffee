@@ -1,10 +1,25 @@
 from fastapi import APIRouter, HTTPException, status
+from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError
 
 from wyrmwood_coffee.dependencies import DbSession
 from wyrmwood_coffee.models.customer import Customer, CustomerCreate, CustomerRead
 
 router = APIRouter()
+
+
+@router.get(
+    "",
+    status_code=status.HTTP_200_OK,
+    response_model=list[CustomerRead],
+    response_description="The list of all customers",
+)
+def list_customers(session: DbSession) -> list[CustomerRead]:
+    """
+    List all customer records in the system.
+    """
+    customers = session.scalars(select(Customer)).all()
+    return [CustomerRead.model_validate(c) for c in customers]
 
 
 @router.post(
