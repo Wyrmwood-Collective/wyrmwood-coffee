@@ -1,6 +1,7 @@
 """Employee API routes."""
 
 from fastapi import APIRouter, HTTPException, status
+from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError
 
 from wyrmwood_coffee.dependencies import DbSession
@@ -13,6 +14,22 @@ from wyrmwood_coffee.models.employee import (
 from wyrmwood_coffee.security import hash_password
 
 router = APIRouter(tags=["employees"])
+
+
+@router.get(
+    "/employees",
+    status_code=status.HTTP_200_OK,
+    response_model=list[EmployeeRead],
+    response_description="The list of all employees",
+)
+def list_employees(session: DbSession) -> list[EmployeeRead]:
+    """
+    Retrieve a list of all employees.
+
+    Returns each employee without the password field.
+    """
+    employees = session.scalars(select(Employee)).all()
+    return [EmployeeRead.model_validate(employee) for employee in employees]
 
 
 @router.get(

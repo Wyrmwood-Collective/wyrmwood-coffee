@@ -112,6 +112,7 @@ def employee_missing_password_kwargs(employee_kwargs):
 
 
 def _persist_employee(db_session, kwargs):
+    term_date = kwargs.get("term_date")
     employee = Employee(
         active=kwargs["active"],
         first_name=kwargs["first_name"],
@@ -119,6 +120,7 @@ def _persist_employee(db_session, kwargs):
         role=kwargs["role"],
         hourly_rate=Decimal(str(kwargs["hourly_rate"])),
         hire_date=date.fromisoformat(kwargs["hire_date"]),
+        term_date=date.fromisoformat(term_date) if term_date else None,
         username=kwargs["username"],
         password=hash_password(kwargs["password"]),
     )
@@ -126,6 +128,15 @@ def _persist_employee(db_session, kwargs):
     db_session.commit()
     db_session.refresh(employee)
     return employee
+
+
+def _expected_employee_json(kwargs, employee_id):
+    expected = {key: value for key, value in kwargs.items() if key != "password"} | {
+        "id": employee_id,
+        "hourly_rate": f"{Decimal(str(kwargs['hourly_rate'])):.2f}",
+    }
+    expected.setdefault("term_date", None)
+    return expected
 
 
 @pytest.fixture
@@ -157,6 +168,123 @@ def unused_employee_id(db_session):
         return max_id + 1
 
     return _unused_employee_id
+
+
+def test_list_employees_with_no_employees_should_return_empty_list(client):
+    response = client.get("/employees")
+    assert response.status_code == 200
+    assert response.json() == []
+
+
+def test_list_employees_with_single_employee_should_return_employees(
+    client, persisted_employee, employee_kwargs
+):
+    response = client.get("/employees")
+    assert response.status_code == 200
+
+    body = response.json()
+    assert len(body) == 1
+    employee = EmployeeRead(**body[0])
+    assert employee.model_dump(mode="json") == _expected_employee_json(
+        employee_kwargs, persisted_employee.id
+    )
+    assert "password" not in body[0]
+    assert "password" not in EmployeeRead.model_fields
+
+
+def test_list_employees_with_multiple_employees_should_return_employees(
+    client, persisted_employees, employee_kwargs
+):
+    first, second = persisted_employees
+    second_kwargs = employee_kwargs | {
+        "first_name": "Grace",
+        "last_name": "Hopper",
+        "username": "ghopper",
+    }
+    response = client.get("/employees")
+    assert response.status_code == 200
+
+    body = response.json()
+    assert len(body) == 2
+    by_id = {item["id"]: EmployeeRead(**item).model_dump(mode="json") for item in body}
+    assert by_id[first.id] == _expected_employee_json(employee_kwargs, first.id)
+    assert by_id[second.id] == _expected_employee_json(second_kwargs, second.id)
+
+    for item in body:
+        assert "password" not in item
+    assert "password" not in EmployeeRead.model_fields
+
+
+def test_list_employees_with_inactive_employee_should_return_employees(
+    db_session, client, persisted_employee, employee_inactive_kwargs
+):
+    inactive_kwargs = employee_inactive_kwargs | {"username": "inactive_user"}
+    inactive = _persist_employee(db_session, inactive_kwargs)
+    response = client.get("/employees")
+    assert response.status_code == 200
+
+    body = response.json()
+    assert len(body) == 2
+    by_id = {item["id"]: item for item in body}
+    assert by_id[persisted_employee.id]["active"] is True
+    assert by_id[inactive.id]["active"] is False
+    assert by_id[inactive.id]["username"] == inactive.username
+
+
+def test_list_employees_with_term_date_should_return_employees(
+    db_session, client, employee_with_term_date_kwargs
+):
+    employee = _persist_employee(db_session, employee_with_term_date_kwargs)
+    response = client.get("/employees")
+    assert response.status_code == 200
+
+    body = response.json()
+    assert len(body) == 1
+    assert body[0]["term_date"] == employee_with_term_date_kwargs["term_date"]
+    assert EmployeeRead(**body[0]).model_dump(mode="json") == _expected_employee_json(
+        employee_with_term_date_kwargs, employee.id
+    )
+
+
+def test_list_employees_with_trailing_slash_should_return_employees(
+    client, persisted_employee
+):
+    response = client.get("/employees/")
+    assert response.status_code == 200
+    assert len(response.json()) == 1
+    assert response.json()[0]["id"] == persisted_employee.id
+
+
+def test_list_employees_should_not_modify_data(db_session, client, persisted_employee):
+    before = (
+        persisted_employee.id,
+        persisted_employee.active,
+        persisted_employee.first_name,
+        persisted_employee.last_name,
+        persisted_employee.username,
+        persisted_employee.hourly_rate,
+        persisted_employee.hire_date,
+        persisted_employee.term_date,
+        persisted_employee.password,
+    )
+
+    response = client.get("/employees")
+    assert response.status_code == 200
+    db_session.expire_all()
+
+    after = db_session.get(Employee, before[0])
+    assert after is not None
+    assert (
+        after.id,
+        after.active,
+        after.first_name,
+        after.last_name,
+        after.username,
+        after.hourly_rate,
+        after.hire_date,
+        after.term_date,
+        after.password,
+    ) == before
 
 
 def test_get_employee_should_return_employee(

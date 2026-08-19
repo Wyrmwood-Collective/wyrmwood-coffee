@@ -117,6 +117,24 @@
       "name": "Employees",
       "item": [
         {
+          "name": "List Employees",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "localhost:8000/employees",
+              "host": [
+                "localhost"
+              ],
+              "port": "8000",
+              "path": [
+                "employees"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
           "name": "Get Employee",
           "request": {
             "method": "GET",

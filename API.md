@@ -10,6 +10,7 @@
 | `POST` | `/baked-goods` | No | [Create Baked Good](#post-baked-goods) |
 | `GET` | `/customers` | No | [List Customers](#get-customers) |
 | `POST` | `/customers` | No | [Create Customer](#post-customers) |
+| `GET` | `/employees` | No | [List Employees](#get-employees) |
 | `GET` | `/employees/{id}` | No | [Get Employee](#get-employeesid) |
 | `POST` | `/employees` | No | [Create Employee](#post-employees) |
 | `POST` | `/vendors` | No | [Create Vendor](#post-vendors) |
@@ -88,6 +89,24 @@ Both email and phone must be unique.
 | `201` | The newly created customer. | `application/json` [`CustomerRead`](#customerread) |
 | `409` | A customer with the given email or phone already exists. | `application/json` `{ "detail": string }` |
 | `422` | Missing or invalid values. | `application/json` [`HTTPValidationError`](#httpvalidationerror) |
+
+[Back to Summary](#summary)
+
+---
+
+### `GET` /employees
+
+**List Employees**
+
+Retrieve a list of all employees.
+
+Returns each employee without the password field.
+
+**Responses**
+
+| Status | Description | Body |
+| --- | --- | --- |
+| `200` | The list of all employees, or an empty list if none exist. | `application/json` `array of` [`EmployeeRead`](#employeeread) |
 
 [Back to Summary](#summary)
 
