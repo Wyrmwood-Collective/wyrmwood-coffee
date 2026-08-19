@@ -168,6 +168,24 @@
       "name": "Promotions",
       "item": [
         {
+          "name": "List Promotions",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "localhost:8000/promotions",
+              "host": [
+                "localhost"
+              ],
+              "port": "8000",
+              "path": [
+                "promotions"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
           "name": "Create Promotion",
           "request": {
             "method": "POST",
