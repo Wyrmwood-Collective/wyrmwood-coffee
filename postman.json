@@ -187,23 +187,12 @@
       "item": [
         {
           "name": "Create Ingredient",
-          "event": [
-            {
-              "listen": "prerequest",
-              "script": {
-                "type": "text/javascript",
-                "exec": [
-                  ""
-                ]
-              }
-            }
-          ],
           "request": {
             "method": "POST",
             "header": [],
             "body": {
               "mode": "raw",
-              "raw": "{\r\n    \"name\": \"High frutouse corn sryup\",\r\n    \"purchasing_cost\": 3.5,\r\n    \"unit_amount\": 1000,\r\n    \"unit_of_measure\": \"g\",\r\n    \"allergens\": [\"corn\"],\r\n    \"vendor_id\": 1,\r\n    \"active\": true\r\n}",
+              "raw": "{\r\n    \"name\": \"Dragon Coffee Beans\",\r\n    \"purchasing_cost\": 3.5,\r\n    \"unit_amount\":3 ,\r\n    \"unit_of_measure\": \"g\",\r\n    \"allergens\": [\"beans\"],\r\n    \"vendor_id\": 1,\r\n    \"active\": true\r\n}",
               "options": {
                 "raw": {
                   "language": "json"
