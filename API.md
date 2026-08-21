@@ -14,6 +14,8 @@
 | `GET` | `/employees` | No | [List Employees](#get-employees) |
 | `GET` | `/employees/{id}` | No | [Get Employee](#get-employeesid) |
 | `POST` | `/employees` | No | [Create Employee](#post-employees) |
+| `GET` | `/ingredients` | No | [List Ingredients](#get-ingredients) |
+| `GET` | `/ingredients/{id}` | No | [Get Ingredient](#get-ingredientsid) |
 | `POST` | `/ingredients` | No | [Create Ingredient](#post-ingredients) |
 | `POST` | `/vendors` | No | [Create Vendor](#post-vendors) |
 | `GET` | `/promotions` | No | [List Promotions](#get-promotions) |
@@ -183,6 +185,46 @@ Returns the created employee without the password field.
 | `201` | The newly created employee | `application/json` [`EmployeeRead`](#employeeread) |
 | `409` | An employee with that username already exists. | `application/json` `{ "detail": string }` |
 | `422` | The provided EmployeeCreate is malformed or invalid. | `application/json` [`HTTPValidationError`](#httpvalidationerror) |
+
+[Back to Summary](#summary)
+
+---
+
+### `GET` /ingredients
+
+**List Ingredients**
+
+Returns a list of all ingredient records in the system.
+
+**Responses**
+
+| Status | Description | Body |
+| --- | --- | --- |
+| `200` | The list of all ingredients in the system, or an empty list if none exist. | `application/json` `array of` [`IngredientRead`](#ingredientread) |
+
+[Back to Summary](#summary)
+
+---
+
+### `GET` /ingredients/{id}
+
+**Get Ingredient**
+
+Retrieve a single ingredient by ID.
+
+**Path parameters**
+
+| Name | Type | Required | Notes |
+| --- | --- | --- | --- |
+| `id` | int | yes | The unique identifier of the ingredient |
+
+**Responses**
+
+| Status | Description | Body |
+| --- | --- | --- |
+| `200` | The requested ingredient | `application/json` [`IngredientRead`](#ingredientread) |
+| `404` | The ingredient was not found. | `application/json` `{ "detail": string }` |
+| `422` | The provided path parameter is malformed or invalid. | `application/json` [`HTTPValidationError`](#httpvalidationerror) |
 
 [Back to Summary](#summary)
 
