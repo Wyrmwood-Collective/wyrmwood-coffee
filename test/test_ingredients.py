@@ -38,6 +38,30 @@ def ingredient_valid_kwargs(client, vendor_kwargs):
 
 
 @pytest.fixture
+def single_ingredient(db_session):
+    # Insert a vendor first to satisfy the foreign key requirement
+    vendor = Vendor(name="Direct DB Vendor", contacts=[])
+    db_session.add(vendor)
+    db_session.commit()
+    db_session.refresh(vendor)
+
+    # Insert the ingredient directly into the database
+    ingredient = Ingredient(
+        name="Sugar",
+        purchasing_cost=3.5,
+        unit_amount=1000,
+        unit_of_measure="mL",
+        allergens=["corn"],
+        vendor_id=vendor.id,
+        active=True,
+    )
+    db_session.add(ingredient)
+    db_session.commit()
+    db_session.refresh(ingredient)
+    return ingredient
+
+
+@pytest.fixture
 def ingredient_inactive_kwargs(ingredient_valid_kwargs):
     return ingredient_valid_kwargs | {"active": False}
 
@@ -71,9 +95,7 @@ def ingredient_invalid_unit_of_measure_kwargs(ingredient_valid_kwargs):
 
 @pytest.fixture
 def ingredient_invalid_allergens_kwargs(ingredient_valid_kwargs):
-    return ingredient_valid_kwargs | {
-        "allergens": "corn"
-    }  # Intentionally invalid string instead of list
+    return ingredient_valid_kwargs | {"allergens": "corn"}
 
 
 @pytest.fixture
@@ -82,7 +104,51 @@ def ingredient_invalid_vendor_kwargs(ingredient_valid_kwargs):
 
 
 # ---------------------------------------------------------
-# Success Tests (200 / 201)
+# List Ingredients Tests
+# ---------------------------------------------------------
+
+
+def test_list_ingredients_should_return_ingredients(client, single_ingredient):
+    response = client.get("/ingredients")
+
+    assert response.status_code == 200
+    data = response.json()
+    assert isinstance(data, list)
+    assert len(data) == 1
+    assert data[0]["id"] == single_ingredient.id
+    assert data[0]["name"] == single_ingredient.name
+
+
+def test_list_ingredients_with_no_ingredients_should_return_empty_list(client):
+    response = client.get("/ingredients")
+
+    assert response.status_code == 200
+    assert response.json() == []
+
+
+# ---------------------------------------------------------
+# Get Ingredient Tests
+# ---------------------------------------------------------
+
+
+def test_get_ingredient_should_return_ingredient(client, single_ingredient):
+    get_response = client.get(f"/ingredients/{single_ingredient.id}")
+
+    assert get_response.status_code == 200
+    data = get_response.json()
+    assert data["id"] == single_ingredient.id
+    assert data["name"] == single_ingredient.name
+    assert data["unit_amount"] == "1000.00"
+
+
+def test_get_ingredient_with_invalid_id_should_return_404(client):
+    response = client.get("/ingredients/99999")
+    assert response.status_code == 404
+    assert response.json()["detail"] == "The ingredient was not found."
+
+
+# ---------------------------------------------------------
+# Create Ingredient Tests
 # ---------------------------------------------------------
 
 
@@ -110,7 +176,6 @@ def test_create_ingredient_with_inactive_ingredient_should_return_ingredient(
 def test_create_ingredient_with_same_name_different_vendor_should_return_ingredient(
     db_session, client, ingredient_valid_kwargs
 ):
-
     response1 = client.post("/ingredients", json=ingredient_valid_kwargs)
     assert response1.status_code == 201
 
@@ -127,11 +192,6 @@ def test_create_ingredient_with_same_name_different_vendor_should_return_ingredi
     assert response2.status_code == 201
     assert response2.json()["name"] == response1.json()["name"]
     assert response2.json()["vendor_id"] != response1.json()["vendor_id"]
-
-
-# ---------------------------------------------------------
-# Error Tests (4xx)
-# ---------------------------------------------------------
 
 
 def test_create_ingredient_with_missing_name_should_return_422(
@@ -189,21 +249,13 @@ def test_create_ingredient_with_invalid_vendor_should_return_404(
 def test_create_ingredient_with_duplicate_name_and_vendor_id_should_return_409(
     client, ingredient_valid_kwargs
 ):
-
     client.post("/ingredients", json=ingredient_valid_kwargs)
-
     response = client.post("/ingredients", json=ingredient_valid_kwargs)
-
     assert response.status_code == 409
     assert (
         response.json()["detail"]
         == "An ingredient with that name and vendor ID already exists."
     )
-
-
-# ---------------------------------------------------------
-# Side-Effect Tests (Database checks, must come last)
-# ---------------------------------------------------------
 
 
 def test_create_ingredient_should_persist_to_db(
