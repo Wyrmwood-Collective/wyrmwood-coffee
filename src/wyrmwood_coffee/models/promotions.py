@@ -1,11 +1,14 @@
 from datetime import date
 from decimal import Decimal
+from typing import Annotated
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 from sqlalchemy import Boolean, Date, Numeric, String
 from sqlalchemy.orm import Mapped, mapped_column
 
 from wyrmwood_coffee.database import Base
+
+PromotionId = Annotated[int, Field(gt=0)]
 
 
 class Promotion(Base):
@@ -61,6 +64,6 @@ class PromotionCreate(BaseModel):
 class PromotionRead(PromotionCreate):
     """Response model returned when viewing a promotion."""
 
-    id: int
+    id: PromotionId
 
     model_config = ConfigDict(from_attributes=True)

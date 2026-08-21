@@ -1,10 +1,9 @@
 {
   "info": {
-    "_postman_id": "8afc6461-2699-4f01-9ff2-7863d2d93d3f",
+    "_postman_id": "d1598583-aaa3-44bb-9dbe-2a1c0a5c48c7",
     "name": "Wyrmwood Coffee",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-    "_exporter_id": "56711512",
-    "_collection_link": "https://go.postman.co/collection/56711512-8afc6461-2699-4f01-9ff2-7863d2d93d3f?source=collection_link"
+    "_exporter_id": "56711533"
   },
   "item": [
     {
@@ -286,6 +285,25 @@
               "port": "8000",
               "path": [
                 "promotions"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Promotion",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "localhost:8000/promotions/1",
+              "host": [
+                "localhost"
+              ],
+              "port": "8000",
+              "path": [
+                "promotions",
+                "1"
               ]
             }
           },
