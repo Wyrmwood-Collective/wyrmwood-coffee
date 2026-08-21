@@ -1,10 +1,10 @@
 {
   "info": {
-    "_postman_id": "0fdde47e-c939-44ef-aa29-c6e761aca7b0",
+    "_postman_id": "d1598583-aaa3-44bb-9dbe-2a1c0a5c48c7",
     "name": "Wyrmwood Coffee",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-    "_exporter_id": "56711512",
-    "_collection_link": "https://go.postman.co/collection/56711512-0fdde47e-c939-44ef-aa29-c6e761aca7b0?source=collection_link"
+    "_exporter_id": "56711533",
+    "_collection_link": "https://go.postman.co/collection/56711533-d1598583-aaa3-44bb-9dbe-2a1c0a5c48c7?source=collection_link"
   },
   "item": [
     {
@@ -185,6 +185,45 @@
     {
       "name": "Ingredients",
       "item": [
+        {
+          "name": "List Ingredients",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:8000/ingredients",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8000",
+              "path": [
+                "ingredients"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Ingredient",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:8000/ingredients/1",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8000",
+              "path": [
+                "ingredients",
+                "1"
+              ]
+            }
+          },
+          "response": []
+        },
         {
           "name": "Create Ingredient",
           "request": {
