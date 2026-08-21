@@ -27,6 +27,20 @@ def second_promotion_kwargs(promotion_kwargs):
 
 
 @pytest.fixture
+def single_promotion(
+    db_session,
+    promotion_kwargs,
+):
+    promotion = Promotion(**promotion_kwargs)
+
+    db_session.add(promotion)
+    db_session.commit()
+    db_session.refresh(promotion)
+
+    return promotion
+
+
+@pytest.fixture
 def promotion_missing_promo_code_kwargs(promotion_kwargs):
     kwargs = dict(promotion_kwargs)
     del kwargs["promo_code"]
@@ -145,6 +159,51 @@ def test_list_promotions_with_no_promotions_should_return_empty_list(
 
     assert response.status_code == 200
     assert response.json() == []
+
+
+# ==========================================
+# READ SINGLE OPERATIONS
+# ==========================================
+
+# --------------------
+# Successful Responses
+# --------------------
+
+
+def test_get_promotion_should_return_promotion(
+    client,
+    single_promotion,
+    promotion_kwargs,
+):
+    response = client.get(
+        f"/promotions/{single_promotion.id}",
+    )
+
+    assert response.status_code == 200
+
+    promotion = PromotionRead(**response.json())
+
+    expected = promotion_kwargs | {
+        "id": single_promotion.id,
+        "discount_percentage": (
+            f"{Decimal(str(promotion_kwargs['discount_percentage'])):.2f}"
+        ),
+    }
+
+    assert promotion.model_dump(mode="json") == expected
+
+
+# --------------------
+# Error / Invalid Responses
+# --------------------
+
+
+def test_get_promotion_with_nonexistent_id_should_return_404(
+    client,
+):
+    response = client.get("/promotions/999999")
+
+    assert response.status_code == 404
 
 
 # ==========================================

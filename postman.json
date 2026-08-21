@@ -291,6 +291,25 @@
           "response": []
         },
         {
+          "name": "Get Promotion",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "localhost:8000/promotions/1",
+              "host": [
+                "localhost"
+              ],
+              "port": "8000",
+              "path": [
+                "promotions",
+                "1"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
           "name": "Create Promotion",
           "request": {
             "method": "POST",
