@@ -7,6 +7,45 @@
   },
   "item": [
     {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "Login",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "urlencoded",
+              "urlencoded": [
+                {
+                  "key": "username",
+                  "value": "alovelace",
+                  "type": "text"
+                },
+                {
+                  "key": "password",
+                  "value": "Password1!",
+                  "type": "text"
+                }
+              ]
+            },
+            "url": {
+              "raw": "localhost:8000/auth/login",
+              "host": [
+                "localhost"
+              ],
+              "port": "8000",
+              "path": [
+                "auth",
+                "login"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
       "name": "Baked Goods",
       "item": [
         {

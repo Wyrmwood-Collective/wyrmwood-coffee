@@ -7,6 +7,7 @@
 | Method | Path | Requires Auth | Description |
 | --- | --- | --- | --- |
 | `GET` | `/` | No | [Welcome Message](#get-) |
+| `POST` | `/auth/login` | No | [Login](#post-authlogin) |
 | `POST` | `/baked-goods` | No | [Create Baked Good](#post-baked-goods) |
 | `GET` | `/customers` | No | [List Customers](#get-customers) |
 | `GET` | `/customers/{id}` | No | [Get Customer](#get-customersid) |
@@ -34,6 +35,30 @@ Returns a simple welcome message. Used as a basic liveness check for the service
 | Status | Description | Body |
 | --- | --- | --- |
 | `200` | The welcome message | `application/json` `{ "message": string }` |
+
+[Back to Summary](#summary)
+
+---
+
+### `POST` /auth/login
+
+**Login**
+
+Authenticate an employee and return a JWT access token.
+
+Accepts standard OAuth2 form data (username, password).
+
+**Request body** (required)
+
+`application/x-www-form-urlencoded` — [`Login`](#login)
+
+**Responses**
+
+| Status | Description | Body |
+| --- | --- | --- |
+| `200` | The generated JWT access token | `application/json` [`Token`](#token) |
+| `401` | Incorrect username or password. | `application/json` `{ "detail": string }` |
+| `422` | The provided Login is malformed or invalid. | `application/json` [`HTTPValidationError`](#httpvalidationerror) |
 
 [Back to Summary](#summary)
 
@@ -498,6 +523,15 @@ The ingredient representation returned to an API client.
 | `vendor_id` | int | yes | The ID of the vendor supplying this ingredient |
 | `allergens` | array[string] | yes | A list of allergens present in the ingredient |
 
+### Login
+
+Input schema for authenticating an employee. Submitted as OAuth2 form data.
+
+| Field | Type | Required | Notes |
+| --- | --- | --- | --- |
+| `username` | string | yes | The employee's username for system access |
+| `password` | string | yes | The employee's password for system access |
+
 ### PromotionCreate
 
 Input schema for creating a new promotion. Does not include `id`, since this
@@ -523,6 +557,15 @@ Represents a promotion returned by the API.
 | `discount_percentage` | decimal | yes      | The percentage discount                    |
 | `start_date`           | date    | yes      | The promotion start date                   |
 | `end_date`             | date    | yes      | The promotion end date                     |
+
+### Token
+
+Token schema returned from the system.
+
+| Field | Type | Required | Notes |
+| --- | --- | --- | --- |
+| `access_token` | string | yes | The JWT access token for the authenticated employee |
+| `token_type` | string | yes | The type of the access token |
 
 ### ValidationError
 

@@ -1,4 +1,3 @@
-from datetime import date
 from decimal import Decimal
 
 import bcrypt
@@ -6,26 +5,6 @@ import pytest
 from sqlalchemy import func, select
 
 from wyrmwood_coffee.models.employee import EMPLOYEE_ID_MAX, Employee, EmployeeRead
-from wyrmwood_coffee.security import hash_password
-
-
-@pytest.fixture
-def employee_kwargs():
-    return {
-        "active": True,
-        "first_name": "Ada",
-        "last_name": "Lovelace",
-        "role": "employee",
-        "hourly_rate": 18.5,
-        "hire_date": "2024-01-15",
-        "username": "alovelace",
-        "password": "Password1!",
-    }
-
-
-@pytest.fixture
-def employee_inactive_kwargs(employee_kwargs):
-    return employee_kwargs | {"active": False}
 
 
 @pytest.fixture
@@ -111,25 +90,6 @@ def employee_missing_password_kwargs(employee_kwargs):
     return kwargs
 
 
-def _persist_employee(db_session, kwargs):
-    term_date = kwargs.get("term_date")
-    employee = Employee(
-        active=kwargs["active"],
-        first_name=kwargs["first_name"],
-        last_name=kwargs["last_name"],
-        role=kwargs["role"],
-        hourly_rate=Decimal(str(kwargs["hourly_rate"])),
-        hire_date=date.fromisoformat(kwargs["hire_date"]),
-        term_date=date.fromisoformat(term_date) if term_date else None,
-        username=kwargs["username"],
-        password=hash_password(kwargs["password"]),
-    )
-    db_session.add(employee)
-    db_session.commit()
-    db_session.refresh(employee)
-    return employee
-
-
 def _expected_employee_json(kwargs, employee_id):
     expected = {key: value for key, value in kwargs.items() if key != "password"} | {
         "id": employee_id,
@@ -140,24 +100,24 @@ def _expected_employee_json(kwargs, employee_id):
 
 
 @pytest.fixture
-def persisted_employee(db_session, employee_kwargs):
-    return _persist_employee(db_session, employee_kwargs)
+def persisted_employee(employee_kwargs, persist_employee):
+    return persist_employee(employee_kwargs)
 
 
 @pytest.fixture
-def persisted_inactive_employee(db_session, employee_inactive_kwargs):
-    return _persist_employee(db_session, employee_inactive_kwargs)
+def persisted_inactive_employee(employee_inactive_kwargs, persist_employee):
+    return persist_employee(employee_inactive_kwargs)
 
 
 @pytest.fixture
-def persisted_employees(db_session, employee_kwargs):
+def persisted_employees(employee_kwargs, persist_employee):
     second_kwargs = employee_kwargs | {
         "first_name": "Grace",
         "last_name": "Hopper",
         "username": "ghopper",
     }
-    first = _persist_employee(db_session, employee_kwargs)
-    second = _persist_employee(db_session, second_kwargs)
+    first = persist_employee(employee_kwargs)
+    second = persist_employee(second_kwargs)
     return first, second
 
 
@@ -216,10 +176,10 @@ def test_list_employees_with_multiple_employees_should_return_employees(
 
 
 def test_list_employees_with_inactive_employee_should_return_employees(
-    db_session, client, persisted_employee, employee_inactive_kwargs
+    db_session, client, persisted_employee, employee_inactive_kwargs, persist_employee
 ):
     inactive_kwargs = employee_inactive_kwargs | {"username": "inactive_user"}
-    inactive = _persist_employee(db_session, inactive_kwargs)
+    inactive = persist_employee(inactive_kwargs)
     response = client.get("/employees")
     assert response.status_code == 200
 
@@ -232,9 +192,9 @@ def test_list_employees_with_inactive_employee_should_return_employees(
 
 
 def test_list_employees_with_term_date_should_return_employees(
-    db_session, client, employee_with_term_date_kwargs
+    db_session, client, employee_with_term_date_kwargs, persist_employee
 ):
-    employee = _persist_employee(db_session, employee_with_term_date_kwargs)
+    employee = persist_employee(employee_with_term_date_kwargs)
     response = client.get("/employees")
     assert response.status_code == 200
 
