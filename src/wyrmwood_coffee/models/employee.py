@@ -16,6 +16,7 @@ from sqlalchemy import Boolean, Date, Identity, Integer, Numeric, String, true
 from sqlalchemy.orm import Mapped, mapped_column
 
 from wyrmwood_coffee.database import Base
+from wyrmwood_coffee.logging import Sensitive
 
 EMPLOYEE_ACTIVE_TITLE = "Active"
 EMPLOYEE_ACTIVE_DESC = "Whether the employee is currently active"
@@ -138,7 +139,7 @@ class EmployeeCreate(EmployeeBase):
         title=EMPLOYEE_ACTIVE_TITLE,
         description=EMPLOYEE_ACTIVE_DESC,
     )
-    password: str = Field(
+    password: Annotated[str, Sensitive] = Field(
         min_length=8,
         title=EMPLOYEE_PASSWORD_TITLE,
         description=EMPLOYEE_PASSWORD_DESC,

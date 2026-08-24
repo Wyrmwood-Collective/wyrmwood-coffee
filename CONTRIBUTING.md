@@ -129,6 +129,12 @@ The database session object should be called `session`.
 )
 ```
 
+## Logging
+
+If your change adds new Pydantic models, add their containing modules to the import list in `wyrmwood_coffee/models/__init__.py` (log redaction depends on it). If you forget, the test suite will fail.
+
+If a Pydantic model contains sensitive information that should not be displayed in the logs (`password`), add a `Sensitive` marker to its attribute definition (see `EmployeeCreate` for an example).
+
 ## Commits and Pull Requests
 
 All commits should begin with an uppercase letter and should not end with a period. Prefer commit messages that begin with present-tense imperative verbs ("Add Customer models", "Update README").

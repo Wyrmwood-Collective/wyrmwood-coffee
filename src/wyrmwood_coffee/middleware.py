@@ -3,7 +3,7 @@ import logging
 
 from starlette.types import ASGIApp, Receive, Scope, Send
 
-from wyrmwood_coffee.logging import request_context
+from wyrmwood_coffee.logging import redact_dict, request_context
 
 logger = logging.getLogger(__name__)
 
@@ -50,7 +50,7 @@ class RequestLoggingMiddleware:
             except ValueError:
                 parsed = None
             if isinstance(parsed, dict):
-                payload = parsed
+                payload = redact_dict(parsed)
 
         extra = {"payload": payload} if payload is not None else {}
         logger.debug("Request received", extra=extra)

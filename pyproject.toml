@@ -31,6 +31,9 @@ line-length = 88
 [tool.ruff.lint]
 select = ["E", "F", "I", "UP", "B"]
 
+[tool.ruff.lint.per-file-ignores]
+"src/wyrmwood_coffee/models/__init__.py" = ["F401"]
+
 [tool.ruff.format]
 quote-style = "double"
 indent-style = "space"
