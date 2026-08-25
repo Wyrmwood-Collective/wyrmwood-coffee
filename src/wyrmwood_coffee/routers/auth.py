@@ -1,6 +1,7 @@
 """Authentication API routes."""
 
-from typing import Annotated
+import logging
+from typing import Annotated, Any
 
 from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordRequestForm
@@ -11,6 +12,7 @@ from wyrmwood_coffee.models.employee import Employee
 from wyrmwood_coffee.models.token import Token
 from wyrmwood_coffee.security import create_access_token, verify_password
 
+logger = logging.getLogger(__name__)
 router = APIRouter(tags=["auth"])
 
 
@@ -46,6 +48,17 @@ def login(
         or not employee.active
         or not verify_password(form_data.password, employee.password)
     ):
+        extra: dict[str, Any] = {"employee_username": form_data.username}
+        if employee is None:
+            extra["login_failure_reason"] = "employee_not_found"
+        elif not employee.active:
+            extra["employee_id"] = employee.id
+            extra["login_failure_reason"] = "employee_inactive"
+        else:
+            extra["employee_id"] = employee.id
+            extra["login_failure_reason"] = "invalid_password"
+
+        logger.info("Login failure", extra=extra)
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Incorrect username or password.",
@@ -57,5 +70,10 @@ def login(
             "sub": str(employee.id),
             "role": employee.role,
         }
+    )
+
+    logger.info(
+        "Login successful",
+        extra={"employee_id": employee.id, "employee_username": employee.username},
     )
     return Token(access_token=access_token, token_type="bearer")

@@ -1,3 +1,4 @@
+import logging
 import subprocess
 from contextlib import asynccontextmanager
 from pathlib import Path
@@ -5,6 +6,7 @@ from pathlib import Path
 from fastapi import FastAPI
 
 from wyrmwood_coffee.database import Base, get_engine
+from wyrmwood_coffee.logging import setup_logging
 from wyrmwood_coffee.routers import (
     auth,
     baked_goods,
@@ -15,10 +17,15 @@ from wyrmwood_coffee.routers import (
 )
 from wyrmwood_coffee.routers.promotions import router as promotions_router
 
+setup_logging()
+logger = logging.getLogger(__name__)
+
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
+    logger.debug("Dropping all tables in database")
     Base.metadata.drop_all(bind=get_engine())
+    logger.debug("Creating database tables")
     Base.metadata.create_all(bind=get_engine())
     yield
 

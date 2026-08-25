@@ -23,18 +23,20 @@ def get_engine() -> Engine:
                     _engine = create_engine(settings.dev_database_url)
                     return _engine
                 else:
-                    sys.exit(
+                    logger.critical(
                         "DATABASE_URL is not set. Please configure it before running."
                     )
+                    sys.exit(1)
             case Environment.TEST:
                 if settings.test_database_url:
                     logger.info("Connecting to test database")
                     _engine = create_engine(settings.test_database_url)
                     return _engine
                 else:
-                    sys.exit(
+                    logger.critical(
                         "TEST_DATABASE_URL is not set. Please configure it before running."  # noqa: E501
                     )
+                    sys.exit(1)
     else:
         return _engine
 
