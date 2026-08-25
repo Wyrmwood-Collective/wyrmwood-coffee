@@ -153,7 +153,9 @@ Fixtures should be scoped as narrowly as possible. For example, if the `test_pro
 
 `db_session`, `client`, then any others
 
-### Naming Conventions
+### Naming Conventions (Routers/Handlers)
+
+**Note:** This section only applies to tests located in modules named after a resource (`test_customers.py`). No particular naming convention is required for other (non-router/handler) tests.
 
 A handler that tests a successful response should have the format `test_HANDLER_with_STATE_should_return_RESULT`, where `HANDLER` is the name of the handler, `STATE` describes the valid state (if needed), and `RESULT` is the expected response.
 For example, `test_create_product_should_return_product`, or `test_create_product_with_zero_cost_should_return_product_with_default_cost`.
@@ -164,7 +166,9 @@ For example, `test_create_product_with_missing_name_should_return_422`.
 A handler that tests a side effect (e.g. database state) should have the format `test_HANDLER_with_STATE_should_EFFECT`, where `HANDLER` is the name of the handler, `STATE` describes the state (if needed), and `EFFECT` is the side effect being verified.
 For example, `test_create_vendor_should_persist_to_db`.
 
-### Test Order
+### Test Order (Routers/Handlers)
+
+**Note:** This section only applies to tests located in modules named after a resource (`test_customers.py`). No particular ordering convention is required for other (non-router/handler) tests.
 
 Tests should be ordered by which handler they test (see FastAPI Handlers above).
 Tests for the same handler should be ordered so that tests for successful responses come first, then tests for invalid/error responses, and finally tests for side effects.

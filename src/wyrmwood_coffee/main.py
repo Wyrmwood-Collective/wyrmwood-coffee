@@ -7,6 +7,7 @@ from fastapi import FastAPI
 
 from wyrmwood_coffee.database import Base, get_engine
 from wyrmwood_coffee.logging import setup_logging
+from wyrmwood_coffee.middleware import RequestLoggingMiddleware
 from wyrmwood_coffee.routers import (
     auth,
     baked_goods,
@@ -31,6 +32,7 @@ async def lifespan(app: FastAPI):
 
 
 app = FastAPI(lifespan=lifespan)
+app.add_middleware(RequestLoggingMiddleware)
 app.include_router(auth.router)
 app.include_router(baked_goods.router, prefix="/baked-goods", tags=["Baked Goods"])
 app.include_router(customers.router, prefix="/customers", tags=["Customers"])
