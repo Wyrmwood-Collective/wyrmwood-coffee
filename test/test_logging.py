@@ -3,6 +3,9 @@ import subprocess
 import sys
 from pathlib import Path
 
+import pytest
+from fastapi.testclient import TestClient
+
 import wyrmwood_coffee.models as models_package
 from wyrmwood_coffee.logging import (
     REDACTED,
@@ -10,6 +13,7 @@ from wyrmwood_coffee.logging import (
     redact_dict,
     request_context,
 )
+from wyrmwood_coffee.main import app
 
 
 def test_request_context_filter_does_not_overwrite_existing_fields(caplog):
@@ -28,6 +32,42 @@ def test_request_context_filter_does_not_overwrite_existing_fields(caplog):
     record = caplog.records[-1]
     assert record.path == "/specific"
     assert record.method == "GET"
+
+
+@pytest.fixture
+def raising_route():
+    """Register a throwaway route that always raises."""
+
+    @app.get("/__raise")
+    def _raise():
+        raise RuntimeError("failure")
+
+    yield "/__raise"
+
+    app.router.routes = [
+        route
+        for route in app.router.routes
+        if getattr(route, "path", None) != "/__raise"
+    ]
+
+
+def test_unhandled_exception_logs_error(caplog, raising_route):
+    caplog.set_level(logging.ERROR, logger="wyrmwood_coffee.main")
+
+    client = TestClient(app, raise_server_exceptions=False)
+    response = client.get(raising_route)
+
+    assert response.status_code == 500
+    assert response.json() == {"detail": "Internal server error"}
+
+    errors = [r for r in caplog.records if r.levelno == logging.ERROR]
+    assert len(errors) == 1
+
+    error = errors[0]
+    assert error.exc_info is not None
+    assert error.exc_info[0] is RuntimeError
+    assert error.method == "GET"
+    assert error.path == raising_route
 
 
 def test_password_is_redacted_in_request_log(client, caplog):

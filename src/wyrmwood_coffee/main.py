@@ -3,7 +3,8 @@ import subprocess
 from contextlib import asynccontextmanager
 from pathlib import Path
 
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
+from fastapi.responses import JSONResponse
 
 from wyrmwood_coffee.database import Base, get_engine
 from wyrmwood_coffee.logging import setup_logging
@@ -44,6 +45,12 @@ app.include_router(vendors.router, prefix="/vendors", tags=["Vendors"])
 
 def dev():
     subprocess.run(["fastapi", "dev", str(Path(__file__))])
+
+
+@app.exception_handler(Exception)
+async def unhandled_exception_handler(request: Request, exc: Exception):
+    logger.error("Unhandled exception", exc_info=exc)
+    return JSONResponse(status_code=500, content={"detail": "Internal server error"})
 
 
 @app.get("/")
