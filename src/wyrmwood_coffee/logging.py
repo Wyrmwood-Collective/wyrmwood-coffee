@@ -1,6 +1,7 @@
 import contextvars
 import logging
 from datetime import datetime
+from functools import cache
 from typing import Any
 from zoneinfo import ZoneInfo
 
@@ -10,8 +11,6 @@ from pygments.formatters import Terminal256Formatter
 from pygments.lexers import JsonLexer
 from pythonjsonlogger.json import JsonFormatter
 from sqlalchemy.orm import InstrumentedAttribute
-
-from wyrmwood_coffee.settings import Environment, settings
 
 REDACTED = "***REDACTED***"
 
@@ -41,13 +40,14 @@ class Sensitive:
     """
 
 
+@cache
 def sensitive_field_names() -> set[str]:
     """Field names marked `Sensitive` across every known Pydantic model."""
-    import wyrmwood_coffee.models  # noqa: F401 -- force every model to register
+    from wyrmwood_coffee.settings import Settings
 
     names: set[str] = set()
     seen: set[type[BaseModel]] = set()
-    stack = list(BaseModel.__subclasses__())
+    stack = [*BaseModel.__subclasses__(), Settings]
     while stack:
         model = stack.pop()
         if model in seen:
@@ -148,6 +148,8 @@ class DevJsonFormatter(AppJsonFormatter):
 
 
 def setup_logging():
+    from wyrmwood_coffee.settings import Environment, settings
+
     fmt = "%(asctime)s %(levelname)s %(name)s %(module)s %(funcName)s %(lineno)d %(message)s"  # noqa: E501
     rename_fields = {
         "asctime": "timestamp",
