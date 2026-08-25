@@ -81,6 +81,9 @@ def create_ingredient(session: DbSession, payload: IngredientCreate) -> Ingredie
             detail="The vendor was not found.",
         )
     if not vendor.active:
+        # log-level rationale (per WC-49 requirements):
+        # warning, because this may indicate a problem with a client
+        # we have written against our API
         ingredient_logger.logger.warning(
             "Ingredient linked to inactive vendor",
             extra={"resource_type": Ingredient.__name__, "vendor_id": vendor.id},

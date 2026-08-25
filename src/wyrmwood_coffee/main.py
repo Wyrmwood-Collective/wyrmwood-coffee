@@ -49,6 +49,9 @@ def dev():
 
 @app.exception_handler(Exception)
 async def unhandled_exception_handler(request: Request, exc: Exception):
+    # log-level rationale (per WC-49 requirements):
+    # error, because an unhandled exception indicates a failure path
+    # we have not accounted for
     logger.error("Unhandled exception", exc_info=exc)
     return JSONResponse(status_code=500, content={"detail": "Internal server error"})
 

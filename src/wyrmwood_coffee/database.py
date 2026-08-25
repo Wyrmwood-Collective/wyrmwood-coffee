@@ -19,10 +19,15 @@ def get_engine() -> Engine:
         match settings.app_environment:
             case Environment.DEV:
                 if settings.dev_database_url:
+                    # log-level rationale (per WC-49 requirements):
+                    # info, because a successful connection is expected behavior
                     logger.info("Connecting to development database")
                     _engine = create_engine(settings.dev_database_url)
                     return _engine
                 else:
+                    # log-level rationale (per WC-49 requirements):
+                    # critical, because the application can't run
+                    # if the database configuration is incorrect
                     logger.critical(
                         "DATABASE_URL is not set. Please configure it before running."
                     )

@@ -53,6 +53,9 @@ class RequestLoggingMiddleware:
                 payload = redact_dict(parsed)
 
         extra = {"payload": payload} if payload is not None else {}
+        # log-level rationale (per WC-49 requirements):
+        # debug, because this statement produces large amounts of detailed information
+        # that would only be useful in a debugging context
         logger.debug("Request received", extra=extra)
 
         await self.app(scope, receive_with_replay, send)
