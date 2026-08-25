@@ -4,7 +4,7 @@ from pathlib import Path
 
 from fastapi import FastAPI
 
-from wyrmwood_coffee.database import Base, engine
+from wyrmwood_coffee.database import Base, get_engine
 from wyrmwood_coffee.routers import (
     auth,
     baked_goods,
@@ -18,8 +18,8 @@ from wyrmwood_coffee.routers.promotions import router as promotions_router
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    Base.metadata.drop_all(bind=engine)
-    Base.metadata.create_all(bind=engine)
+    Base.metadata.drop_all(bind=get_engine())
+    Base.metadata.create_all(bind=get_engine())
     yield
 
 
