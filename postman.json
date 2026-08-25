@@ -1,9 +1,10 @@
 {
   "info": {
-    "_postman_id": "d1598583-aaa3-44bb-9dbe-2a1c0a5c48c7",
+    "_postman_id": "8afc6461-2699-4f01-9ff2-7863d2d93d3f",
     "name": "Wyrmwood Coffee",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-    "_exporter_id": "56711533"
+    "_exporter_id": "56711512",
+    "_collection_link": "https://go.postman.co/collection/56711512-8afc6461-2699-4f01-9ff2-7863d2d93d3f?source=collection_link"
   },
   "item": [
     {
@@ -322,6 +323,24 @@
     {
       "name": "Vendors",
       "item": [
+        {
+          "name": "List Vendors",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "localhost:8000/vendors",
+              "host": [
+                "localhost"
+              ],
+              "port": "8000",
+              "path": [
+                "vendors"
+              ]
+            }
+          },
+          "response": []
+        },
         {
           "name": "Create Vendor",
           "request": {
