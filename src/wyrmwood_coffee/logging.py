@@ -5,10 +5,13 @@ from typing import Any
 from zoneinfo import ZoneInfo
 
 from pydantic import BaseModel
+from pygments import highlight
+from pygments.formatters import Terminal256Formatter
+from pygments.lexers import JsonLexer
 from pythonjsonlogger.json import JsonFormatter
 from sqlalchemy.orm import InstrumentedAttribute
 
-from wyrmwood_coffee.settings import settings
+from wyrmwood_coffee.settings import Environment, settings
 
 REDACTED = "***REDACTED***"
 
@@ -124,20 +127,30 @@ class AppJsonFormatter(JsonFormatter):
         ).isoformat()
 
 
+class DevJsonFormatter(AppJsonFormatter):
+    """Pretty-prints and colors log output for local development."""
+
+    def format(self, record: logging.LogRecord) -> str:
+        return highlight(super().format(record), JsonLexer(), Terminal256Formatter())
+
+
 def setup_logging():
+    fmt = "%(asctime)s %(levelname)s %(name)s %(module)s %(funcName)s %(lineno)d %(message)s"  # noqa: E501
+    rename_fields = {
+        "asctime": "timestamp",
+        "levelname": "level",
+        "name": "logger",
+        "module": "module",
+        "funcName": "function",
+        "lineno": "line",
+    }
+
     handler = logging.StreamHandler()
-    handler.setFormatter(
-        AppJsonFormatter(
-            "%(asctime)s %(levelname)s %(name)s %(module)s %(funcName)s %(lineno)d %(message)s",  # noqa: E501
-            rename_fields={
-                "asctime": "timestamp",
-                "levelname": "level",
-                "name": "logger",
-                "module": "module",
-                "funcName": "function",
-                "lineno": "line",
-            },
+    if settings.app_environment == Environment.DEV:
+        handler.setFormatter(
+            DevJsonFormatter(fmt, rename_fields=rename_fields, json_indent=2)
         )
-    )
+    else:
+        handler.setFormatter(AppJsonFormatter(fmt, rename_fields=rename_fields))
     handler.addFilter(RequestContextFilter())
     logging.basicConfig(level=settings.log_level, handlers=[handler])
