@@ -23,3 +23,22 @@ Run test suite:
 ```shell
 uv run pytest
 ```
+## Hosted PostgreSQL Database
+
+The development database is hosted on Neon PostgreSQL.
+
+- Provider: Neon
+- Project: Wyrmwood-Collective Coffee API
+- Branch: production
+- Database: wyrmwood_collective
+- Port: 5432
+- SSL: Required
+- Environment variable: DEV_DATABASE_URL
+
+Connection credentials are stored locally in the `.env` file and must not be committed to source control.
+
+Example:
+
+DEV_DATABASE_URL=postgresql+psycopg://USERNAME:PASSWORD@HOST/wyrmwood_collective?sslmode=require&channel_binding=require
+
+Team members should retrieve the current database credentials through the approved team credential-sharing method rather than placing passwords in GitHub, Jira, or documentation.
