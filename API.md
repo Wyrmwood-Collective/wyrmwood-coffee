@@ -20,6 +20,7 @@
 | `GET` | `/vendors` | No | [List Vendors](#get-vendors) |
 | `POST` | `/vendors` | No | [Create Vendor](#post-vendors) |
 | `GET` | `/promotions` | No | [List Promotions](#get-promotions) |
+| `GET` | `/promotions/{id}` | No | [Get Promotion](#get-promotionsid) |
 | `POST` | `/promotions` | No | [Create Promotion](#post-promotions) |
 
 ### `GET` /
@@ -305,6 +306,30 @@ Return all Promotions currently stored in the system.
 | Status | Description | Body |
 | --- | --- | --- |
 | `200` | The list of Promotions | `application/json` array of [`PromotionRead`](#promotionread) |
+
+[Back to Summary](#summary)
+
+---
+
+### `GET` /promotions/{id}
+
+**Get Promotion**
+
+Retrieve a single promotion by ID.
+
+**Path parameters**
+
+| Name | Type | Required | Notes |
+| --- | --- | --- | --- |
+| `id` | int | yes | The unique identifier of the promotion |
+
+**Responses**
+
+| Status | Description | Body |
+| --- | --- | --- |
+| `200` | The requested promotion | `application/json` [`PromotionRead`](#promotionread) |
+| `404` | The promotion was not found. | `application/json` `{ "detail": string }` |
+| `422` | The provided path parameter is malformed or invalid. | `application/json` [`HTTPValidationError`](#httpvalidationerror) |
 
 [Back to Summary](#summary)
 
