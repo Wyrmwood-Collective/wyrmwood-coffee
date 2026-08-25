@@ -1,8 +1,11 @@
+import logging
+
 from fastapi import APIRouter, HTTPException, status
 from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError
 
 from wyrmwood_coffee.dependencies import DbSession
+from wyrmwood_coffee.logging import ResourceLogger
 from wyrmwood_coffee.models.promotions import (
     Promotion,
     PromotionCreate,
@@ -10,6 +13,7 @@ from wyrmwood_coffee.models.promotions import (
     PromotionRead,
 )
 
+promotion_logger = ResourceLogger(logging.getLogger(__name__), Promotion)
 router = APIRouter(prefix="/promotions", tags=["promotions"])
 
 
@@ -56,6 +60,7 @@ def get_promotion(
     promotion = session.get(Promotion, id)
 
     if promotion is None:
+        promotion_logger.log_resource_not_found(id)
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="The promotion was not found.",
@@ -78,25 +83,23 @@ def get_promotion(
         },
     },
 )
-def create_promotion(
-    session: DbSession,
-    payload: PromotionCreate,
-) -> PromotionRead:
+def create_promotion(session: DbSession, payload: PromotionCreate) -> PromotionRead:
     """
     Create a new promotion.
 
     Returns the created promotion with its generated ID.
 
     """
-
     promotion = Promotion(**payload.model_dump())
 
     session.add(promotion)
 
     try:
         session.commit()
+        promotion_logger.log_resource_created(promotion.id)
     except IntegrityError:
         session.rollback()
+        promotion_logger.log_attrs_not_unique([Promotion.promo_code])
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,
             detail="A promotion with that promo code already exists.",

@@ -135,6 +135,11 @@ If your change adds new Pydantic models, add their containing modules to the imp
 
 If a Pydantic model contains sensitive information that should not be displayed in the logs (`password`), add a `Sensitive` marker to its attribute definition (see `EmployeeCreate` for an example).
 
+Use `ResourceLogger` from `wyrmwood_coffee.logging` for request/response lifecycle events (resource created, resource not found, etc.).
+For log messages that don't fit that shape (e.g. infrastructure events like "database connection successful") write a custom log call instead (you can access the underlying logger with `resource_logger.logger` or just use the module-level logger directly).
+
+If using `ResourceLogger.log_attrs_not_unique` in a situation where more than one constraint may have been violated, disambiguate by matching against the Postgres constraint name (see `create_customer` for an example).
+
 ## Commits and Pull Requests
 
 All commits should begin with an uppercase letter and should not end with a period. Prefer commit messages that begin with present-tense imperative verbs ("Add Customer models", "Update README").

@@ -10,10 +10,17 @@ import wyrmwood_coffee.models as models_package
 from wyrmwood_coffee.logging import (
     REDACTED,
     RequestContextFilter,
+    ResourceLogger,
     redact_dict,
     request_context,
 )
 from wyrmwood_coffee.main import app
+from wyrmwood_coffee.models.ingredient import Ingredient
+
+
+@pytest.fixture
+def ingredient_logger():
+    return ResourceLogger(logging.getLogger("wyrmwood_coffee.test_logger"), Ingredient)
 
 
 def test_request_context_filter_does_not_overwrite_existing_fields(caplog):
@@ -68,6 +75,87 @@ def test_unhandled_exception_logs_error(caplog, raising_route):
     assert error.exc_info[0] is RuntimeError
     assert error.method == "GET"
     assert error.path == raising_route
+
+
+def test_resource_created_log_includes_expected_fields(ingredient_logger, caplog):
+    caplog.set_level(logging.INFO, logger="wyrmwood_coffee.test_logger")
+
+    ingredient_logger.log_resource_created(resource_id=7)
+
+    records = [r for r in caplog.records if r.levelno == logging.INFO]
+    assert len(records) == 1
+
+    record = records[0]
+    assert record.resource_type == "Ingredient"
+    assert record.resource_id == 7
+
+
+def test_resource_updated_log_includes_expected_fields(ingredient_logger, caplog):
+    caplog.set_level(logging.INFO, logger="wyrmwood_coffee.test_logger")
+
+    ingredient_logger.log_resource_updated(resource_id=7)
+
+    records = [r for r in caplog.records if r.levelno == logging.INFO]
+    assert len(records) == 1
+
+    record = records[0]
+    assert record.resource_type == "Ingredient"
+    assert record.resource_id == 7
+
+
+def test_resource_patched_log_includes_expected_fields(ingredient_logger, caplog):
+    caplog.set_level(logging.INFO, logger="wyrmwood_coffee.test_logger")
+
+    ingredient_logger.log_resource_patched(
+        resource_id=7, fields_modified={"name", "active"}
+    )
+
+    records = [r for r in caplog.records if r.levelno == logging.INFO]
+    assert len(records) == 1
+
+    record = records[0]
+    assert record.resource_type == "Ingredient"
+    assert record.resource_id == 7
+    assert record.fields_modified == ["active", "name"]
+
+
+def test_resource_deleted_log_includes_expected_fields(ingredient_logger, caplog):
+    caplog.set_level(logging.INFO, logger="wyrmwood_coffee.test_logger")
+
+    ingredient_logger.log_resource_deleted(resource_id=7)
+
+    records = [r for r in caplog.records if r.levelno == logging.INFO]
+    assert len(records) == 1
+
+    record = records[0]
+    assert record.resource_type == "Ingredient"
+    assert record.resource_id == 7
+
+
+def test_resource_not_found_log_includes_expected_fields(ingredient_logger, caplog):
+    caplog.set_level(logging.INFO, logger="wyrmwood_coffee.test_logger")
+
+    ingredient_logger.log_resource_not_found(resource_id=9)
+
+    records = [r for r in caplog.records if r.levelno == logging.INFO]
+    assert len(records) == 1
+
+    record = records[0]
+    assert record.resource_type == "Ingredient"
+    assert record.resource_id == 9
+
+
+def test_attrs_not_unique_log_includes_expected_fields(ingredient_logger, caplog):
+    caplog.set_level(logging.INFO, logger="wyrmwood_coffee.test_logger")
+
+    ingredient_logger.log_attrs_not_unique([Ingredient.name, Ingredient.vendor_id])
+
+    records = [r for r in caplog.records if r.levelno == logging.INFO]
+    assert len(records) == 1
+
+    record = records[0]
+    assert record.resource_type == "Ingredient"
+    assert record.attributes == ["Ingredient.name", "Ingredient.vendor_id"]
 
 
 def test_password_is_redacted_in_request_log(client, caplog):

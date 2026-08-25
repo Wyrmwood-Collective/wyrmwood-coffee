@@ -1,7 +1,10 @@
+import logging
+
 from fastapi import APIRouter, status
 from sqlalchemy import select
 
 from wyrmwood_coffee.dependencies import DbSession
+from wyrmwood_coffee.logging import ResourceLogger
 from wyrmwood_coffee.models.vendor import (
     Vendor,
     VendorContact,
@@ -9,6 +12,7 @@ from wyrmwood_coffee.models.vendor import (
     VendorRead,
 )
 
+vendor_logger = ResourceLogger(logging.getLogger(__name__), Vendor)
 router = APIRouter()
 
 
@@ -52,4 +56,6 @@ def create_vendor(session: DbSession, payload: VendorCreate):
     )
     session.add(new_vendor)
     session.commit()
+
+    vendor_logger.log_resource_created(new_vendor.id)
     return new_vendor

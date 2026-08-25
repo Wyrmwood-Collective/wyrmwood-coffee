@@ -6,6 +6,7 @@ from zoneinfo import ZoneInfo
 
 from pydantic import BaseModel
 from pythonjsonlogger.json import JsonFormatter
+from sqlalchemy.orm import InstrumentedAttribute
 
 from wyrmwood_coffee.settings import settings
 
@@ -73,6 +74,47 @@ def redact_dict(
     """Mask any key in `data` known to be sensitive, at any nesting depth."""
     names = sensitive_field_names() if sensitive_names is None else sensitive_names
     return _redact_value(data, names)
+
+
+class ResourceLogger:
+    """
+    A wrapper for logging.Logger
+
+    Defines common logging operations related to resource lifecyle events.
+    """
+
+    def __init__(self, logger: logging.Logger, resource_class: type):
+        self.logger = logger
+        self.resource_name = resource_class.__name__
+
+    def _log_result(self, msg: str, **kwargs):
+        extra: dict = {"resource_type": self.resource_name} | kwargs
+        self.logger.info(msg, stacklevel=3, extra=extra)
+
+    def log_resource_created(self, resource_id: int):
+        self._log_result("Resource created", resource_id=resource_id)
+
+    def log_resource_updated(self, resource_id: int):
+        self._log_result("Resource updated", resource_id=resource_id)
+
+    def log_resource_patched(self, resource_id: int, fields_modified: set[str]):
+        self._log_result(
+            "Resource patched",
+            resource_id=resource_id,
+            fields_modified=sorted(fields_modified),
+        )
+
+    def log_resource_deleted(self, resource_id: int):
+        self._log_result("Resource deleted", resource_id=resource_id)
+
+    def log_resource_not_found(self, resource_id: int):
+        self._log_result("Resource not found", resource_id=resource_id)
+
+    def log_attrs_not_unique(self, attributes: list[InstrumentedAttribute]):
+        self._log_result(
+            "Attribute combination not unique",
+            attributes=[str(prop) for prop in attributes],
+        )
 
 
 class AppJsonFormatter(JsonFormatter):
