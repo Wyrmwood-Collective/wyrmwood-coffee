@@ -10,6 +10,8 @@ Use singular names for modules in `models` (`ingredient.py`).
 Use plural names for modules in `routers` (`ingredients.py`).
 Use plural names for modules in `test` (`test_ingredients.py`).
 
+Non-resource routers (cross-cutting concerns such as authentication) are an exception: use a descriptive module name instead of a pluralized resource name (`auth.py`, `test_auth.py`).
+
 ## Database
 
 **Table Naming:** Plural, snake case (`customers`, `baked_goods`)
@@ -99,12 +101,15 @@ def create_product(...) -> ProductRead:
 
 ## Endpoint Naming
 
-- Use the plural form of the resource for all endpoints.
+- Use the plural form of the resource for CRUD resource endpoints.
 - Endpoints for resources that are more than one word ("baked goods") should be located at `/baked-goods`, not `/baked_goods`.
+- Action-style or non-resource endpoints (for example authentication) may use a descriptive path instead of a pluralized resource name (`/auth/login`).
 
 ## Parameter Naming
 
 Handlers that accept a JSON request body (`create_vendor`) should accept that body as a parameter named `payload`.
+
+Handlers that accept non-JSON request bodies (for example OAuth2 form data via `OAuth2PasswordRequestForm`) should use a name that reflects the body type (`form_data`), not `payload`.
 
 The database session object should be called `session`.
 
@@ -176,8 +181,9 @@ Tests for the same handler should be ordered so that tests for successful respon
 
 ## Postman
 
-Endpoints should be organized into folders named after the plural form of their primary resource ("Customers", "Baked Goods"), and be arranged in the same order as the route handlers.
-The endpoints should follow the same naming convention as the handlers, except with proper spacing and capitalization ("Create Customer", "List Vendors").
+CRUD resource endpoints should be organized into folders named after the plural form of their primary resource ("Customers", "Baked Goods"), and be arranged in the same order as the route handlers.
+Non-resource endpoint groups (for example authentication) may use a descriptive folder name instead ("Auth").
+The endpoints should follow the same naming convention as the handlers, except with proper spacing and capitalization ("Create Customer", "List Vendors", "Login").
 
 If an endpoint accepts a request body (e.g., `create_vendor`), a default/example request body should be provided. The example must be well-formed and satisfy the request schema, but it is not required to succeed against a fresh database (it may assume the existence of resources it depends on). For example, `create_ingredient`'s example body may reference a `vendor_id` that doesn't exist yet, as long as the body itself is otherwise valid.
 
