@@ -1,4 +1,4 @@
-from typing import Annotated
+from typing import TYPE_CHECKING, Annotated
 
 from pydantic import BaseModel, Field, StringConstraints
 from sqlalchemy import CheckConstraint, ForeignKey, String, true
@@ -9,6 +9,9 @@ from sqlalchemy.orm import (
 )
 
 from wyrmwood_coffee.database import Base
+
+if TYPE_CHECKING:
+    from wyrmwood_coffee.models.ingredient import Ingredient
 
 
 class VendorContact(Base):
@@ -92,6 +95,7 @@ class Vendor(Base):
     name: Mapped[str] = mapped_column(String, nullable=False)
 
     contacts: Mapped[list["VendorContact"]] = relationship(back_populates="vendor")
+    ingredients: Mapped[list["Ingredient"]] = relationship(back_populates="vendor")
 
 
 class VendorCreate(BaseModel):
