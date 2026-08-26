@@ -1,7 +1,7 @@
 from typing import TYPE_CHECKING, Annotated
 
 from pydantic import BaseModel, Field, StringConstraints
-from sqlalchemy import CheckConstraint, ForeignKey, String, true
+from sqlalchemy import Boolean, CheckConstraint, ForeignKey, String, false, true
 from sqlalchemy.orm import (
     Mapped,
     mapped_column,
@@ -30,6 +30,7 @@ class VendorContact(Base):
     phone: Mapped[str] = mapped_column(
         String, CheckConstraint("phone ~ '\\d{3}-\\d{3}-\\d{4}'"), nullable=False
     )
+    is_deleted: Mapped[bool] = mapped_column(Boolean, nullable=False, default=false())
 
     vendor_id: Mapped[int] = mapped_column(ForeignKey("vendors.id"))
     vendor: Mapped["Vendor"] = relationship(back_populates="contacts")
@@ -93,6 +94,7 @@ class Vendor(Base):
     id: Mapped[int] = mapped_column(primary_key=True)
     active: Mapped[bool] = mapped_column(server_default=true())
     name: Mapped[str] = mapped_column(String, nullable=False)
+    is_deleted: Mapped[bool] = mapped_column(Boolean, nullable=False, default=false())
 
     contacts: Mapped[list["VendorContact"]] = relationship(back_populates="vendor")
     ingredients: Mapped[list["Ingredient"]] = relationship(back_populates="vendor")

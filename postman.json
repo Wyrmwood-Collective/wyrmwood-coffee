@@ -509,6 +509,25 @@
             }
           },
           "response": []
+        },
+        {
+          "name": "Delete Vendor",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "localhost:8000/vendors/1",
+              "host": [
+                "localhost"
+              ],
+              "port": "8000",
+              "path": [
+                "vendors",
+                "1"
+              ]
+            }
+          },
+          "response": []
         }
       ]
     }
