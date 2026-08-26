@@ -264,3 +264,102 @@ def test_create_ingredient_should_persist_to_db(
     response = client.post("/ingredients", json=ingredient_valid_kwargs)
     ingredient = db_session.get(Ingredient, response.json()["id"])
     assert ingredient is not None
+
+
+# ==========================================
+# UPDATE OPERATIONS
+# ==========================================
+
+# --------------------
+# Successful Responses
+# --------------------
+
+
+def test_update_ingredient_should_return_ingredient(client, single_ingredient):
+    # Full payload for a PUT replacement
+    update_payload = {
+        "name": "Updated Espresso Beans",
+        "purchasing_cost": "4.50",
+        "unit_amount": "1000.00",
+        "unit_of_measure": "mL",
+        "vendor_id": single_ingredient.vendor_id,
+        "allergens": [],
+        "active": False,
+    }
+
+    response = client.put(f"/ingredients/{single_ingredient.id}", json=update_payload)
+
+    assert response.status_code == 200
+    data = response.json()
+    assert data["name"] == "Updated Espresso Beans"
+    assert data["purchasing_cost"] == "4.50"
+    assert data["active"] is False
+
+
+# --------------------
+# Error Responses
+# --------------------
+
+
+def test_update_ingredient_with_invalid_id_should_return_404(client, single_ingredient):
+    update_payload = {
+        "name": "Ghost Beans",
+        "purchasing_cost": "3.00",
+        "unit_amount": "500.00",
+        "unit_of_measure": "g",
+        "vendor_id": single_ingredient.vendor_id,
+        "allergens": [],
+        "active": True,
+    }
+    response = client.put("/ingredients/99999", json=update_payload)
+
+    assert response.status_code == 404
+
+
+def test_update_ingredient_with_invalid_payload_should_return_422(
+    client, single_ingredient
+):
+    # This should fail because it is missing the rest of the required fields
+    update_payload = {"purchasing_cost": "not-a-number"}
+    response = client.put(f"/ingredients/{single_ingredient.id}", json=update_payload)
+
+    assert response.status_code == 422
+
+
+def test_update_ingredient_with_invalid_vendor_should_return_404(
+    client, single_ingredient
+):
+    update_payload = {
+        "name": "Updated Espresso Beans",
+        "purchasing_cost": "4.50",
+        "unit_amount": "1000.00",
+        "unit_of_measure": "mL",
+        "vendor_id": 99999,
+        "allergens": [],
+        "active": True,
+    }
+    response = client.put(f"/ingredients/{single_ingredient.id}", json=update_payload)
+
+    assert response.status_code == 404
+    assert response.json()["detail"] == "The vendor was not found."
+
+
+# --------------------
+# Side-Effect Tests
+# --------------------
+
+
+def test_update_ingredient_should_persist_to_db(db_session, client, single_ingredient):
+    update_payload = {
+        "name": "Persisted Update Beans",
+        "purchasing_cost": "4.50",
+        "unit_amount": "1000.00",
+        "unit_of_measure": "mL",
+        "vendor_id": single_ingredient.vendor_id,
+        "allergens": [],
+        "active": True,
+    }
+    client.put(f"/ingredients/{single_ingredient.id}", json=update_payload)
+
+    db_session.refresh(single_ingredient)
+    assert single_ingredient.name == "Persisted Update Beans"

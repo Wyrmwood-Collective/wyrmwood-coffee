@@ -305,6 +305,39 @@
             }
           },
           "response": []
+        },
+        {
+          "name": "Update Ingredient",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"name\": \"Updated Espresso Beans\",\n    \"purchasing_cost\": 4.50,\n    \"unit_amount\": 1000.00,\n    \"unit_of_measure\": \"mL\",\n    \"vendor_id\": 1,\n    \"allergens\": [],\n    \"active\": false\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "localhost:8000/ingredients/1",
+              "host": [
+                "localhost"
+              ],
+              "port": "8000",
+              "path": [
+                "ingredients",
+                "1"
+              ]
+            }
+          },
+          "response": []
         }
       ]
     },

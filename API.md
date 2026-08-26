@@ -18,6 +18,7 @@
 | `GET` | `/ingredients` | No | [List Ingredients](#get-ingredients) |
 | `GET` | `/ingredients/{id}` | No | [Get Ingredient](#get-ingredientsid) |
 | `POST` | `/ingredients` | No | [Create Ingredient](#post-ingredients) |
+| `PUT` | `/ingredients/{id}` | No | [Update Ingredient](#put-ingredientsid) |
 | `GET` | `/vendors` | No | [List Vendors](#get-vendors) |
 | `POST` | `/vendors` | No | [Create Vendor](#post-vendors) |
 | `GET` | `/promotions` | No | [List Promotions](#get-promotions) |
@@ -280,6 +281,37 @@ Creates a new ingredient and links it to an existing vendor.
 
 ---
 
+### `PUT` /ingredients/{id}
+
+**Update Ingredient**
+
+Update an existing ingredient.
+
+**Path parameters**
+
+| Name | Type | Required | Notes |
+| --- | --- | --- | --- |
+| `id` | int | yes | The ID of the ingredient to update |
+
+**Request body** (required)
+
+`application/json` — [`IngredientUpdate`](#ingredientupdate)
+
+**Responses**
+
+| Status | Description | Body |
+| --- | --- | --- |
+| `200` | The updated ingredient | `application/json` [`IngredientRead`](#ingredientread) |
+| `404` | The ingredient was not found. | `application/json` `{ "detail": string }` |
+| `404` | The vendor was not found. | `application/json` `{ "detail": string }` |
+| `409` | An ingredient with that name and vendor ID already exists. | `application/json` `{ "detail": string }` |
+| `422` | The provided path parameter is malformed or invalid. | `application/json` [`HTTPValidationError`](#httpvalidationerror) |
+| `422` | The provided IngredientUpdate is malformed or invalid. | `application/json` [`HTTPValidationError`](#httpvalidationerror) |
+
+[Back to Summary](#summary)
+
+---
+
 ### `GET` /vendors
 
 **List Vendors**
@@ -522,6 +554,20 @@ The ingredient representation returned to an API client.
 | `unit_of_measure` | string | yes | The unit used to measure this ingredient. Must be one of: g, kg, oz, lb, fl oz, mL, L, gal, pumps, scoops, shots, dashes |
 | `vendor_id` | int | yes | The ID of the vendor supplying this ingredient |
 | `allergens` | array[string] | yes | A list of allergens present in the ingredient |
+
+### IngredientUpdate
+
+Input schema for updating an existing ingredient.
+
+| Field | Type | Required | Notes |
+| --- | --- | --- | --- |
+| `active` | bool | no | Whether or not the ingredient is active |
+| `name` | string | yes | The name of the ingredient, min length `1` |
+| `purchasing_cost` | decimal | yes | The cost to purchase this ingredient |
+| `unit_amount` | decimal | yes | The amount per unit of measure; must be `> 0` |
+| `unit_of_measure` | string | yes | The unit used to measure this ingredient. Must be one of: g, kg, oz, lb, fl oz, mL, L, gal, pumps, scoops, shots, dashes |
+| `vendor_id` | int | yes | The ID of the vendor supplying this ingredient |
+| `allergens` | array[string] | no | A list of allergens present in the ingredient |
 
 ### Login
 

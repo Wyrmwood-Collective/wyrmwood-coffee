@@ -101,3 +101,9 @@ class IngredientRead(IngredientBase):
         title="Ingredient ID", description="The unique identifier for this ingredient"
     )
     model_config = ConfigDict(from_attributes=True)
+
+
+class IngredientUpdate(IngredientBase):
+    """Input schema for updating an existing ingredient."""
+
+    pass
