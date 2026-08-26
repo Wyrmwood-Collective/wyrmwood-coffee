@@ -8,7 +8,10 @@ Use absolute imports (`from wyrmwood_coffee.models.customer import Customer`, no
 
 Use singular names for modules in `models` (`ingredient.py`).
 Use plural names for modules in `routers` (`ingredients.py`).
+Use plural names for modules in `services` (`drinks.py`).
 Use plural names for modules in `test` (`test_ingredients.py`).
+
+When a resource has a service layer, split its tests by layer instead of using a single `test_{resource}.py`: `test_{resource}_router.py` for router/HTTP tests and `test_{resource}_services.py` for service-layer tests (`test_drinks_router.py`, `test_drinks_services.py`). Resources without a service layer keep a single `test_{resource}.py`. Shared fixtures for split test modules belong in `conftest.py`.
 
 Non-resource routers (cross-cutting concerns such as authentication) are an exception: use a descriptive module name instead of a pluralized resource name (`auth.py`, `test_auth.py`).
 
