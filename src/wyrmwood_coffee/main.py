@@ -6,6 +6,7 @@ from fastapi import FastAPI
 
 from wyrmwood_coffee.database import Base, engine
 from wyrmwood_coffee.routers import (
+    auth,
     baked_goods,
     customers,
     employees,
@@ -23,6 +24,7 @@ async def lifespan(app: FastAPI):
 
 
 app = FastAPI(lifespan=lifespan)
+app.include_router(auth.router)
 app.include_router(baked_goods.router, prefix="/baked-goods", tags=["Baked Goods"])
 app.include_router(customers.router, prefix="/customers", tags=["Customers"])
 app.include_router(employees.router)

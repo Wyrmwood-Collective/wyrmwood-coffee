@@ -1,5 +1,6 @@
 from enum import StrEnum
 
+from pydantic import Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -12,6 +13,9 @@ class Settings(BaseSettings):
     app_environment: Environment = Environment.DEV
     dev_database_url: str | None = None
     test_database_url: str | None = None
+    jwt_secret_key: str = Field(min_length=32)
+    jwt_algorithm: str = "HS256"
+    jwt_expiration_minutes: int = 30
 
     model_config = SettingsConfigDict(
         env_file=".env",
