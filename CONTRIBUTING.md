@@ -172,7 +172,7 @@ For example, `test_create_vendor_should_persist_to_db`.
 Tests should be ordered by which handler they test (see FastAPI Handlers above).
 Tests for the same handler should be ordered so that tests for successful responses come first, then tests for invalid/error responses, and finally tests for side effects.
 
-## Standard Response Messages
+## Standard Response Descriptions
 
 - `201`: The `REQUEST_MODEL` was created successfully.
 - `204` (deletion): The `REQUEST_MODEL` was deleted successfully.
@@ -181,6 +181,10 @@ Tests for the same handler should be ordered so that tests for successful respon
 - `409`: A `REQUEST_MODEL` with that `ATTRIBUTE_1` and `ATTRIBUTE_2` already exists.
 - `422`: The provided `REQUEST_MODEL` is malformed or invalid.
 - `422`: The provided path parameter is malformed or invalid.
+
+If a response code can be returned for multiple reasons, the response description may include multiple descriptions ("The provided IngredientRead is malformed or invalid, or the provided path parameter is malformed or invalid.").
+
+**Note**: This section only applies to the `description` field of entries in the `responses` parameter of FastAPI's route decorator. It does not apply to the `detail` argument passed to `HTTPException`.
 
 ## Postman
 
