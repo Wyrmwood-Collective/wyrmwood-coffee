@@ -1,10 +1,14 @@
+import logging
+
 from fastapi import APIRouter, HTTPException, status
 from sqlalchemy.exc import IntegrityError
 
 from wyrmwood_coffee.dependencies import DbSession
-from wyrmwood_coffee.models.drink import DrinkCreate, DrinkRead
+from wyrmwood_coffee.logging import ResourceLogger
+from wyrmwood_coffee.models.drink import Drink, DrinkCreate, DrinkRead
 from wyrmwood_coffee.services import drinks as drink_service
 
+drink_logger = ResourceLogger(logging.getLogger(__name__), Drink)
 router = APIRouter()
 
 
@@ -29,9 +33,11 @@ def create_drink(session: DbSession, payload: DrinkCreate) -> DrinkRead:
     """Create a new drink recipe."""
     try:
         drink = drink_service.create_drink(session, payload)
+        drink_logger.log_resource_created(drink.id)
         return DrinkRead.model_validate(drink)
     except IntegrityError:
         session.rollback()
+        drink_logger.log_attrs_not_unique([Drink.name])
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,
             detail="A Drink with that name already exists.",
