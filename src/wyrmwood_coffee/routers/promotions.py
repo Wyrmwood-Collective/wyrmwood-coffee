@@ -1,6 +1,6 @@
 import logging
 
-from fastapi import APIRouter, HTTPException, status
+from fastapi import APIRouter, HTTPException, Response, status
 from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError
 
@@ -25,11 +25,14 @@ router = APIRouter(prefix="/promotions", tags=["promotions"])
 )
 def list_promotions(session: DbSession) -> list[PromotionRead]:
     """
-    Return all Promotions.
+    Return all non-deleted Promotions.
 
-    Returns all Promotions currently stored in the system.
+    Returns all Promotions currently stored in the system
+    that have not been soft deleted.
     """
-    promotions = session.scalars(select(Promotion)).all()
+    promotions = session.scalars(
+        select(Promotion).where(Promotion.deleted.is_(False))
+    ).all()
 
     return [PromotionRead.model_validate(promotion) for promotion in promotions]
 
@@ -59,7 +62,7 @@ def get_promotion(
     """
     promotion = session.get(Promotion, id)
 
-    if promotion is None:
+    if promotion is None or promotion.deleted:
         promotion_logger.log_resource_not_found(id)
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
@@ -108,3 +111,45 @@ def create_promotion(session: DbSession, payload: PromotionCreate) -> PromotionR
     session.refresh(promotion)
 
     return PromotionRead.model_validate(promotion)
+
+
+@router.delete(
+    "/{id}",
+    status_code=status.HTTP_204_NO_CONTENT,
+    response_description="The Promotion was deleted successfully",
+    responses={
+        404: {
+            "description": "The promotion was not found.",
+        },
+        422: {
+            "description": "The provided path parameter is malformed or invalid.",
+        },
+    },
+)
+def delete_promotion(
+    session: DbSession,
+    id: PromotionId,
+) -> Response:
+    """
+    Soft delete a Promotion.
+
+    The Promotion remains in the database for historical records
+    but is no longer visible or available for use.
+    """
+    promotion = session.get(Promotion, id)
+
+    if promotion is None or promotion.deleted:
+        promotion_logger.log_resource_not_found(id)
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="The promotion was not found.",
+        )
+
+    promotion.active = False
+    promotion.deleted = True
+    promotion.promo_code = f"{promotion.promo_code}deleted{promotion.id}"
+    session.commit()
+
+    promotion_logger.log_resource_deleted(id)
+
+    return Response(status_code=status.HTTP_204_NO_CONTENT)

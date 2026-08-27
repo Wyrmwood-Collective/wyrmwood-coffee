@@ -406,7 +406,26 @@
               ]
             }
           },
-          "response": []
+          "response":  []
+        },
+        {
+          "name": "Delete Promotion",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "localhost:8000/promotions/1",
+              "host": [
+                "localhost"
+              ],
+              "port": "8000",
+              "path": [
+                "promotions",
+                "1"
+              ]
+            }
+          },
+          "response":[]
         }
       ]
     },
