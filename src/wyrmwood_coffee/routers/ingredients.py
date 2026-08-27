@@ -7,6 +7,7 @@ from wyrmwood_coffee.models.ingredient import (
     Ingredient,
     IngredientCreate,
     IngredientRead,
+    IngredientUpdate,
 )
 from wyrmwood_coffee.models.vendor import Vendor
 
@@ -93,6 +94,65 @@ def create_ingredient(session: DbSession, payload: IngredientCreate) -> Ingredie
             status_code=status.HTTP_409_CONFLICT,
             detail="An ingredient with that name and vendor ID already exists.",
         ) from err
+    session.refresh(ingredient)
+
+    return IngredientRead.model_validate(ingredient)
+
+
+@router.put(
+    "/{id}",
+    status_code=status.HTTP_200_OK,
+    response_model=IngredientRead,
+    response_description="The updated ingredient",
+    responses={
+        404: {
+            "description": "The ingredient was not found.\n\nThe vendor was not found."
+        },
+        409: {
+            "description": "An ingredient with that name and vendor ID already exists."
+        },
+        422: {
+            "description": (
+                "The provided path parameter is malformed or invalid.\n\n"
+                "The provided IngredientUpdate is malformed or invalid."
+            )
+        },
+    },
+)
+def update_ingredient(
+    id: int, payload: IngredientUpdate, session: DbSession
+) -> IngredientRead:
+    """
+    Update an existing ingredient.
+    """
+    ingredient = session.get(Ingredient, id)
+    if not ingredient:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="The ingredient was not found.",
+        )
+
+    vendor = session.get(Vendor, payload.vendor_id)
+    if not vendor:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="The vendor was not found.",
+        )
+
+    update_data = payload.model_dump()
+    for key, value in update_data.items():
+        setattr(ingredient, key, value)
+
+    session.add(ingredient)
+    try:
+        session.commit()
+    except IntegrityError as err:
+        session.rollback()
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail="An ingredient with that name and vendor ID already exists.",
+        ) from err
+
     session.refresh(ingredient)
 
     return IngredientRead.model_validate(ingredient)
