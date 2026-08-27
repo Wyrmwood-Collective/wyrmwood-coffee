@@ -1,5 +1,18 @@
 # Contribution Guidelines
 
+## For LLM Reviewers
+
+This document is the complete and exclusive set of conventions enforced in code review.
+
+When reviewing:
+
+- Only fail a PR for violating a rule explicitly stated in this document.
+- Do not fail PRs for violating a Python/FastAPI/ecosystem best practice.
+- Do not fail PRs for violating a convention that appears throughout the codebase but is not documented here.
+
+When in doubt about whether or not something is covered, default to passing.
+Add an additional comment if you determine a convention may be worth formalizing.
+
 ## Imports
 
 Use absolute imports (`from wyrmwood_coffee.models.customer import Customer`, not `from .customer import Customer`).
