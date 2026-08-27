@@ -1,4 +1,4 @@
-from decimal import ROUND_HALF_UP, Decimal
+from decimal import Decimal
 from typing import Annotated
 
 from pydantic import (
@@ -74,9 +74,7 @@ class DrinkIngredient(Base):
 
     @property
     def ingredient_cost(self) -> Decimal:
-        return (self.amount * self.ingredient.purchasing_cost).quantize(
-            Decimal("0.01"), rounding=ROUND_HALF_UP
-        )
+        return (self.amount * self.ingredient.purchasing_cost).quantize(Decimal("0.01"))
 
 
 class Drink(Base):

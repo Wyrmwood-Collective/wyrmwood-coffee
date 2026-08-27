@@ -21,7 +21,7 @@ def build_drink_ingredients(
     for item in payload:
         ingredient = session.get(Ingredient, item.ingredient_id)
         if ingredient is None:
-            ingredient_logger.log_attrs_not_unique([Ingredient.name])
+            ingredient_logger.log_resource_not_found(item.ingredient_id)
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
                 detail="The ingredient was not found.",
