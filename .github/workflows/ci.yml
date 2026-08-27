@@ -11,6 +11,8 @@ jobs:
     runs-on: ubuntu-latest
 
     env:
+
+      STAGING_DATABASE_URL: postgresql://<user>:<password>@ep-divine-rain-axt5p0um-pooler.c-4.us-east-2.aws.neon.tech/wyrmwood_collective?sslmode=require&channel_binding=require
       DATABASE_URL: postgresql+psycopg://root:root@localhost:5432/wyrmwood_coffee_test
       APP_ENVIRONMENT: test
       TEST_DATABASE_URL: postgresql+psycopg://root:root@localhost:5432/wyrmwood_coffee_test
