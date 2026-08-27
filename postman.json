@@ -1,9 +1,10 @@
 {
   "info": {
-    "_postman_id": "d1598583-aaa3-44bb-9dbe-2a1c0a5c48c7",
+    "_postman_id": "27d0dc95-dc7e-4a2d-82ac-1622fe777b03",
     "name": "Wyrmwood Coffee",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-    "_exporter_id": "56711533"
+    "_exporter_id": "56711512",
+    "_collection_link": "https://go.postman.co/collection/56711512-27d0dc95-dc7e-4a2d-82ac-1622fe777b03?source=collection_link"
   },
   "item": [
     {
@@ -163,6 +164,38 @@
               "port": "8000",
               "path": [
                 "customers"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Drinks",
+      "item": [
+        {
+          "name": "Create Drink",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"name\": \"Green Tea\",\r\n    \"description\": \"Yummy\",\r\n    \"ingredients\": [\r\n        {\r\n            \"ingredient_id\": 1,\r\n            \"amount\": 2,\r\n            \"unit\": \"g\"\r\n        },\r\n        {\r\n            \"ingredient_id\": 2,\r\n            \"amount\": 4,\r\n            \"unit\": \"oz\"\r\n        }\r\n    ],\r\n    \"type\": \"tea\",\r\n    \"markup_percentage\": 1.5\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "localhost:8000/drinks",
+              "host": [
+                "localhost"
+              ],
+              "port": "8000",
+              "path": [
+                "drinks"
               ]
             }
           },

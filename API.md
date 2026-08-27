@@ -12,6 +12,7 @@
 | `GET` | `/customers` | No | [List Customers](#get-customers) |
 | `GET` | `/customers/{id}` | No | [Get Customer](#get-customersid) |
 | `POST` | `/customers` | No | [Create Customer](#post-customers) |
+| `POST` | `/drinks` | No | [Create Drink](#post-drinks) |
 | `GET` | `/employees` | No | [List Employees](#get-employees) |
 | `GET` | `/employees/{id}` | No | [Get Employee](#get-employeesid) |
 | `POST` | `/employees` | No | [Create Employee](#post-employees) |
@@ -19,12 +20,12 @@
 | `GET` | `/ingredients/{id}` | No | [Get Ingredient](#get-ingredientsid) |
 | `POST` | `/ingredients` | No | [Create Ingredient](#post-ingredients) |
 | `PUT` | `/ingredients/{id}` | No | [Update Ingredient](#put-ingredientsid) |
-| `GET` | `/vendors` | No | [List Vendors](#get-vendors) |
-| `POST` | `/vendors` | No | [Create Vendor](#post-vendors) |
 | `GET` | `/promotions` | No | [List Promotions](#get-promotions) |
 | `GET` | `/promotions/{id}` | No | [Get Promotion](#get-promotionsid) |
 | `POST` | `/promotions` | No | [Create Promotion](#post-promotions) |
 | `DELETE` | `/promotions/{id}` | No | [Delete Promotion](#delete-promotionsid) |
+| `GET` | `/vendors` | No | [List Vendors](#get-vendors) |
+| `POST` | `/vendors` | No | [Create Vendor](#post-vendors) |
 
 ### `GET` /
 
@@ -146,6 +147,29 @@ Both email and phone must be unique.
 | `201` | The newly created customer. | `application/json` [`CustomerRead`](#customerread) |
 | `409` | A customer with the given email or phone already exists. | `application/json` `{ "detail": string }` |
 | `422` | Missing or invalid values. | `application/json` [`HTTPValidationError`](#httpvalidationerror) |
+
+[Back to Summary](#summary)
+
+---
+
+### `POST` /drinks
+
+**Create Drink**
+
+Create a new drink recipe.
+
+**Request body** (required)
+
+`application/json` — [`DrinkCreate`](#drinkcreate)
+
+**Responses**
+
+| Status | Description | Body |
+| --- | --- | --- |
+| `201` | The newly created drink | `application/json` [`DrinkRead`](#drinkread) |
+| `404` | The ingredient was not found. | `application/json` `{ "detail": string }` |
+| `409` | A drink with that name already exists. | `application/json` `{ "detail": string }` |
+| `422` | The provided DrinkCreate is malformed or invalid. This includes: invalid 'type', invalid 'unit', duplicate 'ingredient_id' values, or 'production_cost' not less than 'sale_price'. | `application/json` [`HTTPValidationError`](#httpvalidationerror) |
 
 [Back to Summary](#summary)
 
@@ -313,46 +337,6 @@ Update an existing ingredient.
 
 ---
 
-### `GET` /vendors
-
-**List Vendors**
-
-Retrieve a list of all vendors.
-
-**Responses**
-
-| Status | Description | Body |
-| --- | --- | --- |
-| `200` | A list of all vendors | `application/json` `array of` [`VendorRead`](#vendorread) |
-
-[Back to Summary](#summary)
-
----
-
-### `POST` /vendors
-
-**Create Vendor**
-
-Create a new vendor, along with its initial set of contacts.
-
-Returns the created vendor, including generated IDs for the vendor
-and each vendor contact.
-
-**Request body** (required)
-
-`application/json` — [`VendorCreate`](#vendorcreate)
-
-**Responses**
-
-| Status | Description | Body |
-| --- | --- | --- |
-| `201` | The newly created vendor | `application/json` [`VendorRead`](#vendorread) |
-| `422` | Validation Error | `application/json` [`HTTPValidationError`](#httpvalidationerror) |
-
-[Back to Summary](#summary)
-
----
-
 ### `GET` /promotions
 
 **List Promotions**
@@ -444,6 +428,46 @@ The promotion remains stored in the database for historical records, but it is n
 
 ---
 
+### `GET` /vendors
+
+**List Vendors**
+
+Retrieve a list of all vendors.
+
+**Responses**
+
+| Status | Description | Body |
+| --- | --- | --- |
+| `200` | A list of all vendors | `application/json` `array of` [`VendorRead`](#vendorread) |
+
+[Back to Summary](#summary)
+
+---
+
+### `POST` /vendors
+
+**Create Vendor**
+
+Create a new vendor, along with its initial set of contacts.
+
+Returns the created vendor, including generated IDs for the vendor
+and each vendor contact.
+
+**Request body** (required)
+
+`application/json` — [`VendorCreate`](#vendorcreate)
+
+**Responses**
+
+| Status | Description | Body |
+| --- | --- | --- |
+| `201` | The newly created vendor | `application/json` [`VendorRead`](#vendorread) |
+| `422` | Validation Error | `application/json` [`HTTPValidationError`](#httpvalidationerror) |
+
+[Back to Summary](#summary)
+
+---
+
 ## Schemas
 
 ### BakedGoodCreate
@@ -514,6 +538,77 @@ Represents a customer in the system.
 | `loyalty_points` | int | no | The customer's loyalty points, defaults to `0` |
 | `id` | int | yes | The unique identifier of the customer |
 | `loyalty_expires_at` | datetime | no | The expiration date of the customer's loyalty points; set to one year after customer record creation |
+
+### DrinkBase
+
+Base schema of a drink recipe in the system.
+
+| Field | Type | Required | Notes |
+| --- | --- | --- | --- |
+| `active` | bool | no | Whether the drink recipe is currently active; defaults to `true` |
+| `name` | string | yes | The drink's name, min length of `1` |
+| `description` | string | yes | The drink's description, min length of `1` |
+| `type` | string | yes | The type of drink. Must be one of: coffee, tea, soda, refresher, or other. |
+| `markup_percentage` | decimal | yes | The markup percentage of the drink `+ 1`, which means it must be greater than or equal to 1 |
+
+### DrinkCreate
+
+Input schema for creating a new drink recipe. Does not include `id` since this will be assigned on creation.
+
+| Field | Type | Required | Notes |
+| --- | --- | --- | --- |
+| `active` | bool | no | Whether the drink recipe is currently active; defaults to `true` |
+| `name` | string | yes | The drink's name, min length of `1` |
+| `description` | string | yes | The drink's description, min length of `1` |
+| `type` | string | yes | The type of drink. Must be one of: coffee, tea, soda, refresher, or other. |
+| `markup_percentage` | decimal | yes | The markup percentage of the drink `+ 1`, which means it must be greater than or equal to 1 |
+| `ingredients` | array[[`DrinkIngredientCreateNested`](#drinkingredientcreatenested)] | yes | The ingredients required for the drink recipe |
+
+### DrinkIngredientBase
+
+Base schema of an ingredient for a unique drink in the system. The ingredient must exist in the system and their `id` specified.
+
+| Field | Type | Required | Notes |
+| --- | --- | --- | --- |
+| `ingredient_id` | int | yes | The unique identifier of the ingredient |
+| `amount` | decimal | yes | The ingredient amount required for the drink recipe |
+| `unit` | string | yes | The unit of measurement of the ingredient for the drink recipe |
+
+### DrinkIngredientCreateNested
+
+Input schema for attaching an existing ingredient to a new drink recipe. `unit` must be one of: g, kg, oz, lb, fl oz, mL, L, gal, pumps, scoops, shots, dashes.
+
+| Field | Type | Required | Notes |
+| --- | --- | --- | --- |
+| `ingredient_id` | int | yes | The unique identifier of the ingredient |
+| `amount` | decimal | yes | The ingredient amount required for the drink recipe |
+| `unit` | string | yes | The unit of measurement of the ingredient for the drink recipe |
+
+### DrinkIngredientRead
+
+Represents an ingredient for a unique drink recipe in the system.
+
+| Field | Type | Required | Notes |
+| --- | --- | --- | --- |
+| `ingredient_id` | int | yes | The unique identifier of the ingredient |
+| `amount` | decimal | yes | The ingredient amount required for the drink recipe |
+| `unit` | string | yes | The unit of measurement of the ingredient for the drink recipe |
+
+### DrinkRead
+
+Represents a new drink recipe in the system. `production_cost` and `sale_price` are computed fields handled by `services/drinks`.
+
+| Field | Type | Required | Notes |
+| --- | --- | --- | --- |
+| `active` | bool | no | Whether the drink recipe is currently active; defaults to `true` |
+| `name` | string | yes | The drink's name, min length of `1` |
+| `description` | string | yes | The drink's description, min length of `1` |
+| `type` | string | yes | The type of drink. Must be one of: coffee, tea, soda, refresher, or other. |
+| `markup_percentage` | decimal | yes | The markup percentage of the drink `+ 1`, which means it must be greater than or equal to 1 |
+| `id` | int | yes | The unique identifier of the drink recipe |
+| `ingredients` | array[[`DrinkIngredientRead`](#drinkingredientread)] | yes | The ingredients specified in the drink recipe |
+| `production_cost` | decimal | yes | The purchasing cost sum of all ingredients in the drink recipe |
+| `sale_price` | decimal | yes | The sale price of the drink computed as the `markup_percentage * production_cost` |
 
 ### EmployeeCreate
 
