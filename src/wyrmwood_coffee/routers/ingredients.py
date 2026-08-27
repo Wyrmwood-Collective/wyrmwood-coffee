@@ -1,8 +1,11 @@
+import logging
+
 from fastapi import APIRouter, HTTPException, status
 from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError
 
 from wyrmwood_coffee.dependencies import DbSession
+from wyrmwood_coffee.logging import ResourceLogger
 from wyrmwood_coffee.models.ingredient import (
     Ingredient,
     IngredientCreate,
@@ -11,6 +14,9 @@ from wyrmwood_coffee.models.ingredient import (
 )
 from wyrmwood_coffee.models.vendor import Vendor
 
+logger = logging.getLogger(__name__)
+ingredient_logger = ResourceLogger(logger, Ingredient)
+vendor_logger = ResourceLogger(logger, Vendor)
 router = APIRouter(prefix="/ingredients", tags=["Ingredients"])
 
 
@@ -44,6 +50,7 @@ def get_ingredient(id: int, session: DbSession) -> IngredientRead:
     """
     ingredient = session.get(Ingredient, id)
     if not ingredient:
+        ingredient_logger.log_resource_not_found(id)
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="The ingredient was not found.",
@@ -69,9 +76,18 @@ def create_ingredient(session: DbSession, payload: IngredientCreate) -> Ingredie
     """Create a new ingredient and link it to an existing vendor."""
     vendor = session.get(Vendor, payload.vendor_id)
     if vendor is None:
+        vendor_logger.log_resource_not_found(payload.vendor_id)
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="The vendor was not found.",
+        )
+    if not vendor.active:
+        # log-level rationale (per WC-49 requirements):
+        # warning, because this may indicate a problem with a client
+        # we have written against our API
+        ingredient_logger.logger.warning(
+            "Ingredient linked to inactive vendor",
+            extra={"resource_type": Ingredient.__name__, "vendor_id": vendor.id},
         )
 
     ingredient = Ingredient(
@@ -88,8 +104,10 @@ def create_ingredient(session: DbSession, payload: IngredientCreate) -> Ingredie
 
     try:
         session.commit()
+        ingredient_logger.log_resource_created(ingredient.id)
     except IntegrityError as err:
         session.rollback()
+        ingredient_logger.log_attrs_not_unique([Ingredient.name, Ingredient.vendor_id])
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,
             detail="An ingredient with that name and vendor ID already exists.",

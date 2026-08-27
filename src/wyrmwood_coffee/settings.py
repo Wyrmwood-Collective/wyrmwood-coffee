@@ -9,6 +9,14 @@ class Environment(StrEnum):
     TEST = "test"
 
 
+class LogLevel(StrEnum):
+    DEBUG = "DEBUG"
+    INFO = "INFO"
+    WARNING = "WARNING"
+    ERROR = "ERROR"
+    CRITICAL = "CRITICAL"
+
+
 class Settings(BaseSettings):
     app_environment: Environment = Environment.DEV
     dev_database_url: str | None = None
@@ -16,6 +24,7 @@ class Settings(BaseSettings):
     jwt_secret_key: str = Field(min_length=32)
     jwt_algorithm: str = "HS256"
     jwt_expiration_minutes: int = 30
+    log_level: LogLevel = LogLevel.WARNING
 
     model_config = SettingsConfigDict(
         env_file=".env",

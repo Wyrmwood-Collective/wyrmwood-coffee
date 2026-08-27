@@ -1,10 +1,13 @@
 """Employee API routes."""
 
+import logging
+
 from fastapi import APIRouter, HTTPException, status
 from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError
 
 from wyrmwood_coffee.dependencies import DbSession
+from wyrmwood_coffee.logging import ResourceLogger
 from wyrmwood_coffee.models.employee import (
     Employee,
     EmployeeCreate,
@@ -13,6 +16,7 @@ from wyrmwood_coffee.models.employee import (
 )
 from wyrmwood_coffee.security import hash_password
 
+employee_logger = ResourceLogger(logging.getLogger(__name__), Employee)
 router = APIRouter(tags=["employees"])
 
 
@@ -50,6 +54,7 @@ def get_employee(session: DbSession, id: EmployeeId) -> EmployeeRead:
     """
     employee = session.get(Employee, id)
     if employee is None:
+        employee_logger.log_resource_not_found(id)
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="The employee was not found.",
@@ -67,10 +72,7 @@ def get_employee(session: DbSession, id: EmployeeId) -> EmployeeRead:
         422: {"description": "The provided EmployeeCreate is malformed or invalid."},
     },
 )
-def create_employee(
-    session: DbSession,
-    payload: EmployeeCreate,
-) -> EmployeeRead:
+def create_employee(session: DbSession, payload: EmployeeCreate) -> EmployeeRead:
     """
     Create a new employee and persist it to the database.
 
@@ -82,8 +84,10 @@ def create_employee(
     session.add(new_employee)
     try:
         session.commit()
+        employee_logger.log_resource_created(new_employee.id)
     except IntegrityError:
         session.rollback()
+        employee_logger.log_attrs_not_unique([Employee.username])
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,
             detail="An employee with that username already exists.",

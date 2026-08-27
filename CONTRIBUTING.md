@@ -132,6 +132,17 @@ The database session object should be called `session`.
 )
 ```
 
+## Logging
+
+If your change adds new Pydantic models, add their containing modules to the import list in `wyrmwood_coffee/models/__init__.py` (log redaction depends on it). If you forget, the test suite will fail.
+
+If a Pydantic model contains sensitive information that should not be displayed in the logs (`password`), add a `Sensitive` marker to its attribute definition (see `EmployeeCreate` for an example).
+
+Use `ResourceLogger` from `wyrmwood_coffee.logging` for request/response lifecycle events (resource created, resource not found, etc.).
+For log messages that don't fit that shape (e.g. infrastructure events like "database connection successful") write a custom log call instead (you can access the underlying logger with `resource_logger.logger` or just use the module-level logger directly).
+
+If using `ResourceLogger.log_attrs_not_unique` in a situation where more than one constraint may have been violated, disambiguate by matching against the Postgres constraint name (see `create_customer` for an example).
+
 ## Commits and Pull Requests
 
 All commits should begin with an uppercase letter and should not end with a period. Prefer commit messages that begin with present-tense imperative verbs ("Add Customer models", "Update README").
@@ -156,7 +167,9 @@ Fixtures should be scoped as narrowly as possible. For example, if the `test_pro
 
 `db_session`, `client`, then any others
 
-### Naming Conventions
+### Naming Conventions (Routers/Handlers)
+
+**Note:** This section only applies to tests located in modules named after a resource (`test_customers.py`). No particular naming convention is required for other (non-router/handler) tests.
 
 A handler that tests a successful response should have the format `test_HANDLER_with_STATE_should_return_RESULT`, where `HANDLER` is the name of the handler, `STATE` describes the valid state (if needed), and `RESULT` is the expected response.
 For example, `test_create_product_should_return_product`, or `test_create_product_with_zero_cost_should_return_product_with_default_cost`.
@@ -167,7 +180,9 @@ For example, `test_create_product_with_missing_name_should_return_422`.
 A handler that tests a side effect (e.g. database state) should have the format `test_HANDLER_with_STATE_should_EFFECT`, where `HANDLER` is the name of the handler, `STATE` describes the state (if needed), and `EFFECT` is the side effect being verified.
 For example, `test_create_vendor_should_persist_to_db`.
 
-### Test Order
+### Test Order (Routers/Handlers)
+
+**Note:** This section only applies to tests located in modules named after a resource (`test_customers.py`). No particular ordering convention is required for other (non-router/handler) tests.
 
 Tests should be ordered by which handler they test (see FastAPI Handlers above).
 Tests for the same handler should be ordered so that tests for successful responses come first, then tests for invalid/error responses, and finally tests for side effects.

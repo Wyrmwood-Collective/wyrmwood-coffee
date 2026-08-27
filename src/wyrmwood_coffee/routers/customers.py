@@ -1,8 +1,12 @@
+import logging
+
+import psycopg
 from fastapi import APIRouter, HTTPException, status
 from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError
 
 from wyrmwood_coffee.dependencies import DbSession
+from wyrmwood_coffee.logging import ResourceLogger
 from wyrmwood_coffee.models.customer import (
     Customer,
     CustomerCreate,
@@ -10,7 +14,13 @@ from wyrmwood_coffee.models.customer import (
     CustomerRead,
 )
 
+customer_logger = ResourceLogger(logging.getLogger(__name__), Customer)
 router = APIRouter()
+
+DUPLICATE_ATTRS = {
+    "ix_customers_email": [Customer.email],
+    "ix_customers_phone": [Customer.phone],
+}
 
 
 @router.get(
@@ -43,6 +53,7 @@ def get_customer(session: DbSession, id: CustomerId) -> CustomerRead:
     """
     customer = session.get(Customer, id)
     if customer is None:
+        customer_logger.log_resource_not_found(id)
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="The customer was not found.",
@@ -75,9 +86,16 @@ def create_customer(session: DbSession, payload: CustomerCreate) -> CustomerRead
         session.add(new_customer)
         session.commit()
         session.refresh(new_customer)
+        customer_logger.log_resource_created(new_customer.id)
         return CustomerRead.model_validate(new_customer)
-    except IntegrityError:
+    except IntegrityError as err:
         session.rollback()
+        constraint_name = (
+            (err.orig.diag.constraint_name or "")
+            if isinstance(err.orig, psycopg.Error)
+            else ""
+        )
+        customer_logger.log_attrs_not_unique(DUPLICATE_ATTRS.get(constraint_name, []))
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,
             detail="User is already registered in the system with phone or email",
