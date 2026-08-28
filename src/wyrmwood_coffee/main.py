@@ -25,8 +25,6 @@ logger = logging.getLogger(__name__)
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    logger.debug("Dropping all tables in database")
-    Base.metadata.drop_all(bind=get_engine())
     logger.debug("Creating database tables")
     Base.metadata.create_all(bind=get_engine())
     yield

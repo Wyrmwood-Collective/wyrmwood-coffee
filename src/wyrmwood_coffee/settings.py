@@ -5,6 +5,7 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 class Environment(StrEnum):
+    STAGING = "staging"
     DEV = "dev"
     TEST = "test"
 
@@ -19,6 +20,7 @@ class LogLevel(StrEnum):
 
 class Settings(BaseSettings):
     app_environment: Environment = Environment.DEV
+    staging_database_url: str | None = None
     dev_database_url: str | None = None
     test_database_url: str | None = None
     jwt_secret_key: str = Field(min_length=32)

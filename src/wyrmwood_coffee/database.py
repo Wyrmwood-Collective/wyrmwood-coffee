@@ -15,35 +15,47 @@ _engine = None
 def get_engine() -> Engine:
     global _engine
 
-    if _engine is None:
-        match settings.app_environment:
-            case Environment.DEV:
-                if settings.dev_database_url:
-                    # log-level rationale (per WC-49 requirements):
-                    # info, because a successful connection is expected behavior
-                    logger.info("Connecting to development database")
-                    _engine = create_engine(settings.dev_database_url)
-                    return _engine
-                else:
-                    # log-level rationale (per WC-49 requirements):
-                    # critical, because the application can't run
-                    # if the database configuration is incorrect
-                    logger.critical(
-                        "DATABASE_URL is not set. Please configure it before running."
-                    )
-                    sys.exit(1)
-            case Environment.TEST:
-                if settings.test_database_url:
-                    logger.info("Connecting to test database")
-                    _engine = create_engine(settings.test_database_url)
-                    return _engine
-                else:
-                    logger.critical(
-                        "TEST_DATABASE_URL is not set. Please configure it before running."  # noqa: E501
-                    )
-                    sys.exit(1)
-    else:
+    if _engine is not None:
         return _engine
+
+    match settings.app_environment:
+        case Environment.DEV:
+            if not settings.dev_database_url:
+                logger.critical(
+                    "DEV_DATABASE_URL is not set. Please configure it before running."
+                )
+                sys.exit(1)
+
+            logger.info("Connecting to development database")
+            _engine = create_engine(settings.dev_database_url)
+
+        case Environment.STAGING:
+            if not settings.staging_database_url:
+                logger.critical(
+                    "STAGING_DATABASE_URL is not set."
+                    "Please configure it before running."
+                )
+                sys.exit(1)
+
+            logger.info("Connecting to staging database")
+            _engine = create_engine(settings.staging_database_url)
+
+        case Environment.TEST:
+            if not settings.test_database_url:
+                logger.critical(
+                    "TEST_DATABASE_URL is not set. Please configure it before running."
+                )
+                sys.exit(1)
+
+            logger.info("Connecting to test database")
+            _engine = create_engine(settings.test_database_url)
+
+        case _:
+            raise RuntimeError(
+                f"Unsupported application environment: {settings.app_environment}"
+            )
+
+    return _engine
 
 
 _SessionLocal = None
