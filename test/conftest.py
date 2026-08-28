@@ -1,3 +1,4 @@
+import itertools
 import os
 import subprocess
 from datetime import date
@@ -13,6 +14,8 @@ from sqlalchemy.orm import sessionmaker
 from wyrmwood_coffee.database import Base, get_db
 from wyrmwood_coffee.main import app
 from wyrmwood_coffee.models.employee import Employee
+from wyrmwood_coffee.models.ingredient import Ingredient
+from wyrmwood_coffee.models.vendor import Vendor, VendorContact
 from wyrmwood_coffee.security import hash_password
 from wyrmwood_coffee.settings import settings
 
@@ -143,3 +146,56 @@ def persist_employee(db_session):
         return _persist_employee(db_session, kwargs)
 
     return persist
+
+
+@pytest.fixture()
+def make_vendor(db_session):
+    counter = itertools.count(1)
+
+    def _make_vendor(**kwargs):
+        n = next(counter)
+        contact_data = kwargs.pop(
+            "contact",
+            {
+                "name": "Eugene Krabs",
+                "role": "Owner",
+                "email": f"moneymoneymoney+{n}@bikinibottom.com",
+                "phone": f"810-337-{n:04d}",
+            },
+        )
+        defaults = {
+            "name": f"Krusty Krab Supply Co {n}",
+            "contacts": [VendorContact(**contact_data)],
+        }
+        defaults.update(kwargs)
+        vendor = Vendor(**defaults)
+        db_session.add(vendor)
+        db_session.commit()
+        db_session.refresh(vendor)
+        return vendor
+
+    return _make_vendor
+
+
+@pytest.fixture()
+def make_ingredient(db_session, make_vendor):
+    counter = itertools.count(1)
+
+    def _make_ingredient(**kwargs):
+        n = next(counter)
+        defaults = {
+            "name": f"Jellyfish Jelly {n}",
+            "purchasing_cost": 3.0,
+            "unit_amount": 300,
+            "unit_of_measure": "fl oz",
+            "allergens": ["seafood"],
+            "vendor_id": kwargs.get("vendor_id") or make_vendor().id,
+        }
+        defaults.update(kwargs)
+        ingredient = Ingredient(**defaults)
+        db_session.add(ingredient)
+        db_session.commit()
+        db_session.refresh(ingredient)
+        return ingredient
+
+    return _make_ingredient

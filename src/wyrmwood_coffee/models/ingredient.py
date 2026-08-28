@@ -9,6 +9,7 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 from wyrmwood_coffee.database import Base
 
 if TYPE_CHECKING:
+    from wyrmwood_coffee.models.drink import DrinkIngredient
     from wyrmwood_coffee.models.vendor import Vendor
 
 
@@ -29,8 +30,9 @@ class Ingredient(Base):
     allergens: Mapped[list[str]] = mapped_column(ARRAY(String), default=list)
 
     vendor_id: Mapped[int] = mapped_column(ForeignKey("vendors.id"))
-
     vendor: Mapped["Vendor"] = relationship()
+
+    drinks: Mapped[list["DrinkIngredient"]] = relationship(back_populates="ingredient")
 
 
 VALID_UNITS = {
