@@ -159,6 +159,29 @@ def test_attrs_not_unique_log_includes_expected_fields(ingredient_logger, caplog
     assert record.attributes == ["Ingredient.name", "Ingredient.vendor_id"]
 
 
+def test_resource_belongs_to_another_log_includes_expected_fields(
+    ingredient_logger, caplog
+):
+    caplog.set_level(logging.INFO, logger="wyrmwood_coffee.test_logger")
+
+    ingredient_logger.log_resource_belongs_to_another(
+        resource_id=7,
+        other_resource_class=Vendor,
+        provided_rel_id=1,
+        actual_rel_id=2,
+    )
+
+    records = [r for r in caplog.records if r.levelno == logging.INFO]
+    assert len(records) == 1
+
+    record = records[0]
+    assert record.resource_type == "Ingredient"
+    assert record.resource_id == 7
+    assert record.other_resource_name == "Vendor"
+    assert record.assumed_id == 1
+    assert record.actual_id == 2
+
+
 def test_deletion_conflict_log_includes_expected_fields(ingredient_logger, caplog):
     caplog.set_level(logging.INFO, logger="wyrmwood_coffee.test_logger")
 

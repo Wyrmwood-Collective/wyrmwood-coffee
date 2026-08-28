@@ -119,6 +119,21 @@ class ResourceLogger:
             attributes=[str(prop) for prop in attributes],
         )
 
+    def log_resource_belongs_to_another(
+        self,
+        resource_id: int,
+        other_resource_class: type,
+        provided_rel_id: int,
+        actual_rel_id: int,
+    ):
+        self._log_result(
+            "Resource belongs to another resource",
+            resource_id=resource_id,
+            other_resource_name=other_resource_class.__name__,
+            assumed_id=provided_rel_id,
+            actual_id=actual_rel_id,
+        )
+
     def log_deletion_conflict(
         self, resource_id: int, rule: str, conflicts: dict[type, list[int]]
     ):
