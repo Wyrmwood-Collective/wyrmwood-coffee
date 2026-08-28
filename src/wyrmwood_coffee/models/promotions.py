@@ -18,6 +18,7 @@ class Promotion(Base):
 
     id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
     active: Mapped[bool] = mapped_column(Boolean, nullable=False)
+    deleted: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
     promo_code: Mapped[str] = mapped_column(
         String,
         unique=True,

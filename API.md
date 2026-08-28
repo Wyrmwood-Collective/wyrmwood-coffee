@@ -24,6 +24,7 @@
 | `GET` | `/promotions` | No | [List Promotions](#get-promotions) |
 | `GET` | `/promotions/{id}` | No | [Get Promotion](#get-promotionsid) |
 | `POST` | `/promotions` | No | [Create Promotion](#post-promotions) |
+| `DELETE` | `/promotions/{id}` | No | [Delete Promotion](#delete-promotionsid) |
 
 ### `GET` /
 
@@ -412,6 +413,32 @@ Returns the created promotion, including its generated ID.
 | `201` | The newly created promotion | `application/json` [`PromotionRead`](#promotionread) |
 | `409` | A Promotion with that promo code already exists. | `application/json` `{ "detail": string }` |
 | `422` | The provided PromotionCreate is malformed or invalid. | `application/json` [`HTTPValidationError`](#httpvalidationerror) |
+
+[Back to Summary](#summary)
+
+---
+
+### `DELETE` /promotions/{id}
+
+**Delete Promotion**
+
+Soft deletes a promotion by ID.
+
+The promotion remains stored in the database for historical records, but it is no longer visible through normal promotion endpoints and cannot be used in active operations.
+
+**Path parameters**
+
+| Name | Type | Required | Notes |
+| --- | --- | --- | --- |
+| `id` | int | yes | The unique identifier of the promotion; must be a positive integer |
+
+**Responses**
+
+| Status | Description | Body |
+| --- | --- | --- |
+| `204` | The Promotion was deleted successfully. | No content |
+| `404` | The promotion was not found. | `application/json` `{ "detail": string }` |
+| `422` | The provided path parameter is malformed or invalid. | `application/json` [`HTTPValidationError`](#httpvalidationerror) |
 
 [Back to Summary](#summary)
 
