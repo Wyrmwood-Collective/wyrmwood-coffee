@@ -1,6 +1,7 @@
 from decimal import Decimal
 
 import pytest
+from sqlalchemy import func, select
 
 from wyrmwood_coffee.models.promotions import Promotion, PromotionRead
 
@@ -113,6 +114,15 @@ def promotion_non_numeric_discount_kwargs(promotion_kwargs):
 @pytest.fixture
 def promotion_symbol_discount_kwargs(promotion_kwargs):
     return promotion_kwargs | {"discount_percentage": "_"}
+
+
+@pytest.fixture
+def unused_promotion_id(db_session):
+    def _unused_promotion_id():
+        max_id = db_session.scalar(select(func.max(Promotion.id))) or 0
+        return max_id + 1
+
+    return _unused_promotion_id
 
 
 # ==========================================
@@ -454,6 +464,112 @@ def test_create_promotion_should_persist_to_db(
     assert promotion.promo_code == promotion_kwargs["promo_code"]
     assert promotion.discount_percentage == Decimal("50.00")
     assert promotion.active == promotion_kwargs["active"]
+
+
+# UPDATE OPERATIONS
+# ==========================================
+
+# --------------------
+# Successful Responses
+# --------------------
+
+
+def test_update_promotion_should_return_promotion(
+    client,
+    single_promotion,
+    second_promotion_kwargs,
+):
+    response = client.put(
+        f"/promotions/{single_promotion.id}", json=second_promotion_kwargs
+    )
+
+    assert response.status_code == 200
+
+    promotion = PromotionRead(**response.json())
+
+    expected = second_promotion_kwargs | {
+        "id": single_promotion.id,
+        "discount_percentage": (
+            f"{Decimal(str(second_promotion_kwargs['discount_percentage'])):.2f}"
+        ),
+    }
+    assert promotion.model_dump(mode="json") == expected
+
+
+# --------------------
+# Error / Invalid Responses
+# --------------------
+
+
+def test_update_promotion_with_nonexistent_id_should_return_404(
+    client,
+    unused_promotion_id,
+    second_promotion_kwargs,
+):
+    response = client.put(
+        f"/promotions/{unused_promotion_id()}",
+        json=second_promotion_kwargs,
+    )
+
+    assert response.status_code == 404
+
+
+def test_update_promotion_with_non_positive_id_should_return_422(
+    client,
+    second_promotion_kwargs,
+):
+    response = client.put("/promotions/0", json=second_promotion_kwargs)
+
+    assert response.status_code == 422
+
+
+def test_update_promotion_with_malformed_id_should_return_422(
+    client, second_promotion_kwargs
+):
+    response = client.put("/promotions/not-an-id", json=second_promotion_kwargs)
+
+    assert response.status_code == 422
+
+
+def test_update_promotion_with_invalid_payload_should_return_422(
+    client,
+    single_promotion,
+    promotion_negative_discount_kwargs,
+):
+    response = client.put(
+        f"/promotions/{single_promotion.id}",
+        json=promotion_negative_discount_kwargs,
+    )
+
+    assert response.status_code == 422
+
+
+# --------------------
+# Side Effects
+# --------------------
+
+
+def test_update_promotion_should_persist_changes_to_database(
+    db_session, client, single_promotion, second_promotion_kwargs
+):
+    promotion_id = single_promotion.id
+
+    response = client.put(f"/promotions/{promotion_id}", json=second_promotion_kwargs)
+
+    assert response.status_code == 200
+
+    db_session.expire_all()
+
+    promotion = db_session.get(
+        Promotion,
+        promotion_id,
+    )
+
+    assert promotion is not None
+    assert promotion.promo_code == second_promotion_kwargs["promo_code"]
+    assert promotion.discount_percentage == Decimal("25.00")
+    assert promotion.start_date.isoformat() == second_promotion_kwargs["start_date"]
+    assert promotion.end_date.isoformat() == second_promotion_kwargs["end_date"]
 
 
 # DELETE OPERATIONS
