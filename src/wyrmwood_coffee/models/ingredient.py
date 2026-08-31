@@ -2,7 +2,7 @@ from decimal import Decimal
 from typing import TYPE_CHECKING, Annotated
 
 from pydantic import BaseModel, ConfigDict, Field, StringConstraints, field_validator
-from sqlalchemy import ForeignKey, Numeric, String, UniqueConstraint
+from sqlalchemy import Boolean, ForeignKey, Index, Numeric, String, text
 from sqlalchemy.dialects.postgresql import ARRAY
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
@@ -17,11 +17,19 @@ class Ingredient(Base):
     __tablename__ = "ingredients"
 
     __table_args__ = (
-        UniqueConstraint("name", "vendor_id", name="uq_ingredient_name_vendor"),
+        Index(
+            "uq_ingredient_name_vendor",
+            "name",
+            "vendor_id",
+            unique=True,
+            postgresql_where=text("is_deleted = false"),
+        ),
     )
 
     id: Mapped[int] = mapped_column(primary_key=True, index=True)
-    active: Mapped[bool] = mapped_column(default=True)
+    active: Mapped[bool] = mapped_column(Boolean, nullable=False, default=True)
+
+    is_deleted: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
 
     name: Mapped[str] = mapped_column(nullable=False)
     purchasing_cost: Mapped[Decimal] = mapped_column(Numeric(10, 2), nullable=False)

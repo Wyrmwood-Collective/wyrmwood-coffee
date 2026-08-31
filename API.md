@@ -20,6 +20,7 @@
 | `GET` | `/ingredients/{id}` | No | [Get Ingredient](#get-ingredientsid) |
 | `POST` | `/ingredients` | No | [Create Ingredient](#post-ingredients) |
 | `PUT` | `/ingredients/{id}` | No | [Update Ingredient](#put-ingredientsid) |
+| `DELETE` | `/ingredients/{id}` | Employee | [Delete Ingredient](#delete-ingredientsid) |
 | `GET` | `/promotions` | No | [List Promotions](#get-promotions) |
 | `GET` | `/promotions/{id}` | No | [Get Promotion](#get-promotionsid) |
 | `POST` | `/promotions` | No | [Create Promotion](#post-promotions) |
@@ -332,6 +333,30 @@ Update an existing ingredient.
 | `409` | An ingredient with that name and vendor ID already exists. | `application/json` `{ "detail": string }` |
 | `422` | The provided path parameter is malformed or invalid. | `application/json` [`HTTPValidationError`](#httpvalidationerror) |
 | `422` | The provided IngredientUpdate is malformed or invalid. | `application/json` [`HTTPValidationError`](#httpvalidationerror) |
+
+[Back to Summary](#summary)
+
+---
+
+### `DELETE` /ingredients/{id}
+
+**Delete Ingredient**
+
+Soft-deletes an existing ingredient.
+
+**Path parameters**
+
+| Name | Type | Required | Notes |
+| --- | --- | --- | --- |
+| `id` | int | yes | The ID of the ingredient to delete |
+
+**Responses**
+
+| Status | Description | Body |
+| --- | --- | --- |
+| `204` | The ingredient was successfully deleted. | No content |
+| `404` | The ingredient was not found. | `application/json` `{ "detail": string }` |
+| `422` | The provided path parameter is malformed or invalid. | `application/json` [`HTTPValidationError`](#httpvalidationerror) |
 
 [Back to Summary](#summary)
 
