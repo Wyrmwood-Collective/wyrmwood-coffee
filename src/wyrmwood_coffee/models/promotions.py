@@ -68,3 +68,7 @@ class PromotionRead(PromotionCreate):
     id: PromotionId
 
     model_config = ConfigDict(from_attributes=True)
+
+
+class PromotionUpdate(PromotionCreate):
+    """Request model used when updating an existing promotion."""

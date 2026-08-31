@@ -11,6 +11,7 @@ from wyrmwood_coffee.models.promotions import (
     PromotionCreate,
     PromotionId,
     PromotionRead,
+    PromotionUpdate,
 )
 
 promotion_logger = ResourceLogger(logging.getLogger(__name__), Promotion)
@@ -100,6 +101,66 @@ def create_promotion(session: DbSession, payload: PromotionCreate) -> PromotionR
     try:
         session.commit()
         promotion_logger.log_resource_created(promotion.id)
+    except IntegrityError:
+        session.rollback()
+        promotion_logger.log_attrs_not_unique([Promotion.promo_code])
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail="A promotion with that promo code already exists.",
+        ) from None
+
+    session.refresh(promotion)
+
+    return PromotionRead.model_validate(promotion)
+
+
+@router.put(
+    "/{id}",
+    status_code=status.HTTP_200_OK,
+    response_model=PromotionRead,
+    response_description="The updated Promotion",
+    responses={
+        404: {
+            "description": "The promotion was not found.",
+        },
+        409: {
+            "description": "A promotion with that promo code already exists.",
+        },
+        422: {
+            "description": (
+                "The provided PromotionUpdate is malformed or invalid, "
+                "or the provided path parameter is malformed or invalid."
+            ),
+        },
+    },
+)
+def update_promotion(
+    session: DbSession,
+    id: PromotionId,
+    payload: PromotionUpdate,
+) -> PromotionRead:
+    """
+    Update a promotion.
+
+    Returns the updated promotion.
+    """
+    promotion = session.get(Promotion, id)
+
+    if promotion is None or promotion.deleted:
+        promotion_logger.log_resource_not_found(id)
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="The promotion was not found.",
+        )
+
+    update_data = payload.model_dump()
+
+    for key, value in update_data.items():
+        setattr(promotion, key, value)
+
+    try:
+        session.commit()
+        promotion_logger.log_resource_updated(id)
     except IntegrityError:
         session.rollback()
         promotion_logger.log_attrs_not_unique([Promotion.promo_code])

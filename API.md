@@ -24,6 +24,7 @@
 | `GET` | `/promotions` | No | [List Promotions](#get-promotions) |
 | `GET` | `/promotions/{id}` | No | [Get Promotion](#get-promotionsid) |
 | `POST` | `/promotions` | No | [Create Promotion](#post-promotions) |
+| `PUT` | `/promotions/{id}` | No | [Update Promotion](#put-promotionsid) |
 | `DELETE` | `/promotions/{id}` | No | [Delete Promotion](#delete-promotionsid) |
 | `GET` | `/vendors` | No | [List Vendors](#get-vendors) |
 | `POST` | `/vendors` | No | [Create Vendor](#post-vendors) |
@@ -428,6 +429,32 @@ Returns the created promotion, including its generated ID.
 
 ---
 
+### `PUT` /promotions/{id}
+
+**Update Promotion**
+
+Update a existing promotion with an active status, promo code, discount percentage,
+start date, and/or end date.
+
+Returns the updated promotion, including its generated ID.
+
+**Request body** (required)
+
+`application/json` — [`PromotionUpdate`](#promotionupdate)
+
+**Responses**
+
+| Status | Description | Body |
+| --- | --- | --- |
+| `200` | The updated promotion | `application/json` [`PromotionRead`](#promotionread) |
+| `404` | The promotion was not found. | `application/json` `{ "detail": string }` |
+| `409` | A Promotion with that promo code already exists. | `application/json` `{ "detail": string }` |
+| `422` | The provided PromotionUpdate is malformed or invalid, or the provided path parameter is malformed or invalid. | `application/json` [`HTTPValidationError`](#httpvalidationerror) |
+
+[Back to Summary](#summary)
+
+---
+
 ### `DELETE` /promotions/{id}
 
 **Delete Promotion**
@@ -776,6 +803,18 @@ Represents a promotion returned by the API.
 | `discount_percentage` | decimal | yes      | The percentage discount                    |
 | `start_date`           | date    | yes      | The promotion start date                   |
 | `end_date`             | date    | yes      | The promotion end date                     |
+
+### PromotionUpdate
+
+Input schema for updating an existing promotion.
+
+| Field                 | Type    | Required | Notes                                                                          |
+| --------------------- | ------- | -------- | ------------------------------------------------------------------------------ |
+| `active`              | bool    | yes      | Whether or not the promotion is active                                         |
+| `promo_code`          | string  | yes      | Must contain uppercase letters only; spaces and underscores are permitted      |
+| `discount_percentage` | decimal | yes      | Must be numeric and between `0` and `100`                                      |
+| `start_date`          | date    | yes      | Promotion start date; must use one of the supported date formats               |
+| `end_date`            | date    | yes      | Promotion end date; cannot occur before `start_date`                           |
 
 ### Token
 
