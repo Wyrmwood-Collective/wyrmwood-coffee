@@ -132,6 +132,21 @@ def test_list_ingredients_with_no_ingredients_should_return_empty_list(client):
     assert response.json() == []
 
 
+def test_list_ingredients_with_soft_deleted_ingredient_should_return_empty_list(
+    db_session, client, single_ingredient
+):
+    # Manually soft-delete the ingredient using the new architecture
+    single_ingredient.active = False
+    single_ingredient.is_deleted = True
+    db_session.commit()
+
+    response = client.get("/ingredients")
+
+    assert response.status_code == 200
+    # The list should be empty because the only ingredient is deleted
+    assert len(response.json()) == 0
+
+
 # ---------------------------------------------------------
 # Get Ingredient Tests
 # ---------------------------------------------------------
@@ -149,6 +164,30 @@ def test_get_ingredient_should_return_ingredient(client, single_ingredient):
 
 def test_get_ingredient_with_invalid_id_should_return_404(client):
     response = client.get("/ingredients/99999")
+    assert response.status_code == 404
+    assert response.json()["detail"] == "The ingredient was not found."
+
+
+def test_get_ingredient_with_malformed_id_should_return_422(client):
+    response = client.get("/ingredients/not-a-number")
+    assert response.status_code == 422
+
+
+def test_get_ingredient_with_negative_id_should_return_422(client):
+    response = client.get("/ingredients/-5")
+    assert response.status_code == 422
+
+
+def test_get_ingredient_with_soft_deleted_ingredient_should_return_404(
+    db_session, client, single_ingredient
+):
+    # Manually soft-delete the ingredient using the new architecture
+    single_ingredient.active = False
+    single_ingredient.is_deleted = True
+    db_session.commit()
+
+    response = client.get(f"/ingredients/{single_ingredient.id}")
+
     assert response.status_code == 404
     assert response.json()["detail"] == "The ingredient was not found."
 
@@ -377,3 +416,55 @@ def test_update_ingredient_should_persist_to_db(db_session, client, single_ingre
 
     db_session.refresh(single_ingredient)
     assert single_ingredient.name == "Persisted Update Beans"
+
+
+# ==========================================
+# DELETE OPERATIONS
+# ==========================================
+
+# --------------------
+# Successful Responses
+# --------------------
+
+
+def test_delete_ingredient_should_return_none(client, single_ingredient):
+    response = client.delete(f"/ingredients/{single_ingredient.id}")
+    assert response.status_code == 204
+
+
+# --------------------
+# Error Responses
+# --------------------
+
+
+def test_delete_ingredient_with_invalid_id_should_return_404(client):
+    response = client.delete("/ingredients/99999")
+
+    assert response.status_code == 404
+    assert response.json()["detail"] == "The ingredient was not found."
+
+
+def test_delete_ingredient_with_malformed_id_should_return_422(client):
+    response = client.delete("/ingredients/not-a-number")
+    assert response.status_code == 422
+
+
+def test_delete_ingredient_with_negative_id_should_return_422(client):
+    response = client.delete("/ingredients/-5")
+    assert response.status_code == 422
+
+
+# --------------------
+# Side-Effect Tests
+# --------------------
+
+
+def test_delete_ingredient_should_soft_delete_ingredient(
+    db_session, client, single_ingredient
+):
+    client.delete(f"/ingredients/{single_ingredient.id}")
+
+    db_session.refresh(single_ingredient)
+
+    # Assert that the is_deleted flag is updated properly
+    assert single_ingredient.is_deleted is True

@@ -1,6 +1,7 @@
 import logging
+from typing import Annotated
 
-from fastapi import APIRouter, HTTPException, status
+from fastapi import APIRouter, HTTPException, Path, status
 from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError
 
@@ -30,7 +31,10 @@ def list_ingredients(session: DbSession) -> list[IngredientRead]:
     """
     Returns a list of all ingredient records in the system.
     """
-    ingredients = session.scalars(select(Ingredient)).all()
+    # Filter out soft-deleted ingredients using the ~ syntax
+    ingredients = session.scalars(
+        select(Ingredient).where(~Ingredient.is_deleted)
+    ).all()
     return [IngredientRead.model_validate(ingredient) for ingredient in ingredients]
 
 
@@ -44,12 +48,15 @@ def list_ingredients(session: DbSession) -> list[IngredientRead]:
         422: {"description": "The provided path parameter is malformed or invalid."},
     },
 )
-def get_ingredient(id: int, session: DbSession) -> IngredientRead:
+def get_ingredient(
+    id: Annotated[int, Path(gt=0)], session: DbSession
+) -> IngredientRead:
     """
     Retrieve a single ingredient by ID.
     """
     ingredient = session.get(Ingredient, id)
-    if not ingredient:
+    # Treat deleted ingredients exactly like missing ones
+    if not ingredient or ingredient.is_deleted:
         ingredient_logger.log_resource_not_found(id)
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
@@ -138,13 +145,14 @@ def create_ingredient(session: DbSession, payload: IngredientCreate) -> Ingredie
     },
 )
 def update_ingredient(
-    id: int, payload: IngredientUpdate, session: DbSession
+    id: Annotated[int, Path(gt=0)], payload: IngredientUpdate, session: DbSession
 ) -> IngredientRead:
     """
     Update an existing ingredient.
     """
     ingredient = session.get(Ingredient, id)
-    if not ingredient:
+    # Don't allow updating a soft-deleted ingredient
+    if not ingredient or ingredient.is_deleted:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="The ingredient was not found.",
@@ -174,3 +182,33 @@ def update_ingredient(
     session.refresh(ingredient)
 
     return IngredientRead.model_validate(ingredient)
+
+
+@router.delete(
+    "/{id}",
+    status_code=status.HTTP_204_NO_CONTENT,
+    response_description="The ingredient was deleted successfully.",
+    responses={
+        404: {"description": "The ingredient was not found."},
+        422: {"description": "The provided path parameter is malformed or invalid."},
+    },
+)
+def delete_ingredient(id: Annotated[int, Path(gt=0)], session: DbSession) -> None:
+    """
+    Delete an existing ingredient (soft delete).
+    """
+    ingredient = session.get(Ingredient, id)
+    # Don't allow deleting an already soft-deleted ingredient
+    if not ingredient or ingredient.is_deleted:
+        ingredient_logger.log_resource_not_found(id)
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="The ingredient was not found.",
+        )
+
+    # Perform the soft delete
+    ingredient.is_deleted = True
+    session.add(ingredient)
+    session.commit()
+
+    ingredient_logger.log_resource_deleted(id)
