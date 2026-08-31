@@ -27,6 +27,7 @@
 | `DELETE` | `/promotions/{id}` | No | [Delete Promotion](#delete-promotionsid) |
 | `GET` | `/vendors` | No | [List Vendors](#get-vendors) |
 | `POST` | `/vendors` | No | [Create Vendor](#post-vendors) |
+| `DELETE` | `/vendors/{id}` | No | [Delete Vendor](#delete-vendorsid) |
 
 ### `GET` /
 
@@ -354,7 +355,7 @@ Soft-deletes an existing ingredient.
 
 | Status | Description | Body |
 | --- | --- | --- |
-| `204` | The ingredient was successfully deleted. | No content |
+| `204` | The ingredient was deleted successfully. | No content |
 | `404` | The ingredient was not found. | `application/json` `{ "detail": string }` |
 | `422` | The provided path parameter is malformed or invalid. | `application/json` [`HTTPValidationError`](#httpvalidationerror) |
 
@@ -488,6 +489,31 @@ and each vendor contact.
 | --- | --- | --- |
 | `201` | The newly created vendor | `application/json` [`VendorRead`](#vendorread) |
 | `422` | Validation Error | `application/json` [`HTTPValidationError`](#httpvalidationerror) |
+
+[Back to Summary](#summary)
+
+---
+
+### `DELETE` /vendors/{id}
+
+**Delete Vendor**
+
+Delete the vendor and its associated contacts.
+
+**Path parameters**
+
+| Name | Type | Required | Notes |
+| --- | --- | --- | --- |
+| `id` | int | yes | The unique identifier of the vendor |
+
+**Responses**
+
+| Status | Description | Body |
+| --- | --- | --- |
+| `204` | The vendor was deleted successfully. | No content |
+| `404` | The vendor was not found. | `application/json` `{ "detail": string }` |
+| `409` | The vendor has associated ingredients. | `application/json` `{ "detail": string }` |
+| `422` | The provided path parameter is malformed or invalid. | `application/json` [`HTTPValidationError`](#httpvalidationerror) |
 
 [Back to Summary](#summary)
 

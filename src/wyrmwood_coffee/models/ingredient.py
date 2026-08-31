@@ -38,7 +38,7 @@ class Ingredient(Base):
     allergens: Mapped[list[str]] = mapped_column(ARRAY(String), default=list)
 
     vendor_id: Mapped[int] = mapped_column(ForeignKey("vendors.id"))
-    vendor: Mapped["Vendor"] = relationship()
+    vendor: Mapped["Vendor"] = relationship(back_populates="ingredients")
 
     drinks: Mapped[list["DrinkIngredient"]] = relationship(back_populates="ingredient")
 

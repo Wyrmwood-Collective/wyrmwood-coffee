@@ -119,6 +119,19 @@ class ResourceLogger:
             attributes=[str(prop) for prop in attributes],
         )
 
+    def log_deletion_conflict(
+        self, resource_id: int, rule: str, conflicts: dict[type, list[int]]
+    ):
+        self._log_result(
+            "Resource deletion blocked by conflict",
+            resource_id=resource_id,
+            rule=rule,
+            conflicts=[
+                {"model": model.__name__, "ids": ids}
+                for model, ids in conflicts.items()
+            ],
+        )
+
 
 class AppJsonFormatter(JsonFormatter):
     def formatTime(self, record, datefmt=None):

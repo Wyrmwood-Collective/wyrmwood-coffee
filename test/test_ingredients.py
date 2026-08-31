@@ -103,6 +103,12 @@ def ingredient_invalid_vendor_kwargs(ingredient_valid_kwargs):
     return ingredient_valid_kwargs | {"vendor_id": 9999}
 
 
+@pytest.fixture
+def ingredient_deleted_vendor_kwargs(client, ingredient_valid_kwargs):
+    client.delete(f"/vendors/{ingredient_valid_kwargs['vendor_id']}")
+    return ingredient_valid_kwargs
+
+
 # ---------------------------------------------------------
 # List Ingredients Tests
 # ---------------------------------------------------------
@@ -281,6 +287,14 @@ def test_create_ingredient_with_invalid_vendor_should_return_404(
     client, ingredient_invalid_vendor_kwargs
 ):
     response = client.post("/ingredients", json=ingredient_invalid_vendor_kwargs)
+    assert response.status_code == 404
+    assert response.json()["detail"] == "The vendor was not found."
+
+
+def test_create_ingredient_with_deleted_vendor_should_return_404(
+    client, ingredient_deleted_vendor_kwargs
+):
+    response = client.post("/ingredients", json=ingredient_deleted_vendor_kwargs)
     assert response.status_code == 404
     assert response.json()["detail"] == "The vendor was not found."
 
