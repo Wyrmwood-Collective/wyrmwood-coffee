@@ -16,6 +16,7 @@ from wyrmwood_coffee.logging import (
 )
 from wyrmwood_coffee.main import app
 from wyrmwood_coffee.models.ingredient import Ingredient
+from wyrmwood_coffee.models.vendor import Vendor
 
 
 @pytest.fixture
@@ -156,6 +157,25 @@ def test_attrs_not_unique_log_includes_expected_fields(ingredient_logger, caplog
     record = records[0]
     assert record.resource_type == "Ingredient"
     assert record.attributes == ["Ingredient.name", "Ingredient.vendor_id"]
+
+
+def test_deletion_conflict_log_includes_expected_fields(ingredient_logger, caplog):
+    caplog.set_level(logging.INFO, logger="wyrmwood_coffee.test_logger")
+
+    ingredient_logger.log_deletion_conflict(
+        resource_id=7,
+        rule="vendor_has_ingredients",
+        conflicts={Vendor: [1, 2]},
+    )
+
+    records = [r for r in caplog.records if r.levelno == logging.INFO]
+    assert len(records) == 1
+
+    record = records[0]
+    assert record.resource_type == "Ingredient"
+    assert record.resource_id == 7
+    assert record.rule == "vendor_has_ingredients"
+    assert record.conflicts == [{"model": "Vendor", "ids": [1, 2]}]
 
 
 def test_password_is_redacted_in_request_log(client, caplog):

@@ -1,4 +1,5 @@
 import pytest
+from sqlalchemy import func, select
 
 from wyrmwood_coffee.models.vendor import Vendor, VendorRead
 
@@ -100,6 +101,49 @@ def vendor_inactive_kwargs(vendor_single_contact_kwargs):
     return vendor_single_contact_kwargs | {"active": False}
 
 
+@pytest.fixture()
+def unused_vendor_id(db_session):
+    def _unused_vendor_id():
+        max_id = db_session.scalar(select(func.max(Vendor.id))) or 0
+        return max_id + 1
+
+    return _unused_vendor_id
+
+
+@pytest.fixture()
+def vendor_single_contact(db_session, client, vendor_single_contact_kwargs):
+    response = client.post("/vendors", json=vendor_single_contact_kwargs)
+    return db_session.get(Vendor, response.json()["id"])
+
+
+@pytest.fixture()
+def vendor_multiple_contacts(db_session, client, vendor_multiple_contacts_kwargs):
+    response = client.post("/vendors", json=vendor_multiple_contacts_kwargs)
+    return db_session.get(Vendor, response.json()["id"])
+
+
+@pytest.fixture()
+def deleted_vendor(db_session, client, vendor_single_contact):
+    client.delete(f"/vendors/{vendor_single_contact.id}")
+    vendor = db_session.get(Vendor, vendor_single_contact.id)
+    return vendor
+
+
+@pytest.fixture()
+def vendor_with_ingredient(client, vendor_single_contact):
+    client.post(
+        "/ingredients",
+        json={
+            "name": "Sugar",
+            "purchasing_cost": 3.5,
+            "unit_amount": 1000,
+            "unit_of_measure": "g",
+            "vendor_id": vendor_single_contact.id,
+        },
+    )
+    return vendor_single_contact
+
+
 # ==========================================
 # LIST OPERATIONS
 # ==========================================
@@ -167,6 +211,13 @@ def test_list_vendors_with_inactive_vendor_should_return_vendors(
     assert returned_vendor is not None
     assert returned_vendor["name"] == "Defunct Suppliers Inc"
     assert returned_vendor["active"] is False
+
+
+def test_list_vendors_with_deleted_vendor_should_return_vendors_excluding_deleted_vendor(  # noqa: E501
+    client, deleted_vendor
+):
+    list_response = client.get("/vendors")
+    assert all(v["id"] != deleted_vendor.id for v in list_response.json())
 
 
 def test_list_vendors_with_no_vendors_should_return_empty_list(client):
@@ -310,3 +361,92 @@ def test_create_vendor_should_persist_to_db(
     response = client.post("/vendors", json=vendor_single_contact_kwargs)
     vendor = db_session.get(Vendor, response.json()["id"])
     assert vendor is not None
+
+
+# ==========================================
+# DELETE OPERATIONS
+# ==========================================
+
+# --------------------
+# Successful Responses
+# --------------------
+
+
+def test_delete_vendor_should_return_no_content(client, vendor_single_contact):
+    response = client.delete(f"/vendors/{vendor_single_contact.id}")
+    assert response.status_code == 204
+
+
+# --------------------
+# Error Responses
+# --------------------
+
+
+def test_delete_vendor_with_nonexistent_id_should_return_404(client, unused_vendor_id):
+    response = client.delete(f"/vendors/{unused_vendor_id()}")
+
+    assert response.status_code == 404
+    assert response.json()["detail"] == "The vendor was not found."
+
+
+def test_delete_vendor_with_already_deleted_vendor_should_return_404(
+    client, deleted_vendor
+):
+    response = client.delete(f"/vendors/{deleted_vendor.id}")
+    assert response.status_code == 404
+
+
+def test_delete_vendor_with_invalid_id_should_return_422(client):
+    response = client.delete("/vendors/not-an-id")
+    assert response.status_code == 422
+
+
+def test_delete_vendor_with_associated_ingredient_should_return_409(
+    client, vendor_with_ingredient
+):
+    response = client.delete(f"/vendors/{vendor_with_ingredient.id}")
+
+    assert response.status_code == 409
+    assert response.json()["detail"] == "The vendor has associated ingredients."
+
+
+# --------------------
+# Side-Effect Tests
+# --------------------
+
+
+def test_delete_vendor_should_mark_vendor_as_deleted(
+    db_session, client, vendor_single_contact
+):
+    client.delete(f"/vendors/{vendor_single_contact.id}")
+    vendor = db_session.get(Vendor, vendor_single_contact.id)
+    assert vendor.is_deleted is True
+
+
+def test_delete_vendor_with_single_contact_should_mark_contacts_as_deleted(
+    db_session, client, vendor_single_contact
+):
+    client.delete(f"/vendors/{vendor_single_contact.id}")
+
+    vendor = db_session.get(Vendor, vendor_single_contact.id)
+    assert len(vendor.contacts) > 0
+    assert all(contact.is_deleted for contact in vendor.contacts)
+
+
+def test_delete_vendor_with_multiple_contacts_should_mark_contacts_as_deleted(
+    db_session, client, vendor_multiple_contacts
+):
+    client.delete(f"/vendors/{vendor_multiple_contacts.id}")
+
+    vendor = db_session.get(Vendor, vendor_multiple_contacts.id)
+    assert len(vendor.contacts) > 0
+    assert all(contact.is_deleted for contact in vendor.contacts)
+
+
+def test_delete_vendor_with_associated_ingredient_should_not_mark_vendor_as_deleted(
+    db_session, client, vendor_with_ingredient
+):
+    client.delete(f"/vendors/{vendor_with_ingredient.id}")
+
+    vendor = db_session.get(Vendor, vendor_with_ingredient.id)
+    assert vendor.is_deleted is False

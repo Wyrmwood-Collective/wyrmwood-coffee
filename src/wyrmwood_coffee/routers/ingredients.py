@@ -75,7 +75,7 @@ def get_ingredient(id: int, session: DbSession) -> IngredientRead:
 def create_ingredient(session: DbSession, payload: IngredientCreate) -> IngredientRead:
     """Create a new ingredient and link it to an existing vendor."""
     vendor = session.get(Vendor, payload.vendor_id)
-    if vendor is None:
+    if vendor is None or vendor.is_deleted:
         vendor_logger.log_resource_not_found(payload.vendor_id)
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
