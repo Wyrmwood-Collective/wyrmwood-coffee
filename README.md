@@ -82,3 +82,20 @@ JWT_EXPIRATION_MINUTES=30
 ```
 
 Team members should retrieve the current database credentials through the approved team credential-sharing method rather than placing passwords in GitHub, Jira, or documentation.
+
+## Sample Data
+
+After running migrations, you can load the sample data with:
+
+```
+uv run seed
+```
+
+Sample data is guaranteed to have consistent IDs (the first vendor in the list will always have ID 1).
+
+This command will not load data if any table already contains data.
+If you want to overwrite already existing data, run:
+
+```
+uv run seed --overwrite
+```

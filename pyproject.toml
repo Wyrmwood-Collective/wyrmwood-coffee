@@ -51,3 +51,4 @@ dev = [
 
 [project.scripts]
 dev = "wyrmwood_coffee.main:dev"
+seed = "wyrmwood_coffee.seed:main"
