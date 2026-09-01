@@ -32,6 +32,23 @@ Non-resource routers (cross-cutting concerns such as authentication) are an exce
 
 **Table Naming:** Plural, snake case (`customers`, `baked_goods`)
 
+## Secrets and configuration
+
+Never commit real secrets (database passwords, JWT signing keys) or files that
+contain them (`.env`, `.env.local`). `.env.example` is the only env file that
+belongs in git, and it must use obvious placeholders, not working logins.
+
+If you add a required setting, add it to `Settings` with no secret default,
+document a placeholder in `.env.example`, and add a row in
+`docs/configuration.md`.
+
+Local values go in `.env.local` (git-ignored). Staging sets `APP_ENVIRONMENT=staging`
+and `STAGING_DATABASE_URL` as environment variables on the deployed host.
+CI sets `APP_ENVIRONMENT=test` in `.github/workflows/ci.yml`. Do not commit
+real connection strings in git.
+
+New to this pattern? Read `docs/configuration.md`.
+
 ## Branching
 
 **Sprint Branch Naming:** `sprint/1`, `sprint/2`, etc.
