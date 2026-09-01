@@ -8,6 +8,15 @@ from wyrmwood_coffee.logging import ResourceLogger
 from wyrmwood_coffee.models.drink import Drink, DrinkCreate, DrinkRead
 from wyrmwood_coffee.services import drinks as drink_service
 
+HTTP_422_DESCRIPTION = """
+The provided DrinkCreate is malformed or invalid. This includes: 
+- Invalid 'type'
+- Invalid 'unit'
+- Duplicate 'ingredient_id' values
+- 'sale_price' is less than 'production_cost'
+- Attempting to convert between incompatible unit categories
+"""
+
 drink_logger = ResourceLogger(logging.getLogger(__name__), Drink)
 router = APIRouter()
 
@@ -20,13 +29,7 @@ router = APIRouter()
     responses={
         404: {"description": "The ingredient was not found."},
         409: {"description": "A drink with that name already exists."},
-        422: {
-            "description": (
-                "The provided DrinkCreate is malformed or invalid. This includes: "
-                "invalid 'type', invalid 'unit', duplicate 'ingredient_id' values, "
-                "or 'production_cost' not less than 'sale_price'."
-            )
-        },
+        422: {"description": HTTP_422_DESCRIPTION},
     },
 )
 def create_drink(session: DbSession, payload: DrinkCreate) -> DrinkRead:

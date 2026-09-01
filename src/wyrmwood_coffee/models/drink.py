@@ -196,7 +196,7 @@ class DrinkRead(DrinkBase):
     @model_validator(mode="after")
     def check_sale_price_greater_than_production_cost(self):
         if self.sale_price < self.production_cost:
-            raise ValueError("production cost must be less than sale price")
+            raise ValueError("sale price cannot be less than production cost")
         return self
 
     model_config = ConfigDict(from_attributes=True)
