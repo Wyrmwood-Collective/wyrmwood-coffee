@@ -53,5 +53,14 @@ jobs:
       - name: Check formatting with Ruff
         run: uv run ruff format --check .
 
+      - name: Check for model/migration drift
+        env:
+          APP_ENVIRONMENT: dev
+          DEV_DATABASE_URL: postgresql+psycopg://root:root@localhost:5432/wyrmwood_coffee_alembic_check
+        run: |
+          PGPASSWORD=root createdb -h localhost -U root wyrmwood_coffee_alembic_check
+          uv run alembic upgrade head
+          uv run alembic check
+
       - name: Run tests with coverage
         run: uv run pytest --cov --cov-report=term-missing --cov-report=xml --cov-fail-under=80

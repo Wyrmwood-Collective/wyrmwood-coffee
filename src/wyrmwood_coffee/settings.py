@@ -1,7 +1,11 @@
+import logging
+import sys
 from enum import StrEnum
 
 from pydantic import Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
+
+logger = logging.getLogger(__name__)
 
 
 class Environment(StrEnum):
@@ -32,6 +36,23 @@ class Settings(BaseSettings):
         env_file=".env",
         env_file_encoding="utf-8",
     )
+
+    @property
+    def database_url(self) -> str:
+        url = None
+        match self.app_environment:
+            case Environment.DEV:
+                url = self.dev_database_url
+            case Environment.TEST:
+                url = self.test_database_url
+
+        if not url:
+            logger.critical(
+                f"Error: database URL is not set for {self.app_environment} "
+                "environment. Please configure it before running."
+            )
+            sys.exit(1)
+        return url
 
 
 settings = Settings()  # type: ignore[call-arg]
