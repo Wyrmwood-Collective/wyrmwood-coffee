@@ -186,8 +186,8 @@ def make_ingredient(db_session, make_vendor):
         defaults = {
             "name": f"Jellyfish Jelly {n}",
             "purchasing_cost": 3.0,
-            "unit_amount": 300,
-            "unit_of_measure": "fl oz",
+            "unit_amount": 5,
+            "unit_of_measure": "L",
             "allergens": ["seafood"],
             "vendor_id": kwargs.get("vendor_id") or make_vendor().id,
         }
