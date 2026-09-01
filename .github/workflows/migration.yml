@@ -1,0 +1,33 @@
+name: Migrate Staging Database
+
+on:
+  push:
+    branches:
+      - 'sprint/**'
+
+jobs:
+  migrate-staging:
+    runs-on: ubuntu-latest
+
+    env:
+      APP_ENVIRONMENT: staging
+      STAGING_DATABASE_URL: ${{ secrets.STAGING_DATABASE_URL }}
+      JWT_SECRET_KEY: ${{ secrets.JWT_SECRET_KEY }}
+
+    steps:
+      - name: Check out repo
+        uses: actions/checkout@v7
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v9.0.0
+        with:
+          enable-cache: true
+
+      - name: Set up Python
+        run: uv python install
+
+      - name: Install dependencies
+        run: uv sync --all-extras --dev
+
+      - name: Apply staging database migrations
+        run: uv run alembic upgrade head
