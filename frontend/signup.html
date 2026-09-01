@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Create Employee — Wyrmwood Coffee</title>
+    <link rel="stylesheet" href="css/style.css" />
+  </head>
+  <body data-page="signup">
+    <main class="page">
+      <section class="card card-wide">
+        <header class="brand">
+          <h1>Wyrmwood Coffee</h1>
+          <p>Admin — create employee</p>
+        </header>
+
+        <div class="app-bar">
+          <nav id="app-nav" class="app-nav" aria-label="Main"></nav>
+          <span id="role-badge" class="role-badge"></span>
+        </div>
+
+        <h2>New employee</h2>
+
+        <div id="form-message" class="message" hidden></div>
+
+        <form id="signup-form">
+          <p class="form-section-title">Account</p>
+
+          <div class="form-field">
+            <label for="first_name">First name</label>
+            <input id="first_name" name="first_name" type="text" required />
+          </div>
+
+          <div class="form-field">
+            <label for="last_name">Last name</label>
+            <input id="last_name" name="last_name" type="text" required />
+          </div>
+
+          <div class="form-field">
+            <label for="username">Username</label>
+            <input
+              id="username"
+              name="username"
+              type="text"
+              autocomplete="username"
+              required
+            />
+          </div>
+
+          <div class="form-field">
+            <label for="password">Password</label>
+            <input
+              id="password"
+              name="password"
+              type="password"
+              autocomplete="new-password"
+              required
+            />
+            <p class="hint">
+              At least 8 characters with a capital letter, a number, and a special
+              character.
+            </p>
+          </div>
+
+          <div class="form-field">
+            <label for="confirm_password">Confirm password</label>
+            <input
+              id="confirm_password"
+              name="confirm_password"
+              type="password"
+              autocomplete="new-password"
+              required
+            />
+          </div>
+
+          <p class="form-section-title">Employment</p>
+
+          <div class="form-field">
+            <label for="role">Role</label>
+            <select id="role" name="role" required>
+              <option value="employee">Employee</option>
+              <option value="manager">Manager</option>
+              <option value="admin">Admin</option>
+            </select>
+          </div>
+
+          <div class="form-field">
+            <label for="hourly_rate">Hourly rate (USD)</label>
+            <input
+              id="hourly_rate"
+              name="hourly_rate"
+              type="number"
+              min="0.01"
+              step="0.01"
+              placeholder="15.00"
+              required
+            />
+            <p class="hint">Must be greater than 0, up to 2 decimal places.</p>
+          </div>
+
+          <div class="form-field">
+            <label for="hire_date">Hire date</label>
+            <input id="hire_date" name="hire_date" type="date" required />
+          </div>
+
+          <div class="form-field">
+            <label for="term_date">Termination date (optional)</label>
+            <input id="term_date" name="term_date" type="date" />
+            <p class="hint">Leave blank for active employees. Must be after hire date.</p>
+          </div>
+
+          <div class="form-field-checkbox">
+            <label for="active">
+              <input id="active" name="active" type="checkbox" checked />
+              Employee is active
+            </label>
+          </div>
+
+          <button class="btn btn-primary" type="submit">Create employee</button>
+        </form>
+
+        <button id="logout-button" class="btn btn-secondary" type="button">
+          Log out
+        </button>
+      </section>
+    </main>
+
+    <script src="js/auth.js"></script>
+  </body>
+</html>
