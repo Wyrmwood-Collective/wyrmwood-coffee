@@ -1,0 +1,322 @@
+{
+  "vendors": [
+    {
+      "key": "sunridge",
+      "active": true,
+      "name": "Sunridge Roasters",
+      "contacts": [
+        {
+          "name": "Priya Anand",
+          "role": "Account Manager",
+          "email": "priya.anand@sunridgeroasters.example",
+          "phone": "206-555-0101"
+        },
+        {
+          "name": "Marcus Ito",
+          "role": "Logistics Coordinator",
+          "email": "marcus.ito@sunridgeroasters.example",
+          "phone": "206-555-0102"
+        }
+      ]
+    },
+    {
+      "key": "dairyland",
+      "active": true,
+      "name": "Dairyland Creamery",
+      "contacts": [
+        {
+          "name": "Colleen Fitzgerald",
+          "role": "Sales Rep",
+          "email": "colleen.fitzgerald@dairylandcreamery.example",
+          "phone": "312-555-0110"
+        }
+      ]
+    },
+    {
+      "key": "sweetstream",
+      "active": true,
+      "name": "Sweet Stream Syrups",
+      "contacts": [
+        {
+          "name": "Renee Castillo",
+          "role": "Account Manager",
+          "email": "renee.castillo@sweetstreamsyrups.example",
+          "phone": "512-555-0121"
+        },
+        {
+          "name": "Owen Baptiste",
+          "role": "Order Fulfillment",
+          "email": "owen.baptiste@sweetstreamsyrups.example",
+          "phone": "512-555-0122"
+        }
+      ]
+    },
+    {
+      "key": "millhouse",
+      "active": true,
+      "name": "Millhouse Bakery Supply",
+      "contacts": [
+        {
+          "name": "Dana Whitfield",
+          "role": "Account Manager",
+          "email": "dana.whitfield@millhousesupply.example",
+          "phone": "617-555-0133"
+        },
+        {
+          "name": "Theo Voss",
+          "role": "Delivery Coordinator",
+          "email": "theo.voss@millhousesupply.example",
+          "phone": "617-555-0134"
+        }
+      ]
+    }
+  ],
+  "ingredients": [
+    { "key": "espresso_beans", "vendor_key": "sunridge", "active": true, "is_deleted": false, "name": "Espresso Beans", "purchasing_cost": "49.60", "unit_amount": "80.00", "unit_of_measure": "oz", "allergens": [] },
+    { "key": "drip_coffee_beans", "vendor_key": "sunridge", "active": true, "is_deleted": false, "name": "Drip Coffee Beans", "purchasing_cost": "72.00", "unit_amount": "160.00", "unit_of_measure": "oz", "allergens": [] },
+    { "key": "decaf_beans", "vendor_key": "sunridge", "active": true, "is_deleted": false, "name": "Decaf Espresso Beans", "purchasing_cost": "54.40", "unit_amount": "80.00", "unit_of_measure": "oz", "allergens": [] },
+    { "key": "black_tea_leaves", "vendor_key": "sunridge", "active": true, "is_deleted": false, "name": "Black Tea Leaves", "purchasing_cost": "14.40", "unit_amount": "16.00", "unit_of_measure": "oz", "allergens": [] },
+    { "key": "green_tea_leaves", "vendor_key": "sunridge", "active": true, "is_deleted": false, "name": "Green Tea Leaves", "purchasing_cost": "17.60", "unit_amount": "16.00", "unit_of_measure": "oz", "allergens": [] },
+    { "key": "whole_milk", "vendor_key": "dairyland", "active": true, "is_deleted": false, "name": "Whole Milk", "purchasing_cost": "7.68", "unit_amount": "128.00", "unit_of_measure": "fl oz", "allergens": ["milk"] },
+    { "key": "oat_milk", "vendor_key": "dairyland", "active": true, "is_deleted": false, "name": "Oat Milk", "purchasing_cost": "3.52", "unit_amount": "32.00", "unit_of_measure": "fl oz", "allergens": [] },
+    { "key": "heavy_cream", "vendor_key": "dairyland", "active": true, "is_deleted": false, "name": "Heavy Cream", "purchasing_cost": "4.48", "unit_amount": "32.00", "unit_of_measure": "fl oz", "allergens": ["milk"] },
+    { "key": "almond_milk", "vendor_key": "dairyland", "active": true, "is_deleted": false, "name": "Almond Milk", "purchasing_cost": "3.20", "unit_amount": "32.00", "unit_of_measure": "fl oz", "allergens": ["tree nuts"] },
+    { "key": "vanilla_syrup", "vendor_key": "sweetstream", "active": true, "is_deleted": false, "name": "Vanilla Syrup", "purchasing_cost": "30.00", "unit_amount": "250.00", "unit_of_measure": "pumps", "allergens": [] },
+    { "key": "caramel_syrup", "vendor_key": "sweetstream", "active": true, "is_deleted": false, "name": "Caramel Syrup", "purchasing_cost": "30.00", "unit_amount": "250.00", "unit_of_measure": "pumps", "allergens": [] },
+    { "key": "hazelnut_syrup", "vendor_key": "sweetstream", "active": true, "is_deleted": false, "name": "Hazelnut Syrup", "purchasing_cost": "32.50", "unit_amount": "250.00", "unit_of_measure": "pumps", "allergens": ["tree nuts"] },
+    { "key": "mocha_sauce", "vendor_key": "sweetstream", "active": true, "is_deleted": false, "name": "Mocha Sauce", "purchasing_cost": "22.40", "unit_amount": "64.00", "unit_of_measure": "fl oz", "allergens": ["milk"] },
+    { "key": "chai_concentrate", "vendor_key": "sweetstream", "active": true, "is_deleted": false, "name": "Chai Concentrate", "purchasing_cost": "7.04", "unit_amount": "32.00", "unit_of_measure": "fl oz", "allergens": [] },
+    { "key": "lemonade_base", "vendor_key": "sweetstream", "active": true, "is_deleted": false, "name": "Lemonade Base", "purchasing_cost": "11.52", "unit_amount": "64.00", "unit_of_measure": "fl oz", "allergens": [] },
+    { "key": "soda_water", "vendor_key": "millhouse", "active": true, "is_deleted": false, "name": "Soda Water", "purchasing_cost": "30.00", "unit_amount": "1000.00", "unit_of_measure": "fl oz", "allergens": [] },
+    { "key": "whipped_cream", "vendor_key": "millhouse", "active": true, "is_deleted": false, "name": "Whipped Cream", "purchasing_cost": "40.00", "unit_amount": "200.00", "unit_of_measure": "scoops", "allergens": ["milk"] },
+    { "key": "cinnamon_dash", "vendor_key": "millhouse", "active": true, "is_deleted": false, "name": "Ground Cinnamon", "purchasing_cost": "10.00", "unit_amount": "500.00", "unit_of_measure": "dashes", "allergens": [] },
+    { "key": "pumpkin_spice_syrup", "vendor_key": "sweetstream", "active": true, "is_deleted": false, "name": "Pumpkin Spice Syrup", "purchasing_cost": "24.00", "unit_amount": "25.40", "unit_of_measure": "fl oz", "allergens": [] },
+    { "key": "apple_syrup", "vendor_key": "sweetstream", "active": true, "is_deleted": false, "name": "Apple Syrup", "purchasing_cost": "22.00", "unit_amount": "25.40", "unit_of_measure": "fl oz", "allergens": [] },
+    { "key": "caramel_sauce", "vendor_key": "sweetstream", "active": true, "is_deleted": false, "name": "Caramel Sauce", "purchasing_cost": "18.50", "unit_amount": "32.00", "unit_of_measure": "fl oz", "allergens": ["milk"] },
+    { "key": "pumpkin_spice", "vendor_key": "millhouse", "active": true, "is_deleted": false, "name": "Pumpkin Spice", "purchasing_cost": "9.50", "unit_amount": "12.00", "unit_of_measure": "oz", "allergens": [] },
+    { "key": "apple_cider", "vendor_key": "dairyland", "active": true, "is_deleted": false, "name": "Apple Cider", "purchasing_cost": "8.75", "unit_amount": "1.00", "unit_of_measure": "gal", "allergens": [] },
+    { "key": "cold_brew_concentrate", "vendor_key": "sunridge", "active": true, "is_deleted": false, "name": "Cold Brew Concentrate", "purchasing_cost": "28.00", "unit_amount": "64.00", "unit_of_measure": "fl oz", "allergens": [] }
+  ],
+  "drinks": [
+    {
+      "active": true,
+      "name": "Classic Espresso",
+      "description": "A double shot of house espresso.",
+      "type": "coffee",
+      "markup_percentage": "3.50",
+      "ingredients": [
+        { "ingredient_key": "espresso_beans", "amount": "0.40", "unit": "oz" }
+      ]
+    },
+    {
+      "active": true,
+      "name": "Drip Coffee",
+      "description": "Freshly brewed house drip coffee.",
+      "type": "coffee",
+      "markup_percentage": "4.00",
+      "ingredients": [
+        { "ingredient_key": "drip_coffee_beans", "amount": "0.50", "unit": "oz" }
+      ]
+    },
+    {
+      "active": true,
+      "name": "Caramel Latte",
+      "description": "Espresso and steamed milk with caramel syrup.",
+      "type": "coffee",
+      "markup_percentage": "3.00",
+      "ingredients": [
+        { "ingredient_key": "espresso_beans", "amount": "0.40", "unit": "oz" },
+        { "ingredient_key": "whole_milk", "amount": "8.00", "unit": "fl oz" },
+        { "ingredient_key": "caramel_syrup", "amount": "3", "unit": "pumps" }
+      ]
+    },
+    {
+      "active": true,
+      "name": "Vanilla Oat Latte",
+      "description": "Espresso and steamed oat milk with vanilla syrup.",
+      "type": "coffee",
+      "markup_percentage": "3.00",
+      "ingredients": [
+        { "ingredient_key": "espresso_beans", "amount": "0.40", "unit": "oz" },
+        { "ingredient_key": "oat_milk", "amount": "8.00", "unit": "fl oz" },
+        { "ingredient_key": "vanilla_syrup", "amount": "3", "unit": "pumps" }
+      ]
+    },
+    {
+      "active": true,
+      "name": "Mocha",
+      "description": "Espresso, steamed milk, mocha sauce, and whipped cream.",
+      "type": "coffee",
+      "markup_percentage": "2.80",
+      "ingredients": [
+        { "ingredient_key": "espresso_beans", "amount": "0.40", "unit": "oz" },
+        { "ingredient_key": "whole_milk", "amount": "6.00", "unit": "fl oz" },
+        { "ingredient_key": "mocha_sauce", "amount": "1.00", "unit": "fl oz" },
+        { "ingredient_key": "whipped_cream", "amount": "1", "unit": "scoops" }
+      ]
+    },
+    {
+      "active": true,
+      "name": "Chai Latte",
+      "description": "Spiced chai concentrate with steamed milk.",
+      "type": "tea",
+      "markup_percentage": "3.20",
+      "ingredients": [
+        { "ingredient_key": "chai_concentrate", "amount": "4.00", "unit": "fl oz" },
+        { "ingredient_key": "whole_milk", "amount": "8.00", "unit": "fl oz" }
+      ]
+    },
+    {
+      "active": true,
+      "name": "Green Tea",
+      "description": "Steeped loose-leaf green tea.",
+      "type": "tea",
+      "markup_percentage": "5.00",
+      "ingredients": [
+        { "ingredient_key": "green_tea_leaves", "amount": "0.15", "unit": "oz" }
+      ]
+    },
+    {
+      "active": true,
+      "name": "Vanilla Cream Soda",
+      "description": "Soda water with vanilla syrup and a splash of cream.",
+      "type": "soda",
+      "markup_percentage": "4.50",
+      "ingredients": [
+        { "ingredient_key": "soda_water", "amount": "12.00", "unit": "fl oz" },
+        { "ingredient_key": "vanilla_syrup", "amount": "4", "unit": "pumps" },
+        { "ingredient_key": "heavy_cream", "amount": "1.00", "unit": "fl oz" }
+      ]
+    },
+    {
+      "active": true,
+      "name": "Strawberry Lemonade Refresher",
+      "description": "Lemonade base topped with soda water over ice.",
+      "type": "refresher",
+      "markup_percentage": "4.00",
+      "ingredients": [
+        { "ingredient_key": "lemonade_base", "amount": "6.00", "unit": "fl oz" },
+        { "ingredient_key": "soda_water", "amount": "6.00", "unit": "fl oz" }
+      ]
+    },
+    {
+      "active": true,
+      "name": "Hot Cocoa",
+      "description": "Steamed milk with mocha sauce, whipped cream, and a dash of cinnamon.",
+      "type": "other",
+      "markup_percentage": "2.60",
+      "ingredients": [
+        { "ingredient_key": "mocha_sauce", "amount": "2.00", "unit": "fl oz" },
+        { "ingredient_key": "whole_milk", "amount": "10.00", "unit": "fl oz" },
+        { "ingredient_key": "whipped_cream", "amount": "1", "unit": "scoops" },
+        { "ingredient_key": "cinnamon_dash", "amount": "1", "unit": "dashes" }
+      ]
+    },
+    {
+      "active": true,
+      "name": "Pumpkin Spice Latte",
+      "description": "Espresso and steamed milk with pumpkin spice syrup, topped with whipped cream and a dusting of pumpkin spice.",
+      "type": "coffee",
+      "markup_percentage": "3.20",
+      "ingredients": [
+        { "ingredient_key": "espresso_beans", "amount": "0.40", "unit": "oz" },
+        { "ingredient_key": "whole_milk", "amount": "8.00", "unit": "fl oz" },
+        { "ingredient_key": "pumpkin_spice_syrup", "amount": "3", "unit": "pumps" },
+        { "ingredient_key": "whipped_cream", "amount": "1", "unit": "scoops" },
+        { "ingredient_key": "pumpkin_spice", "amount": "0.05", "unit": "oz" }
+      ]
+    },
+    {
+      "active": true,
+      "name": "Pumpkin Cold Brew",
+      "description": "Cold brew coffee with pumpkin spice syrup and a dusting of pumpkin spice, served over ice.",
+      "type": "coffee",
+      "markup_percentage": "3.50",
+      "ingredients": [
+        { "ingredient_key": "cold_brew_concentrate", "amount": "6.00", "unit": "fl oz" },
+        { "ingredient_key": "pumpkin_spice_syrup", "amount": "3", "unit": "pumps" },
+        { "ingredient_key": "pumpkin_spice", "amount": "0.05", "unit": "oz" }
+      ]
+    },
+    {
+      "active": true,
+      "name": "Caramel Apple Cold Brew",
+      "description": "Cold brew coffee with apple syrup and a caramel drizzle.",
+      "type": "coffee",
+      "markup_percentage": "3.40",
+      "ingredients": [
+        { "ingredient_key": "cold_brew_concentrate", "amount": "6.00", "unit": "fl oz" },
+        { "ingredient_key": "apple_syrup", "amount": "3", "unit": "pumps" },
+        { "ingredient_key": "caramel_sauce", "amount": "0.25", "unit": "fl oz" }
+      ]
+    },
+    {
+      "active": true,
+      "name": "Fall Apple Cider",
+      "description": "Warm apple cider with a cinnamon garnish.",
+      "type": "other",
+      "markup_percentage": "3.00",
+      "ingredients": [
+        { "ingredient_key": "apple_cider", "amount": "10.00", "unit": "fl oz" },
+        { "ingredient_key": "cinnamon_dash", "amount": "1", "unit": "dashes" }
+      ]
+    },
+    {
+      "active": true,
+      "name": "Iced Caramel Latte",
+      "description": "Espresso and milk over ice with caramel syrup.",
+      "type": "coffee",
+      "markup_percentage": "3.00",
+      "ingredients": [
+        { "ingredient_key": "espresso_beans", "amount": "0.40", "unit": "oz" },
+        { "ingredient_key": "whole_milk", "amount": "6.00", "unit": "fl oz" },
+        { "ingredient_key": "caramel_syrup", "amount": "3", "unit": "pumps" }
+      ]
+    }
+  ],
+  "baked_goods": [
+    { "active": true, "name": "Blueberry Muffin", "description": "A moist muffin studded with blueberries.", "purchase_cost": "1.10", "retail_price": "3.75", "allergens": ["gluten", "egg", "milk"] },
+    { "active": true, "name": "Butter Croissant", "description": "A flaky, all-butter croissant.", "purchase_cost": "1.35", "retail_price": "4.25", "allergens": ["gluten", "egg", "milk"] },
+    { "active": true, "name": "Chocolate Chip Cookie", "description": "A classic chewy chocolate chip cookie.", "purchase_cost": "0.65", "retail_price": "2.75", "allergens": ["gluten", "egg", "milk"] },
+    { "active": true, "name": "Cinnamon Scone", "description": "A buttery scone with a cinnamon swirl.", "purchase_cost": "0.95", "retail_price": "3.50", "allergens": ["gluten", "egg", "milk"] },
+    { "active": true, "name": "Almond Biscotti", "description": "A twice-baked almond biscotti, perfect for dunking.", "purchase_cost": "0.80", "retail_price": "3.00", "allergens": ["gluten", "egg", "tree nuts"] },
+    { "active": true, "name": "Banana Bread Slice", "description": "A dense slice of banana bread.", "purchase_cost": "1.05", "retail_price": "3.95", "allergens": ["gluten", "egg"] },
+    { "active": true, "name": "Gluten-Free Brownie", "description": "A fudgy brownie made without wheat flour.", "purchase_cost": "1.60", "retail_price": "4.50", "allergens": ["egg", "milk"] },
+    { "active": false, "name": "Bagel with Cream Cheese", "description": "A toasted plain bagel with cream cheese, discontinued for the season.", "purchase_cost": "1.20", "retail_price": "3.60", "allergens": ["gluten", "milk"] },
+    { "active": true, "name": "Pumpkin Bread", "description": "A moist, spiced pumpkin quick bread.", "purchase_cost": "1.15", "retail_price": "4.10", "allergens": ["gluten", "egg"] },
+    { "active": true, "name": "Pumpkin Coffee Cake", "description": "A cinnamon-streusel coffee cake made with pumpkin puree.", "purchase_cost": "1.45", "retail_price": "4.75", "allergens": ["gluten", "egg", "milk"] },
+    { "active": true, "name": "Apple Crumble Cake", "description": "A spiced apple cake topped with a buttery crumble.", "purchase_cost": "1.30", "retail_price": "4.50", "allergens": ["gluten", "egg", "milk"] }
+  ],
+  "customers": [
+    { "active": true, "first_name": "Ava", "last_name": "Thompson", "email": "ava.thompson@example.com", "phone": null, "loyalty_points": 120, "loyalty_expires_at": "2027-03-15T00:00:00" },
+    { "active": true, "first_name": "Liam", "last_name": "Martinez", "email": "liam.martinez@example.com", "phone": "206-555-0101", "loyalty_points": 45, "loyalty_expires_at": "2026-11-02T00:00:00" },
+    { "active": true, "first_name": "Sophia", "last_name": "Chen", "email": null, "phone": "312-555-0134", "loyalty_points": 300, "loyalty_expires_at": "2027-01-20T00:00:00" },
+    { "active": true, "first_name": "Noah", "last_name": "Patel", "email": "noah.patel@example.com", "phone": "415-555-0177", "loyalty_points": 0, "loyalty_expires_at": "2026-09-30T00:00:00" },
+    { "active": true, "first_name": "Isabella", "last_name": "Rossi", "email": "isabella.rossi@example.com", "phone": null, "loyalty_points": 75, "loyalty_expires_at": "2025-12-01T00:00:00" },
+    { "active": true, "first_name": "Mason", "last_name": "Kim", "email": null, "phone": "702-555-0192", "loyalty_points": 210, "loyalty_expires_at": "2027-06-11T00:00:00" },
+    { "active": false, "first_name": "Mia", "last_name": "Nguyen", "email": "mia.nguyen@example.com", "phone": "512-555-0143", "loyalty_points": 55, "loyalty_expires_at": "2026-10-05T00:00:00" },
+    { "active": true, "first_name": "Ethan", "last_name": "Brooks", "email": "ethan.brooks@example.com", "phone": null, "loyalty_points": 15, "loyalty_expires_at": "2027-02-18T00:00:00" },
+    { "active": true, "first_name": "Amelia", "last_name": "Ferraro", "email": "amelia.ferraro@example.com", "phone": "917-555-0166", "loyalty_points": 400, "loyalty_expires_at": "2027-08-01T00:00:00" },
+    { "active": true, "first_name": "Lucas", "last_name": "Osei", "email": null, "phone": "404-555-0121", "loyalty_points": 90, "loyalty_expires_at": "2026-12-25T00:00:00" },
+    { "active": true, "first_name": "Harper", "last_name": "Douglas", "email": "harper.douglas@example.com", "phone": "213-555-0188", "loyalty_points": 0, "loyalty_expires_at": "2026-09-15T00:00:00" },
+    { "active": false, "first_name": "Benjamin", "last_name": "Wu", "email": "benjamin.wu@example.com", "phone": null, "loyalty_points": 130, "loyalty_expires_at": "2027-04-09T00:00:00" },
+    { "active": true, "first_name": "Charlotte", "last_name": "Reyes", "email": "charlotte.reyes@example.com", "phone": "617-555-0155", "loyalty_points": 60, "loyalty_expires_at": "2026-11-30T00:00:00" },
+    { "active": true, "first_name": "Elijah", "last_name": "Novak", "email": null, "phone": "303-555-0170", "loyalty_points": 250, "loyalty_expires_at": "2027-05-22T00:00:00" },
+    { "active": true, "first_name": "Grace", "last_name": "Whitfield", "email": "grace.whitfield@example.com", "phone": "480-555-0113", "loyalty_points": 20, "loyalty_expires_at": "2026-10-19T00:00:00" }
+  ],
+  "employees": [
+    { "active": true, "first_name": "Jordan", "last_name": "Ellis", "role": "admin", "hourly_rate": "32.00", "hire_date": "2022-03-01", "term_date": null, "username": "admin", "password": "AdminBrew#2026" },
+    { "active": true, "first_name": "Patricia", "last_name": "Nolan", "role": "manager", "hourly_rate": "24.50", "hire_date": "2022-07-15", "term_date": null, "username": "mgr.patricia", "password": "Roast!Manage7" },
+    { "active": true, "first_name": "Devon", "last_name": "Blake", "role": "manager", "hourly_rate": "23.75", "hire_date": "2023-01-09", "term_date": null, "username": "mgr.devon", "password": "GrindShift#4" },
+    { "active": true, "first_name": "Sam", "last_name": "Okafor", "role": "employee", "hourly_rate": "17.50", "hire_date": "2023-05-20", "term_date": null, "username": "barista.sam", "password": "Latte$Art88" },
+    { "active": true, "first_name": "Jamie", "last_name": "Lin", "role": "employee", "hourly_rate": "17.00", "hire_date": "2024-02-12", "term_date": null, "username": "barista.jamie", "password": "Foam!Master3" },
+    { "active": false, "first_name": "Taylor", "last_name": "Reed", "role": "employee", "hourly_rate": "16.50", "hire_date": "2023-09-01", "term_date": "2025-06-30", "username": "barista.taylor", "password": "Steam#Wand19" }
+  ],
+  "promotions": [
+    { "active": true, "deleted": false, "promo_code": "FALL SPICE", "discount_percentage": "15.00", "start_date": "2026-09-01", "end_date": "2026-11-30" },
+    { "active": true, "deleted": false, "promo_code": "STUDENT_DISCOUNT", "discount_percentage": "10.00", "start_date": "2026-01-01", "end_date": "2026-12-31" },
+    { "active": false, "deleted": false, "promo_code": "SUMMER SIPPER", "discount_percentage": "20.00", "start_date": "2026-06-01", "end_date": "2026-08-31" },
+    { "active": true, "deleted": false, "promo_code": "HOLIDAY CHEER", "discount_percentage": "25.00", "start_date": "2026-11-15", "end_date": "2026-12-31" },
+    { "active": false, "deleted": true, "promo_code": "LOYALTY BONUS", "discount_percentage": "5.00", "start_date": "2025-01-01", "end_date": "2025-12-31" }
+  ]
+}
