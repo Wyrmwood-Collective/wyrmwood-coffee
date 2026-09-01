@@ -41,6 +41,8 @@ class Settings(BaseSettings):
     def database_url(self) -> str:
         url = None
         match self.app_environment:
+            case Environment.STAGING:
+                url = self.staging_database_url
             case Environment.DEV:
                 url = self.dev_database_url
             case Environment.TEST:
