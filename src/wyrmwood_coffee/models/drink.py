@@ -72,10 +72,6 @@ class DrinkIngredient(Base):
     amount: Mapped[Decimal] = mapped_column(Numeric(10, 2), nullable=False)
     unit: Mapped[str] = mapped_column(nullable=False)
 
-    @property
-    def ingredient_cost(self) -> Decimal:
-        return (self.amount * self.ingredient.purchasing_cost).quantize(Decimal("0.01"))
-
 
 class Drink(Base):
     __tablename__ = "drinks"
