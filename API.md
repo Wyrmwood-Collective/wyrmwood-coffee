@@ -172,7 +172,7 @@ Create a new drink recipe.
 | `201` | The newly created drink | `application/json` [`DrinkRead`](#drinkread) |
 | `404` | The ingredient was not found. | `application/json` `{ "detail": string }` |
 | `409` | A drink with that name already exists. | `application/json` `{ "detail": string }` |
-| `422` | The provided DrinkCreate is malformed or invalid. This includes: invalid 'type', invalid 'unit', duplicate 'ingredient_id' values, or 'production_cost' not less than 'sale_price'. | `application/json` [`HTTPValidationError`](#httpvalidationerror) |
+| `422` | The provided DrinkCreate is malformed or invalid. This includes: <ul><li>Invalid 'type'</li> <li>Invalid 'unit'</li><li>Duplicate 'ingredient_id' values</li><li>'sale_price' is less than 'production_cost'</li><li>Attempting to convert between incompatible unit categories</li></ul> | `application/json` [`HTTPValidationError`](#httpvalidationerror) |
 
 [Back to Summary](#summary)
 
@@ -649,8 +649,8 @@ Base schema of an ingredient for a unique drink in the system. The ingredient mu
 | Field | Type | Required | Notes |
 | --- | --- | --- | --- |
 | `ingredient_id` | int | yes | The unique identifier of the ingredient |
-| `amount` | decimal | yes | The ingredient amount required for the drink recipe |
-| `unit` | string | yes | The unit of measurement of the ingredient for the drink recipe |
+| `amount` | decimal | yes | The ingredient amount required for the drink recipe; must be a positive number |
+| `unit` | string | yes | The ingredient's unit of measure for the drink recipe; must use the same unit category as the referenced ingredient's unit, see [Unit Categories](#unit-categories) |
 
 ### DrinkIngredientCreateNested
 
@@ -659,8 +659,8 @@ Input schema for attaching an existing ingredient to a new drink recipe. `unit` 
 | Field | Type | Required | Notes |
 | --- | --- | --- | --- |
 | `ingredient_id` | int | yes | The unique identifier of the ingredient |
-| `amount` | decimal | yes | The ingredient amount required for the drink recipe |
-| `unit` | string | yes | The unit of measurement of the ingredient for the drink recipe |
+| `amount` | decimal | yes | The ingredient amount required for the drink recipe; must be a positive number |
+| `unit` | string | yes | The ingredient's unit of measure for the drink recipe; must use the same unit category as the referenced ingredient's unit, see [Unit Categories](#unit-categories) |
 
 ### DrinkIngredientRead
 
@@ -669,8 +669,8 @@ Represents an ingredient for a unique drink recipe in the system.
 | Field | Type | Required | Notes |
 | --- | --- | --- | --- |
 | `ingredient_id` | int | yes | The unique identifier of the ingredient |
-| `amount` | decimal | yes | The ingredient amount required for the drink recipe |
-| `unit` | string | yes | The unit of measurement of the ingredient for the drink recipe |
+| `amount` | decimal | yes | The ingredient amount required for the drink recipe; must be a positive number |
+| `unit` | string | yes | The ingredient's unit of measure for the drink recipe; must use the same unit category as the referenced ingredient's unit, see [Unit Categories](#unit-categories) |
 
 ### DrinkRead
 
@@ -824,6 +824,16 @@ Token schema returned from the system.
 | --- | --- | --- | --- |
 | `access_token` | string | yes | The JWT access token for the authenticated employee |
 | `token_type` | string | yes | The type of the access token |
+
+### Unit Categories
+
+Categories for valid units of measurement.
+
+| Category | Units |
+| --- | --- |
+| MASS | `g`, `kg`, `oz`, `lb` |
+| VOLUME | `mL`, `fl oz`, `L`, `gal` |
+| OTHER | `pumps`, `scoops`, `shots`, `dashes` |
 
 ### ValidationError
 

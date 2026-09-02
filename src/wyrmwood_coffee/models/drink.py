@@ -72,10 +72,6 @@ class DrinkIngredient(Base):
     amount: Mapped[Decimal] = mapped_column(Numeric(10, 2), nullable=False)
     unit: Mapped[str] = mapped_column(nullable=False)
 
-    @property
-    def ingredient_cost(self) -> Decimal:
-        return (self.amount * self.ingredient.purchasing_cost).quantize(Decimal("0.01"))
-
 
 class Drink(Base):
     __tablename__ = "drinks"
@@ -200,7 +196,7 @@ class DrinkRead(DrinkBase):
     @model_validator(mode="after")
     def check_sale_price_greater_than_production_cost(self):
         if self.sale_price < self.production_cost:
-            raise ValueError("production cost must be less than sale price")
+            raise ValueError("sale price cannot be less than production cost")
         return self
 
     model_config = ConfigDict(from_attributes=True)

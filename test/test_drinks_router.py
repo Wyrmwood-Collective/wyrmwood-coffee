@@ -22,12 +22,12 @@ def make_drink(db_session, make_ingredient):
         }
         defaults.update(kwargs)
 
-        specs = ingredient_specs or [{"amount": 2.00, "unit": "oz"}]
+        specs = ingredient_specs or [{"amount": 2.00, "unit": "fl oz"}]
         ingredients = [
             DrinkIngredientCreateNested(
                 ingredient_id=spec.get("ingredient_id") or make_ingredient().id,
                 amount=spec.get("amount", 1.00),
-                unit=spec.get("unit", "oz"),
+                unit=spec.get("unit", "fl oz"),
             )
             for spec in specs
         ]
