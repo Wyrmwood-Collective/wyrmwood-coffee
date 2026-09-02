@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Employee Login — Wyrmwood Coffee</title>
+    <link rel="stylesheet" href="css/style.css" />
+  </head>
+  <body data-page="login">
+    <main class="page">
+      <section class="card">
+        <header class="brand">
+          <h1>Wyrmwood Coffee</h1>
+          <p>Employee login showcase</p>
+        </header>
+
+        <h2>Log in</h2>
+
+        <div id="form-message" class="message" hidden></div>
+
+        <form id="login-form">
+          <div class="form-field">
+            <label for="username">Username</label>
+            <input
+              id="username"
+              name="username"
+              type="text"
+              autocomplete="username"
+              required
+            />
+          </div>
+
+          <div class="form-field">
+            <label for="password">Password</label>
+            <input
+              id="password"
+              name="password"
+              type="password"
+              autocomplete="current-password"
+              required
+            />
+          </div>
+
+          <button class="btn btn-primary" type="submit">Log in</button>
+        </form>
+      </section>
+    </main>
+
+    <script src="js/auth.js"></script>
+  </body>
+</html>

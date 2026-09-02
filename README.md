@@ -40,6 +40,17 @@ Run test suite:
 uv run pytest
 ```
 
+## Frontend showcase (optional)
+
+A simple HTML login and sign-up demo lives in `frontend/`. 
+Run the API as usual, then open:
+
+```
+http://127.0.0.1:8000/app/
+```
+
+See [frontend/README.md](frontend/README.md) for file layout and editing tips.
+
 ## Database Migrations
 
 This project uses [Alembic](https://alembic.sqlalchemy.org/) to manage database schema changes. Alembic reads the connection URL from `DEV_DATABASE_URL` in your `.env` file.

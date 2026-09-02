@@ -4,6 +4,7 @@ from pathlib import Path
 
 from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
+from fastapi.staticfiles import StaticFiles
 
 from wyrmwood_coffee.logging import setup_logging
 from wyrmwood_coffee.middleware import RequestLoggingMiddleware
@@ -31,6 +32,14 @@ app.include_router(employees.router)
 app.include_router(ingredients.router)
 app.include_router(promotions_router)
 app.include_router(vendors.router, prefix="/vendors", tags=["Vendors"])
+
+FRONTEND_DIR = Path(__file__).resolve().parent.parent.parent / "frontend"
+if FRONTEND_DIR.is_dir():
+    app.mount(
+        "/app",
+        StaticFiles(directory=FRONTEND_DIR, html=True),
+        name="frontend",
+    )
 
 
 def dev():

@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>My Profile — Wyrmwood Coffee</title>
+    <link rel="stylesheet" href="css/style.css" />
+  </head>
+  <body data-page="dashboard">
+    <main class="page">
+      <section class="card card-wide">
+        <header class="brand">
+          <h1>Wyrmwood Coffee</h1>
+          <p>Employee dashboard showcase</p>
+        </header>
+
+        <div class="app-bar">
+          <nav id="app-nav" class="app-nav" aria-label="Main"></nav>
+          <span id="role-badge" class="role-badge"></span>
+        </div>
+
+        <h2 id="welcome-text">Welcome!</h2>
+        <p id="access-note" class="hint access-note"></p>
+
+        <div id="form-message" class="message" hidden></div>
+
+        <ul id="profile-list" class="profile-list"></ul>
+
+        <button id="logout-button" class="btn btn-secondary" type="button">
+          Log out
+        </button>
+      </section>
+    </main>
+
+    <script src="js/auth.js"></script>
+  </body>
+</html>
