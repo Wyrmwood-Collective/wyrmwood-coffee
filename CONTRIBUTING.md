@@ -228,7 +228,12 @@ Tests for the same handler should be ordered so that tests for successful respon
 - `422`: The provided `REQUEST_MODEL` is malformed or invalid.
 - `422`: The provided path parameter is malformed or invalid.
 
-If a response code can be returned for multiple reasons, the response description may include multiple descriptions ("The provided IngredientRead is malformed or invalid, or the provided path parameter is malformed or invalid.").
+If a response code can be returned for multiple reasons, the response description may combine those reasons in prose or as a list. Either format is acceptable:
+
+- Prose: join reasons into a single sentence with commas and/or (for example, "The provided PromotionUpdate is malformed or invalid, or the provided path parameter is malformed or invalid.")
+- List: when an endpoint has several distinct validation failures, use a lead-in sentence followed by a bulleted list of the specific failures (for example, "The provided DrinkCreate is malformed or invalid. This includes:" followed by items such as invalid `type`, invalid `unit`, duplicate `ingredient_id` values, or `production_cost` not less than `sale_price`).
+
+In route decorators, the `description` may be a plain string or built from a Python list of strings (for example, a module-level constant joined with newlines or HTML list markup).
 
 **Note**: This section only applies to the `description` field of entries in the `responses` parameter of FastAPI's route decorator. It does not apply to the `detail` argument passed to `HTTPException`.
 
@@ -245,3 +250,5 @@ If an endpoint accepts a request body (e.g., `create_vendor`), a default/example
 API documentation in `API.md` should follow the existing formatting.
 All schemas should be ordered alphabetically.
 All rows in the Summary section should include a link to the detailed endpoint description, and all schema references should be linked to the appropriate schema description.
+
+Response descriptions in `API.md` should convey the same information as the route decorator's `responses` parameter (see Standard Response Descriptions above). HTML `<ul>` / `<li>` lists are acceptable in response description cells when listing multiple distinct reasons for a status code.
