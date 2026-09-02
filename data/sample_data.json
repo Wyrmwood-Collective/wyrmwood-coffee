@@ -305,7 +305,7 @@
     { "active": true, "first_name": "Grace", "last_name": "Whitfield", "email": "grace.whitfield@example.com", "phone": "480-555-0113", "loyalty_points": 20, "loyalty_expires_at": "2026-10-19T00:00:00" }
   ],
   "employees": [
-    { "active": true, "first_name": "Jordan", "last_name": "Ellis", "role": "admin", "hourly_rate": "32.00", "hire_date": "2022-03-01", "term_date": null, "username": "admin", "password": "AdminBrew#2026" },
+    { "active": true, "first_name": "Jordan", "last_name": "Ellis", "role": "admin", "hourly_rate": "32.00", "hire_date": "2022-03-01", "term_date": null, "username": "admin", "password": "7247SChicago!" },
     { "active": true, "first_name": "Patricia", "last_name": "Nolan", "role": "manager", "hourly_rate": "24.50", "hire_date": "2022-07-15", "term_date": null, "username": "mgr.patricia", "password": "Roast!Manage7" },
     { "active": true, "first_name": "Devon", "last_name": "Blake", "role": "manager", "hourly_rate": "23.75", "hire_date": "2023-01-09", "term_date": null, "username": "mgr.devon", "password": "GrindShift#4" },
     { "active": true, "first_name": "Sam", "last_name": "Okafor", "role": "employee", "hourly_rate": "17.50", "hire_date": "2023-05-20", "term_date": null, "username": "barista.sam", "password": "Latte$Art88" },
