@@ -83,7 +83,7 @@ def delete_vendor(session: DbSession, id: int):
             detail="The vendor was not found.",
         )
 
-    if vendor.ingredients:
+    if any(not i.is_deleted for i in vendor.ingredients):
         vendor_logger.log_deletion_conflict(
             vendor.id,
             "vendor_has_ingredients",
