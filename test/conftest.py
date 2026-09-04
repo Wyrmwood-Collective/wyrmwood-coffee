@@ -1,5 +1,8 @@
+import itertools
 import os
 import subprocess
+from datetime import date
+from decimal import Decimal
 from typing import cast
 
 import pytest
@@ -10,6 +13,10 @@ from sqlalchemy.orm import sessionmaker
 
 from wyrmwood_coffee.database import Base, get_db
 from wyrmwood_coffee.main import app
+from wyrmwood_coffee.models.employee import Employee
+from wyrmwood_coffee.models.ingredient import Ingredient
+from wyrmwood_coffee.models.vendor import Vendor, VendorContact
+from wyrmwood_coffee.security import hash_password
 from wyrmwood_coffee.settings import settings
 
 
@@ -93,3 +100,102 @@ def client(db_session):
     app.dependency_overrides[get_db] = lambda: db_session
     yield TestClient(app)
     del app.dependency_overrides[get_db]
+
+
+@pytest.fixture
+def employee_kwargs():
+    return {
+        "active": True,
+        "first_name": "Ada",
+        "last_name": "Lovelace",
+        "role": "employee",
+        "hourly_rate": 18.5,
+        "hire_date": "2024-01-15",
+        "username": "alovelace",
+        "password": "Password1!",
+    }
+
+
+@pytest.fixture
+def employee_inactive_kwargs(employee_kwargs):
+    return employee_kwargs | {"active": False}
+
+
+def _persist_employee(db_session, kwargs):
+    term_date = kwargs.get("term_date")
+    employee = Employee(
+        active=kwargs["active"],
+        first_name=kwargs["first_name"],
+        last_name=kwargs["last_name"],
+        role=kwargs["role"],
+        hourly_rate=Decimal(str(kwargs["hourly_rate"])),
+        hire_date=date.fromisoformat(kwargs["hire_date"]),
+        term_date=date.fromisoformat(term_date) if term_date else None,
+        username=kwargs["username"],
+        password=hash_password(kwargs["password"]),
+    )
+    db_session.add(employee)
+    db_session.commit()
+    db_session.refresh(employee)
+    return employee
+
+
+@pytest.fixture
+def persist_employee(db_session):
+    def persist(kwargs):
+        return _persist_employee(db_session, kwargs)
+
+    return persist
+
+
+@pytest.fixture()
+def make_vendor(db_session):
+    counter = itertools.count(1)
+
+    def _make_vendor(**kwargs):
+        n = next(counter)
+        contact_data = kwargs.pop(
+            "contact",
+            {
+                "name": "Eugene Krabs",
+                "role": "Owner",
+                "email": f"moneymoneymoney+{n}@bikinibottom.com",
+                "phone": f"810-337-{n:04d}",
+            },
+        )
+        defaults = {
+            "name": f"Krusty Krab Supply Co {n}",
+            "contacts": [VendorContact(**contact_data)],
+        }
+        defaults.update(kwargs)
+        vendor = Vendor(**defaults)
+        db_session.add(vendor)
+        db_session.commit()
+        db_session.refresh(vendor)
+        return vendor
+
+    return _make_vendor
+
+
+@pytest.fixture()
+def make_ingredient(db_session, make_vendor):
+    counter = itertools.count(1)
+
+    def _make_ingredient(**kwargs):
+        n = next(counter)
+        defaults = {
+            "name": f"Jellyfish Jelly {n}",
+            "purchasing_cost": 3.0,
+            "unit_amount": 5,
+            "unit_of_measure": "L",
+            "allergens": ["seafood"],
+            "vendor_id": kwargs.get("vendor_id") or make_vendor().id,
+        }
+        defaults.update(kwargs)
+        ingredient = Ingredient(**defaults)
+        db_session.add(ingredient)
+        db_session.commit()
+        db_session.refresh(ingredient)
+        return ingredient
+
+    return _make_ingredient

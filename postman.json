@@ -1,12 +1,51 @@
 {
   "info": {
-    "_postman_id": "0fdde47e-c939-44ef-aa29-c6e761aca7b0",
+    "_postman_id": "27d0dc95-dc7e-4a2d-82ac-1622fe777b03",
     "name": "Wyrmwood Coffee",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
     "_exporter_id": "56711512",
-    "_collection_link": "https://go.postman.co/collection/56711512-0fdde47e-c939-44ef-aa29-c6e761aca7b0?source=collection_link"
+    "_collection_link": "https://go.postman.co/collection/56711512-27d0dc95-dc7e-4a2d-82ac-1622fe777b03?source=collection_link"
   },
   "item": [
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "Login",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "urlencoded",
+              "urlencoded": [
+                {
+                  "key": "username",
+                  "value": "alovelace",
+                  "type": "text"
+                },
+                {
+                  "key": "password",
+                  "value": "Password1!",
+                  "type": "text"
+                }
+              ]
+            },
+            "url": {
+              "raw": "localhost:8000/auth/login",
+              "host": [
+                "localhost"
+              ],
+              "port": "8000",
+              "path": [
+                "auth",
+                "login"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
     {
       "name": "Baked Goods",
       "item": [
@@ -61,6 +100,25 @@
           "response": []
         },
         {
+          "name": "Get Customer",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "localhost:8000/customers/1",
+              "host": [
+                "localhost"
+              ],
+              "port": "8000",
+              "path": [
+                "customers",
+                "1"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
           "name": "Create Customer",
           "event": [
             {
@@ -106,6 +164,38 @@
               "port": "8000",
               "path": [
                 "customers"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Drinks",
+      "item": [
+        {
+          "name": "Create Drink",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"name\": \"Green Tea\",\r\n    \"description\": \"Yummy\",\r\n    \"ingredients\": [\r\n        {\r\n            \"ingredient_id\": 1,\r\n            \"amount\": 2,\r\n            \"unit\": \"g\"\r\n        },\r\n        {\r\n            \"ingredient_id\": 2,\r\n            \"amount\": 4,\r\n            \"unit\": \"oz\"\r\n        }\r\n    ],\r\n    \"type\": \"tea\",\r\n    \"markup_percentage\": 1.5\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "localhost:8000/drinks",
+              "host": [
+                "localhost"
+              ],
+              "port": "8000",
+              "path": [
+                "drinks"
               ]
             }
           },
@@ -186,6 +276,43 @@
       "name": "Ingredients",
       "item": [
         {
+          "name": "List Ingredients",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "localhost:8000/ingredients",
+              "host": [
+                "localhost"
+              ],
+              "port": "8000",
+              "path": [
+                "ingredients"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Ingredient",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "localhost:8000/ingredients/1",
+              "host": [
+                "localhost"
+              ],
+              "port": "8000",
+              "path": [
+                "ingredients",
+                "1"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
           "name": "Create Ingredient",
           "request": {
             "method": "POST",
@@ -211,6 +338,58 @@
             }
           },
           "response": []
+        },
+        {
+          "name": "Update Ingredient",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"name\": \"Updated Espresso Beans\",\n    \"purchasing_cost\": 4.50,\n    \"unit_amount\": 1000.00,\n    \"unit_of_measure\": \"mL\",\n    \"vendor_id\": 1,\n    \"allergens\": [],\n    \"active\": false\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "localhost:8000/ingredients/1",
+              "host": [
+                "localhost"
+              ],
+              "port": "8000",
+              "path": [
+                "ingredients",
+                "1"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Ingredient",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "localhost:8000/ingredients/1",
+              "host": [
+                "localhost"
+              ],
+              "port": "8000",
+              "path": [
+                "ingredients",
+                "1"
+              ]
+            }
+          },
+          "response": []
         }
       ]
     },
@@ -230,6 +409,25 @@
               "port": "8000",
               "path": [
                 "promotions"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Promotion",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "localhost:8000/promotions/1",
+              "host": [
+                "localhost"
+              ],
+              "port": "8000",
+              "path": [
+                "promotions",
+                "1"
               ]
             }
           },
@@ -261,12 +459,77 @@
             }
           },
           "response": []
+        },
+        {
+          "name": "Update Promotion",
+          "request": {
+            "method": "PUT",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"active\": true,\r\n    \"promo_code\": \"WINTER_SALE\",\r\n    \"discount_percentage\": 25,\r\n    \"start_date\": \"2026-12-01\",\r\n    \"end_date\": \"2026-12-31\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "localhost:8000/promotions/1",
+              "host": [
+                "localhost"
+              ],
+              "port": 8000,
+              "path": [
+                "promotions",
+                "1"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Promotion",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "localhost:8000/promotions/1",
+              "host": [
+                "localhost"
+              ],
+              "port": "8000",
+              "path": [
+                "promotions",
+                "1"
+              ]
+            }
+          },
+          "response": []
         }
       ]
     },
     {
       "name": "Vendors",
       "item": [
+        {
+          "name": "List Vendors",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "localhost:8000/vendors",
+              "host": [
+                "localhost"
+              ],
+              "port": "8000",
+              "path": [
+                "vendors"
+              ]
+            }
+          },
+          "response": []
+        },
         {
           "name": "Create Vendor",
           "request": {
@@ -289,6 +552,25 @@
               "port": "8000",
               "path": [
                 "vendors"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Vendor",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "localhost:8000/vendors/1",
+              "host": [
+                "localhost"
+              ],
+              "port": "8000",
+              "path": [
+                "vendors",
+                "1"
               ]
             }
           },

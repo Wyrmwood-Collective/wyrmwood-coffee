@@ -1,39 +1,49 @@
-import sys
+import logging
+from collections.abc import Generator
 
-from sqlalchemy import create_engine
-from sqlalchemy.orm import declarative_base, sessionmaker
+from sqlalchemy import Engine, create_engine
+from sqlalchemy.orm import Session, declarative_base, sessionmaker
 
-from wyrmwood_coffee.settings import Environment, settings
+from wyrmwood_coffee.settings import settings
 
-match settings.app_environment:
-    case Environment.DEV:
-        if settings.dev_database_url:
-            engine = create_engine(settings.dev_database_url)
-        else:
-            sys.exit(
-                "Error: DATABASE_URL is not set. Please configure it before running."
-            )
-    case Environment.TEST:
-        if settings.test_database_url:
-            engine = create_engine(settings.test_database_url)
-        else:
-            sys.exit(
-                "Error: TEST_DATABASE_URL is not set. Please configure it before running."  # noqa: E501
-            )
+logger = logging.getLogger(__name__)
+
+_engine = None
 
 
-SessionLocal = sessionmaker(
-    autocommit=False,
-    autoflush=False,
-    bind=engine,
-)
+def get_engine() -> Engine:
+    global _engine
+
+    if _engine is not None:
+        return _engine
+
+    logger.info("Connecting to %s database", settings.app_environment)
+    _engine = create_engine(settings.database_url)
+    return _engine
+
+
+_SessionLocal = None
+
+
+def get_session_local() -> sessionmaker[Session]:
+    global _SessionLocal
+
+    if _SessionLocal is None:
+        _SessionLocal = sessionmaker(
+            autocommit=False,
+            autoflush=False,
+            bind=get_engine(),
+        )
+        return _SessionLocal
+    else:
+        return _SessionLocal
 
 
 Base = declarative_base()
 
 
-def get_db():
-    db = SessionLocal()
+def get_db() -> Generator[Session, None, None]:
+    db = get_session_local()()
     try:
         yield db
     finally:

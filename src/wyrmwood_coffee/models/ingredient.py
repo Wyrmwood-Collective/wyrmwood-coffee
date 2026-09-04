@@ -2,13 +2,14 @@ from decimal import Decimal
 from typing import TYPE_CHECKING, Annotated
 
 from pydantic import BaseModel, ConfigDict, Field, StringConstraints, field_validator
-from sqlalchemy import ForeignKey, Numeric, String, UniqueConstraint
+from sqlalchemy import Boolean, ForeignKey, Index, Numeric, String, text
 from sqlalchemy.dialects.postgresql import ARRAY
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from wyrmwood_coffee.database import Base
 
 if TYPE_CHECKING:
+    from wyrmwood_coffee.models.drink import DrinkIngredient
     from wyrmwood_coffee.models.vendor import Vendor
 
 
@@ -16,11 +17,19 @@ class Ingredient(Base):
     __tablename__ = "ingredients"
 
     __table_args__ = (
-        UniqueConstraint("name", "vendor_id", name="uq_ingredient_name_vendor"),
+        Index(
+            "uq_ingredient_name_vendor",
+            "name",
+            "vendor_id",
+            unique=True,
+            postgresql_where=text("is_deleted = false"),
+        ),
     )
 
     id: Mapped[int] = mapped_column(primary_key=True, index=True)
-    active: Mapped[bool] = mapped_column(default=True)
+    active: Mapped[bool] = mapped_column(Boolean, nullable=False, default=True)
+
+    is_deleted: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
 
     name: Mapped[str] = mapped_column(nullable=False)
     purchasing_cost: Mapped[Decimal] = mapped_column(Numeric(10, 2), nullable=False)
@@ -29,8 +38,9 @@ class Ingredient(Base):
     allergens: Mapped[list[str]] = mapped_column(ARRAY(String), default=list)
 
     vendor_id: Mapped[int] = mapped_column(ForeignKey("vendors.id"))
+    vendor: Mapped["Vendor"] = relationship(back_populates="ingredients")
 
-    vendor: Mapped["Vendor"] = relationship()
+    drinks: Mapped[list["DrinkIngredient"]] = relationship(back_populates="ingredient")
 
 
 VALID_UNITS = {
@@ -101,3 +111,9 @@ class IngredientRead(IngredientBase):
         title="Ingredient ID", description="The unique identifier for this ingredient"
     )
     model_config = ConfigDict(from_attributes=True)
+
+
+class IngredientUpdate(IngredientBase):
+    """Input schema for updating an existing ingredient."""
+
+    pass

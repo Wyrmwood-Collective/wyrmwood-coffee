@@ -1,11 +1,14 @@
 from datetime import date
 from decimal import Decimal
+from typing import Annotated
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 from sqlalchemy import Boolean, Date, Numeric, String
 from sqlalchemy.orm import Mapped, mapped_column
 
 from wyrmwood_coffee.database import Base
+
+PromotionId = Annotated[int, Field(gt=0)]
 
 
 class Promotion(Base):
@@ -15,6 +18,7 @@ class Promotion(Base):
 
     id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
     active: Mapped[bool] = mapped_column(Boolean, nullable=False)
+    deleted: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
     promo_code: Mapped[str] = mapped_column(
         String,
         unique=True,
@@ -61,6 +65,10 @@ class PromotionCreate(BaseModel):
 class PromotionRead(PromotionCreate):
     """Response model returned when viewing a promotion."""
 
-    id: int
+    id: PromotionId
 
     model_config = ConfigDict(from_attributes=True)
+
+
+class PromotionUpdate(PromotionCreate):
+    """Request model used when updating an existing promotion."""

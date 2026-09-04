@@ -2,18 +2,19 @@ name: CI
 
 on:
   push:
-    branches: [main, 'sprint/**']
+    branches: ['sprint/**']
   pull_request:
-    branches: [main, 'sprint/**']
+    branches: ['sprint/**']
 
 jobs:
   test:
     runs-on: ubuntu-latest
 
     env:
-      DATABASE_URL: postgresql+psycopg://root:root@localhost:5432/wyrmwood_coffee_test
+      DEV_DATABASE_URL: postgresql+psycopg://root:root@localhost:5432/wyrmwood_coffee_test
       APP_ENVIRONMENT: test
       TEST_DATABASE_URL: postgresql+psycopg://root:root@localhost:5432/wyrmwood_coffee_test
+      JWT_SECRET_KEY: test-jwt-secret-key-not-for-production
 
     services:
       postgres:
@@ -49,6 +50,15 @@ jobs:
 
       - name: Check formatting with Ruff
         run: uv run ruff format --check .
+
+      - name: Check for model/migration drift
+        env:
+          APP_ENVIRONMENT: test
+          TEST_DATABASE_URL: postgresql+psycopg://root:root@localhost:5432/wyrmwood_coffee_alembic_check
+        run: |
+          PGPASSWORD=root createdb -h localhost -U root wyrmwood_coffee_alembic_check
+          uv run alembic upgrade head
+          uv run alembic check
 
       - name: Run tests with coverage
         run: uv run pytest --cov --cov-report=term-missing --cov-report=xml --cov-fail-under=80

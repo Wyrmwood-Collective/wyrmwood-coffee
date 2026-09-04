@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Team Roster — Wyrmwood Coffee</title>
+    <link rel="stylesheet" href="css/style.css" />
+  </head>
+  <body data-page="employees">
+    <main class="page">
+      <section class="card card-full">
+        <header class="brand">
+          <h1>Wyrmwood Coffee</h1>
+          <p>Team roster</p>
+        </header>
+
+        <div class="app-bar">
+          <nav id="app-nav" class="app-nav" aria-label="Main"></nav>
+          <span id="role-badge" class="role-badge"></span>
+        </div>
+
+        <div class="section-header">
+          <h2>Employees</h2>
+          <a id="create-employee-link" class="btn btn-primary btn-inline" href="signup.html">
+            Create employee
+          </a>
+        </div>
+
+        <p id="roster-note" class="hint"></p>
+
+        <div id="form-message" class="message" hidden></div>
+
+        <div class="table-wrap">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th>Username</th>
+                <th>Role</th>
+                <th>Status</th>
+                <th id="rate-header">Rate</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody id="employees-table-body"></tbody>
+          </table>
+        </div>
+
+        <section id="employee-detail" class="detail-panel" hidden>
+          <h3 id="employee-detail-title">Employee</h3>
+          <ul id="employee-detail-list" class="profile-list"></ul>
+          <div id="employee-detail-actions"></div>
+        </section>
+
+        <button id="logout-button" class="btn btn-secondary" type="button">
+          Log out
+        </button>
+      </section>
+    </main>
+
+    <script src="js/auth.js"></script>
+  </body>
+</html>

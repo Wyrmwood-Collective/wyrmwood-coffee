@@ -1,0 +1,17 @@
+title = "Wyrmwood Coffee"
+
+[extend]
+useDefault = true
+
+[allowlist]
+description = "Placeholders, fixture passwords, and ephemeral CI Postgres credentials"
+paths = [
+    '''(^|/)\.env\.example$''',
+    '''(^|/)test/test_settings\.py$''',
+]
+regexes = [
+    '''test-jwt-secret-key-not-for-production''',
+    '''ci-alembic-drift-check-jwt-secret-not-for-production''',
+    '''postgresql\+psycopg://root:root@localhost:5432/''',
+    '''POSTGRES_PASSWORD: root''',
+]

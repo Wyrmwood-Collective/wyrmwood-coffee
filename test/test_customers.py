@@ -3,8 +3,9 @@ from datetime import datetime
 
 import pytest
 from dateutil.relativedelta import relativedelta
+from sqlalchemy import func, select
 
-from wyrmwood_coffee.models.customer import Customer
+from wyrmwood_coffee.models.customer import CUSTOMER_ID_MAX, Customer, CustomerRead
 
 
 @pytest.fixture()
@@ -42,8 +43,17 @@ def make_customer(db_session):
     return _make_customer
 
 
+@pytest.fixture()
+def unused_customer_id(db_session):
+    def _unused_customer_id():
+        max_id = db_session.scalar(select(func.max(Customer.id))) or 0
+        return max_id + 1
+
+    return _unused_customer_id
+
+
 # ==========================================
-# READ OPERATIONS
+# LIST CUSTOMERS
 # ==========================================
 
 
@@ -133,8 +143,6 @@ def test_list_customers_with_unset_optional_fields_should_return_null(
 # --------------------
 # Side Effects
 # --------------------
-
-
 def test_list_customers_should_not_modify_data(db_session, client, make_customer):
     make_customer()
     db_session.commit()
@@ -177,7 +185,141 @@ def test_list_customers_should_not_modify_data(db_session, client, make_customer
 
 
 # ==========================================
-# CREATE OPERATIONS
+# GET CUSTOMER
+# ==========================================
+
+
+# --------------------
+# Successful Responses
+# --------------------
+def test_get_customer_should_return_customer(client, make_customer):
+    make_customer()
+    customer_2 = make_customer(
+        first_name="Mermaid", last_name="Man", email="ihatemanray@bikinibottom.com"
+    )
+
+    response = client.get(f"/customers/{customer_2.id}")
+    assert response.status_code == 200
+    assert response.headers["content-type"].startswith("application/json")
+
+    body = response.json()
+    CustomerRead.model_validate(body)
+    assert set(body.keys()) == set(CustomerRead.model_fields.keys())
+    assert body["id"] == customer_2.id
+
+
+def test_get_customer_with_inactive_customer_should_return_customer(
+    client, make_customer
+):
+    make_customer()
+    customer_2 = make_customer(
+        active=False, first_name="Barnacle", last_name="Boy", phone="815-332-9554"
+    )
+
+    response = client.get(f"/customers/{customer_2.id}")
+    assert response.status_code == 200
+
+    body = response.json()
+    assert body["id"] == customer_2.id
+    assert body["active"] is False
+    assert body["last_name"] == customer_2.last_name
+    assert body["phone"] == customer_2.phone
+
+
+def test_get_customer_with_leading_zero_id_should_return_customer(
+    client, make_customer
+):
+    customer = make_customer(
+        first_name="King", last_name="Neptune", email="ruleroftheseas@bikinibottom.com"
+    )
+    response = client.get(f"/customers/0{customer.id}")
+    assert response.status_code == 200
+
+    body = response.json()
+    assert body["id"] == customer.id
+    assert body["first_name"] == customer.first_name
+    assert body["email"] == customer.email
+
+
+def test_get_customer_with_trailing_slash_should_return_customer(client, make_customer):
+    customer = make_customer(
+        first_name="Penelope", last_name="Puff", phone="531-893-6684"
+    )
+    response = client.get(f"/customers/{customer.id}/")
+    assert response.status_code == 200
+
+    body = response.json()
+    assert body["id"] == customer.id
+
+
+def test_get_customer_with_leading_padded_whitespace_id_should_return_customer(
+    client, make_customer
+):
+    customer = make_customer()
+    response = client.get(f"/customers/%20{customer.id}")
+    assert response.status_code == 200
+    assert response.json()["id"] == customer.id
+
+
+def test_get_customer_with_trailing_padded_whitespace_id_should_return_customer(
+    client, make_customer
+):
+    customer = make_customer()
+    response = client.get(f"/customers/{customer.id}%20")
+    assert response.status_code == 200
+    assert response.json()["id"] == customer.id
+
+
+# --------------------
+# Error / Invalid Responses
+# --------------------
+def test_get_customer_with_nonexistent_id_should_return_404(client, unused_customer_id):
+    response = client.get(f"/customers/{unused_customer_id()}")
+    assert response.status_code == 404
+    assert response.json()["detail"] == "The customer was not found."
+
+
+@pytest.mark.parametrize("id", [0, -1, -999999])
+def test_get_customer_with_non_positive_integer_should_return_422(client, id):
+    response = client.get(f"/customers/{id}")
+    assert response.status_code == 422
+
+
+@pytest.mark.parametrize("id", ["abc", "!!!", "null", "None"])
+def test_get_customer_with_non_numeric_id_should_return_422(client, id):
+    response = client.get(f"/customers/{id}")
+    assert response.status_code == 422
+
+
+def test_get_customer_with_internal_whitespace_id_should_return_422(
+    client, make_customer
+):
+    response = client.get(f"/customers/{make_customer().id}%203")
+    assert response.status_code == 422
+
+
+def test_get_customer_with_only_whitespace_id_should_return_422(client):
+    response = client.get("/customers/%20%20")
+    assert response.status_code == 422
+
+
+def test_get_customer_with_float_id_should_return_422(client):
+    response = client.get("/customers/3.33")
+    assert response.status_code == 422
+
+
+def test_get_customer_with_id_exceeding_postgres_integer_max_should_return_422(client):
+    response = client.get(f"/customers/{CUSTOMER_ID_MAX + 1}")
+    assert response.status_code == 422
+
+
+def test_get_customer_with_overflowing_id_should_return_422(client):
+    response = client.get("/customers/99999999999999999999999999999999")
+    assert response.status_code == 422
+
+
+# ==========================================
+# CREATE CUSTOMER
 # ==========================================
 
 
