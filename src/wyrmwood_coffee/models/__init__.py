@@ -4,6 +4,7 @@ from wyrmwood_coffee.models.customer import Customer
 from wyrmwood_coffee.models.drink import Drink
 from wyrmwood_coffee.models.employee import Employee
 from wyrmwood_coffee.models.ingredient import Ingredient
+from wyrmwood_coffee.models.loyalty_point import LoyaltyPointAudit
 from wyrmwood_coffee.models.promotions import Promotion
 from wyrmwood_coffee.models.token import Token
 from wyrmwood_coffee.models.vendor import Vendor, VendorContact
@@ -17,4 +18,5 @@ __all__ = [
     "Vendor",
     "VendorContact",
     "Promotion",
+    "LoyaltyPointAudit",
 ]
