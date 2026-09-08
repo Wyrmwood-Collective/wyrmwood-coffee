@@ -12,7 +12,7 @@ from pydantic import (
     field_validator,
     model_validator,
 )
-from sqlalchemy import Boolean, Date, Identity, Integer, Numeric, String, true
+from sqlalchemy import Boolean, Date, Identity, Integer, Numeric, String, false, true
 from sqlalchemy.orm import Mapped, mapped_column
 
 from wyrmwood_coffee.database import Base
@@ -78,6 +78,9 @@ class Employee(Base):
 
     id: Mapped[int] = mapped_column(Integer, Identity(always=True), primary_key=True)
     active: Mapped[bool] = mapped_column(Boolean, nullable=False, server_default=true())
+    is_deleted: Mapped[bool] = mapped_column(
+        Boolean, nullable=False, default=False, server_default=false()
+    )
     first_name: Mapped[str] = mapped_column(String, nullable=False)
     last_name: Mapped[str] = mapped_column(String, nullable=False)
     role: Mapped[str] = mapped_column(String, nullable=False)

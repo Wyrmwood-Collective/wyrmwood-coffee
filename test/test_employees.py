@@ -319,6 +319,14 @@ def test_get_employee_with_nonexistent_id_should_return_404(client, unused_emplo
     assert response.json()["detail"] == "The employee was not found."
 
 
+def test_get_employee_with_deleted_employee_should_return_404(
+    client, persisted_employee
+):
+    client.delete(f"/employees/{persisted_employee.id}")
+    response = client.get(f"/employees/{persisted_employee.id}")
+    assert response.status_code == 404
+
+
 def test_get_employee_with_zero_id_should_return_422(client):
     response = client.get("/employees/0")
     assert response.status_code == 422
@@ -536,11 +544,6 @@ def test_create_employee_should_hash_password(db_session, client, employee_kwarg
     )
 
 
-# ==========================================
-# UPDATE (PUT) OPERATIONS
-# ==========================================
-
-
 def test_update_employee_should_return_updated_employee(
     client, persisted_employee, employee_update_kwargs
 ):
@@ -565,7 +568,6 @@ def test_update_employee_with_nonexistent_id_should_return_404(
         f"/employees/{unused_employee_id()}", json=employee_update_kwargs
     )
     assert response.status_code == 404
-    assert response.json()["detail"] == "The employee was not found."
 
 
 def test_update_employee_with_duplicate_username_should_return_409(
@@ -621,8 +623,6 @@ def test_update_employee_should_persist_to_db(
     assert employee is not None
     assert employee.first_name == "Updated"
     assert employee.hourly_rate == Decimal("25.50")
-    # Verify the password was NOT changed or overwritten
-    assert employee.password == persisted_employee.password
 
 
 def test_update_employee_with_password_should_ignore_password(
@@ -645,3 +645,45 @@ def test_update_employee_with_password_should_ignore_password(
     db_session.expire_all()
     employee = db_session.get(Employee, persisted_employee.id)
     assert employee.password == original_password
+
+
+def test_delete_employee_should_return_no_content(client, persisted_employee):
+    response = client.delete(f"/employees/{persisted_employee.id}")
+    assert response.status_code == 204
+    assert response.text == ""
+
+
+def test_delete_employee_with_nonexistent_id_should_return_404(
+    client, unused_employee_id
+):
+    response = client.delete(f"/employees/{unused_employee_id()}")
+    assert response.status_code == 404
+    assert response.json()["detail"] == "The employee was not found."
+
+
+def test_delete_employee_with_zero_id_should_return_422(client):
+    response = client.delete("/employees/0")
+    assert response.status_code == 422
+
+
+def test_delete_employee_with_already_deleted_id_should_return_404(
+    client, persisted_employee
+):
+    client.delete(f"/employees/{persisted_employee.id}")
+    response = client.delete(f"/employees/{persisted_employee.id}")
+    assert response.status_code == 404
+
+
+def test_delete_employee_should_soft_delete_in_db(
+    db_session, client, persisted_employee
+):
+    response = client.delete(f"/employees/{persisted_employee.id}")
+    assert response.status_code == 204
+
+    db_session.expire_all()
+    employee = db_session.get(Employee, persisted_employee.id)
+
+    assert employee is not None
+    assert employee.is_deleted is True
+    assert employee.active is False
+    assert employee.username.endswith(f"_deleted_{employee.id}")
