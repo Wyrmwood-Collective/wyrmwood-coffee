@@ -5,11 +5,12 @@
 
 ## Development Setup
 
-Install `uv` and clone the repository:
+Install `uv` and `npm`, then clone the repository:
 
 ```shell
-winget -e --id=astral-sh.uv
-git clone git@github.com:bverble-catalyte/wyrmwood-coffee.git
+winget install -e --id astral-sh.uv
+winget install -e --id OpenJS.NodeJS.LTS
+git clone git@github.com:Wyrmwood-Collective/wyrmwood-coffee.git
 ```
 
 Create a local env file from the committed template and fill in real values
@@ -40,16 +41,67 @@ Run test suite:
 uv run pytest
 ```
 
-## Frontend showcase (optional)
+## Frontend
 
-A simple HTML login and sign-up demo lives in `frontend/`. 
-Run the API as usual, then open:
+### Running
 
-```
-http://127.0.0.1:8000/app/
-```
+The Vue frontend application lives in `frontend/`.
+Running `uv run dev` will build it automatically before starting the API.
+View the frontend by visiting `http://localhost:8000/` (redirects to `/app/`).
 
-See [frontend/README.md](frontend/README.md) for file layout and editing tips.
+If you want to work on the frontend using the hot reloader, first start the API with `uv run dev`.
+Then in the `frontend` directory run `npm run dev` and access the frontend at `http://localhost:5173`.
+
+See `vite.config.ts` for proxy configuration.
+
+### Role Permissions
+
+The UI reads `role` from the JWT after login. These rules are **not enforced by
+the API yet** — they only control what each user sees in the browser.
+
+| Action | Employee | Manager | Admin |
+| --- | --- | --- | --- |
+| View own profile | Yes | Yes | Yes |
+| List team roster | No | Yes | Yes |
+| View any employee detail | No | Yes | Yes |
+| See hourly rates in roster | No | No | Yes |
+| Create employee | No | No | Yes |
+| Delete employee | No | No | Yes* |
+| Update employee | No | No | Soon* |
+
+\* Delete calls `DELETE /employees/{id}` when you click delete — it will show a
+friendly message until the backend adds that endpoint. Update is noted in the UI
+for when `PUT /employees/{id}` exists.
+
+### Routes
+
+| Route | Who can open it | Purpose |
+| --- | --- | --- |
+| `/` | Everyone (logged out) | Login |
+| `/dashboard` | All logged-in roles | Own profile |
+| `/employees` | Manager, admin | Team roster |
+| `/signup` | Admin only | Create employee |
+
+If you navigate to a route you are not allowed to use, you are redirected to
+the dashboard (or to login, if you're not authenticated).
+
+### API Calls Used
+
+| View | Endpoint | Notes |
+| --- | --- | --- |
+| Login | `POST /auth/login` | Form-encoded `username` + `password` |
+| Create | `POST /employees` | Full `EmployeeCreate` JSON |
+| Roster | `GET /employees` | List all employees |
+| Profile / detail | `GET /employees/{id}` | Single employee |
+| Delete (admin) | `DELETE /employees/{id}` | UI only until API exists |
+
+### Editing tips
+
+- Permission rules live in `src/composables/useSession.ts` in the
+  `PERMISSIONS` object.
+- Add a nav link in `src/components/AppChrome.vue` when you add a
+  new route.
+- Change colors → CSS variables at the top of `src/assets/style.css`.
 
 ## Database Migrations
 

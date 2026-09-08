@@ -6,7 +6,6 @@
 
 | Method | Path | Requires Auth | Description |
 | --- | --- | --- | --- |
-| `GET` | `/` | No | [Welcome Message](#get-) |
 | `POST` | `/auth/login` | No | [Login](#post-authlogin) |
 | `POST` | `/baked-goods` | No | [Create Baked Good](#post-baked-goods) |
 | `GET` | `/customers` | No | [List Customers](#get-customers) |
@@ -16,6 +15,7 @@
 | `GET` | `/employees` | No | [List Employees](#get-employees) |
 | `GET` | `/employees/{id}` | No | [Get Employee](#get-employeesid) |
 | `POST` | `/employees` | No | [Create Employee](#post-employees) |
+| `GET` | `/health` | No | [Welcome Message](#get-health) |
 | `GET` | `/ingredients` | No | [List Ingredients](#get-ingredients) |
 | `GET` | `/ingredients/{id}` | No | [Get Ingredient](#get-ingredientsid) |
 | `POST` | `/ingredients` | No | [Create Ingredient](#post-ingredients) |
@@ -29,22 +29,6 @@
 | `GET` | `/vendors` | No | [List Vendors](#get-vendors) |
 | `POST` | `/vendors` | No | [Create Vendor](#post-vendors) |
 | `DELETE` | `/vendors/{id}` | No | [Delete Vendor](#delete-vendorsid) |
-
-### `GET` /
-
-**Welcome Message**
-
-Returns a simple welcome message. Used as a basic liveness check for the service.
-
-**Responses**
-
-| Status | Description | Body |
-| --- | --- | --- |
-| `200` | The welcome message | `application/json` `{ "message": string }` |
-
-[Back to Summary](#summary)
-
----
 
 ### `POST` /auth/login
 
@@ -241,6 +225,22 @@ Returns the created employee without the password field.
 | `201` | The newly created employee | `application/json` [`EmployeeRead`](#employeeread) |
 | `409` | An employee with that username already exists. | `application/json` `{ "detail": string }` |
 | `422` | The provided EmployeeCreate is malformed or invalid. | `application/json` [`HTTPValidationError`](#httpvalidationerror) |
+
+[Back to Summary](#summary)
+
+---
+
+### `GET` /health
+
+**Welcome Message**
+
+Returns a simple welcome message. Used as a basic liveness check for the service.
+
+**Responses**
+
+| Status | Description | Body |
+| --- | --- | --- |
+| `200` | The welcome message | `application/json` `{ "message": string }` |
 
 [Back to Summary](#summary)
 

@@ -13,6 +13,10 @@ When reviewing:
 When in doubt about whether or not something is covered, default to passing.
 Add an additional comment if you determine a convention may be worth formalizing.
 
+## Frontend
+
+Currently no style guidelines or testing standards are enforced for frontend code.
+
 ## Imports
 
 Use absolute imports (`from wyrmwood_coffee.models.customer import Customer`, not `from .customer import Customer`).
