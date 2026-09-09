@@ -163,3 +163,9 @@ class EmployeeRead(EmployeeBase):
     model_config = ConfigDict(from_attributes=True)
 
     id: EmployeeId = Field(title=EMPLOYEE_ID_TITLE, description=EMPLOYEE_ID_DESC)
+
+
+class EmployeeUpdate(EmployeeBase):
+    """Payload for updating an existing employee's profile."""
+
+    pass

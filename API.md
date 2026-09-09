@@ -15,6 +15,7 @@
 | `GET` | `/employees` | No | [List Employees](#get-employees) |
 | `GET` | `/employees/{id}` | No | [Get Employee](#get-employeesid) |
 | `POST` | `/employees` | No | [Create Employee](#post-employees) |
+| `PUT` | `/employees/{id}` | No | [Update Employee](#put-employeesid) |
 | `GET` | `/health` | No | [Welcome Message](#get-health) |
 | `GET` | `/ingredients` | No | [List Ingredients](#get-ingredients) |
 | `GET` | `/ingredients/{id}` | No | [Get Ingredient](#get-ingredientsid) |
@@ -226,6 +227,30 @@ Returns the created employee without the password field.
 | `201` | The newly created employee | `application/json` [`EmployeeRead`](#employeeread) |
 | `409` | An employee with that username already exists. | `application/json` `{ "detail": string }` |
 | `422` | The provided EmployeeCreate is malformed or invalid. | `application/json` [`HTTPValidationError`](#httpvalidationerror) |
+
+[Back to Summary](#summary)
+
+---
+
+### `PUT` /employees/{id}
+
+**Update Employee**
+
+Update an existing employee's profile information. The password cannot be updated through this endpoint. If a password is provided in the request body, it will be silently ignored.
+Returns the updated employee without the password field.
+
+**Request body** (required)
+
+`application/json` — [`EmployeeUpdate`](#employeeupdate)
+
+**Responses**
+
+| Status | Description | Body |
+| --- | --- | --- |
+| `200` | The updated employee | `application/json` [`EmployeeRead`](#employeeread) |
+| `404` | The employee was not found. | `application/json` `{ "detail": string }` |
+| `409` | An employee with that username already exists. | `application/json` `{ "detail": string }` |
+| `422` | The provided EmployeeUpdate is malformed or invalid, or the provided path parameter is malformed or invalid. | `application/json` [`HTTPValidationError`](#httpvalidationerror) |
 
 [Back to Summary](#summary)
 
@@ -754,6 +779,21 @@ Represents an employee returned from the system. Does not include `password`.
 | `hire_date` | date | yes | The date the employee was hired |
 | `term_date` | date \| null | no | The date the employee was terminated, if applicable; must be later than `hire_date` |
 | `username` | string | yes | The employee's username for system access |
+
+### EmployeeUpdate
+
+Input schema for updating an existing employee.
+
+| Field | Type | Required | Notes |
+| --- | --- | --- | --- |
+| `active` | bool | yes | Whether the employee is currently active. |
+| `first_name` | string | yes | The employee's first name. |
+| `last_name` | string | yes | The employee's last name. |
+| `role` | string | yes | The employee's role. |
+| `hourly_rate` | decimal | yes | The employee's hourly rate. |
+| `hire_date` | date | yes | The date the employee was hired. |
+| `term_date` | date \| null | no | The date the employee was terminated, if applicable. |
+| `username` | string | yes | The employee's unique username. |
 
 ### HTTPValidationError
 

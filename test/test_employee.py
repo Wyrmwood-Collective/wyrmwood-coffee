@@ -15,6 +15,15 @@ def employee_missing_active_kwargs(employee_kwargs):
 
 
 @pytest.fixture
+def employee_update_kwargs(employee_kwargs):
+    kwargs = dict(employee_kwargs)
+    del kwargs["password"]
+    kwargs["first_name"] = "Updated"
+    kwargs["hourly_rate"] = 25.50
+    return kwargs
+
+
+@pytest.fixture
 def employee_with_term_date_kwargs(employee_kwargs):
     return employee_kwargs | {"term_date": "2025-06-01"}
 
@@ -525,3 +534,114 @@ def test_create_employee_should_hash_password(db_session, client, employee_kwarg
         employee_kwargs["password"].encode("utf-8"),
         employee.password.encode("utf-8"),
     )
+
+
+# ==========================================
+# UPDATE (PUT) OPERATIONS
+# ==========================================
+
+
+def test_update_employee_should_return_updated_employee(
+    client, persisted_employee, employee_update_kwargs
+):
+    response = client.put(
+        f"/employees/{persisted_employee.id}", json=employee_update_kwargs
+    )
+    assert response.status_code == 200
+
+    employee = EmployeeRead(**response.json())
+    expected = employee_update_kwargs | {
+        "id": persisted_employee.id,
+        "term_date": None,
+        "hourly_rate": f"{Decimal(str(employee_update_kwargs['hourly_rate'])):.2f}",
+    }
+    assert employee.model_dump(mode="json") == expected
+
+
+def test_update_employee_with_nonexistent_id_should_return_404(
+    client, unused_employee_id, employee_update_kwargs
+):
+    response = client.put(
+        f"/employees/{unused_employee_id()}", json=employee_update_kwargs
+    )
+    assert response.status_code == 404
+    assert response.json()["detail"] == "The employee was not found."
+
+
+def test_update_employee_with_duplicate_username_should_return_409(
+    client, persisted_employees, employee_update_kwargs
+):
+    first, second = persisted_employees
+
+    # Attempt to update the second employee to use the first employee's username
+    employee_update_kwargs["username"] = first.username
+
+    response = client.put(f"/employees/{second.id}", json=employee_update_kwargs)
+    assert response.status_code == 409
+
+
+def test_update_employee_with_zero_id_should_return_422(client, employee_update_kwargs):
+    response = client.put("/employees/0", json=employee_update_kwargs)
+    assert response.status_code == 422
+
+
+def test_update_employee_with_zero_hourly_rate_should_return_422(
+    client, persisted_employee, employee_zero_hourly_rate_kwargs
+):
+    # Strip the password out of the existing invalid fixture
+    payload = dict(employee_zero_hourly_rate_kwargs)
+    del payload["password"]
+
+    response = client.put(f"/employees/{persisted_employee.id}", json=payload)
+    assert response.status_code == 422
+
+
+def test_update_employee_with_term_date_before_hire_date_should_return_422(
+    client, persisted_employee, employee_term_date_before_hire_date_kwargs
+):
+    # Strip the password out of the existing invalid fixture
+    payload = dict(employee_term_date_before_hire_date_kwargs)
+    del payload["password"]
+
+    response = client.put(f"/employees/{persisted_employee.id}", json=payload)
+    assert response.status_code == 422
+
+
+def test_update_employee_should_persist_to_db(
+    db_session, client, persisted_employee, employee_update_kwargs
+):
+    response = client.put(
+        f"/employees/{persisted_employee.id}", json=employee_update_kwargs
+    )
+    assert response.status_code == 200
+
+    db_session.expire_all()
+    employee = db_session.get(Employee, persisted_employee.id)
+
+    assert employee is not None
+    assert employee.first_name == "Updated"
+    assert employee.hourly_rate == Decimal("25.50")
+    # Verify the password was NOT changed or overwritten
+    assert employee.password == persisted_employee.password
+
+
+def test_update_employee_with_password_should_ignore_password(
+    db_session, client, persisted_employee, employee_update_kwargs
+):
+    # 1. Grab the original hashed password from the database
+    original_password = persisted_employee.password
+
+    # 2. Sneak a password field into the otherwise valid update payload
+    payload = dict(employee_update_kwargs)
+    payload["password"] = "SneakyNewPassword123!"
+
+    # 3. Attempt the PUT update
+    response = client.put(f"/employees/{persisted_employee.id}", json=payload)
+
+    # 4. Assert the request was successful and didn't throw a 422 Validation Error
+    assert response.status_code == 200
+
+    # 5. Refresh the session and verify the password in the DB DID NOT change
+    db_session.expire_all()
+    employee = db_session.get(Employee, persisted_employee.id)
+    assert employee.password == original_password

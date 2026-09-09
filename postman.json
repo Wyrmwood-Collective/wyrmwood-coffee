@@ -269,6 +269,39 @@
             }
           },
           "response": []
+        },
+        {
+          "name": "Update Employee",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"first_name\": \"Ada\",\r\n    \"last_name\": \"Lovelace-Byron\",\r\n    \"role\": \"manager\",\r\n    \"hourly_rate\": 25.50,\r\n    \"hire_date\": \"2024-01-15\",\r\n    \"username\": \"alovelace\",\r\n    \"active\": true\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "localhost:8000/employees/1",
+              "host": [
+                "localhost"
+              ],
+              "port": "8000",
+              "path": [
+                "employees",
+                "1"
+              ]
+            }
+          },
+          "response": []
         }
       ]
     },

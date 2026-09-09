@@ -13,6 +13,7 @@ from wyrmwood_coffee.models.employee import (
     EmployeeCreate,
     EmployeeId,
     EmployeeRead,
+    EmployeeUpdate,
 )
 from wyrmwood_coffee.security import hash_password
 
@@ -94,3 +95,63 @@ def create_employee(session: DbSession, payload: EmployeeCreate) -> EmployeeRead
         ) from None
     session.refresh(new_employee)
     return EmployeeRead.model_validate(new_employee)
+
+
+@router.put(
+    "/employees/{id}",
+    status_code=status.HTTP_200_OK,
+    response_model=EmployeeRead,
+    response_description="The updated employee",
+    responses={
+        404: {"description": "The employee was not found."},
+        409: {"description": "An employee with that username already exists."},
+        422: {
+            "description": (
+                "The provided EmployeeUpdate is malformed or invalid, "
+                "or the provided path parameter is malformed or invalid."
+            )
+        },
+    },
+)
+def update_employee(
+    session: DbSession,
+    id: EmployeeId,
+    payload: EmployeeUpdate,
+) -> EmployeeRead:
+    """
+    Update an existing employee.
+
+    Returns the updated employee without the password field.
+    The employee's password cannot be updated via this endpoint. If a
+    password is provided in the request body, it will be silently ignored.
+    """
+    # 1. Look up the employee
+    employee = session.get(Employee, id)
+    if employee is None:
+        employee_logger.log_resource_not_found(id)
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="The employee was not found.",
+        )
+
+    # 2. Apply the updated fields
+    update_data = payload.model_dump(exclude={"password"}, exclude_unset=True)
+
+    for key, value in update_data.items():
+        setattr(employee, key, value)
+    # 3. Save to database with uniqueness safety net
+    try:
+        session.commit()
+        employee_logger.log_resource_updated(employee.id)
+    except IntegrityError:
+        session.rollback()
+        employee_logger.log_attrs_not_unique([Employee.username])
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail="An employee with that username already exists.",
+        ) from None
+
+    session.refresh(employee)
+
+    # 4. Return the updated model
+    return EmployeeRead.model_validate(employee)
