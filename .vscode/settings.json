@@ -8,6 +8,36 @@
       "source.organizeImports.ruff": "explicit",
     }
   },
+  "[vue]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
+    "editor.formatOnSave": true,
+    "editor.codeActionsOnSave": {
+      "source.fixAll": "explicit",
+    }
+  },
+  "[typescript]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
+    "editor.formatOnSave": true,
+    "editor.codeActionsOnSave": {
+      "source.fixAll": "explicit",
+    }
+  },
+  "[javascript]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
+    "editor.formatOnSave": true,
+    "editor.codeActionsOnSave": {
+      "source.fixAll": "explicit",
+    }
+  },
+  "[html]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
+    "editor.formatOnSave": true,
+  },
+  "[css]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
+    "editor.formatOnSave": true,
+  },
+  "eslint.workingDirectories": [{ "directory": "frontend" }],
   "files.exclude": {
     "**/__pycache__": true,
     "**/.pytest_cache": true,
@@ -16,13 +46,16 @@
     "**/.venv": true,
     "**/htmlcov": true,
     "**/dist": true,
+    "**/node_modules": true,
   },
   "files.watcherExclude": {
     "**/.venv/**": true,
+    "**/node_modules/**": true,
   },
   "search.exclude": {
     "**/.venv": true,
     "**/htmlcov": true,
+    "**/node_modules": true,
   },
   "ruff.importStrategy": "fromEnvironment",
   "python.analysis.typeCheckingMode": "standard",

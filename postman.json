@@ -558,6 +558,34 @@
           "response": []
         },
         {
+          "name": "Update Vendor",
+          "request": {
+            "method": "PUT",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"name\": \"Cornerstone Wholesale\",\r\n    \"active\": true,\r\n    \"contacts\": [\r\n        {\r\n            \"id\": 1,\r\n            \"name\": \"Burton Daniels\",\r\n            \"role\": \"Regional Manager\",\r\n            \"email\": \"burton@cornerstonewholesale.com\",\r\n            \"phone\": \"517-555-1277\"\r\n        }\r\n    ]\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "localhost:8000/vendors/1",
+              "host": [
+                "localhost"
+              ],
+              "port": "8000",
+              "path": [
+                "vendors",
+                "1"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
           "name": "Delete Vendor",
           "request": {
             "method": "DELETE",
