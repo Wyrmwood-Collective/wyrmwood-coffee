@@ -6,7 +6,6 @@
 
 | Method | Path | Requires Auth | Description |
 | --- | --- | --- | --- |
-| `GET` | `/` | No | [Welcome Message](#get-) |
 | `POST` | `/auth/login` | No | [Login](#post-authlogin) |
 | `POST` | `/baked-goods` | No | [Create Baked Good](#post-baked-goods) |
 | `GET` | `/customers` | No | [List Customers](#get-customers) |
@@ -16,6 +15,7 @@
 | `GET` | `/employees` | No | [List Employees](#get-employees) |
 | `GET` | `/employees/{id}` | No | [Get Employee](#get-employeesid) |
 | `POST` | `/employees` | No | [Create Employee](#post-employees) |
+| `GET` | `/health` | No | [Welcome Message](#get-health) |
 | `GET` | `/ingredients` | No | [List Ingredients](#get-ingredients) |
 | `GET` | `/ingredients/{id}` | No | [Get Ingredient](#get-ingredientsid) |
 | `POST` | `/ingredients` | No | [Create Ingredient](#post-ingredients) |
@@ -28,23 +28,8 @@
 | `DELETE` | `/promotions/{id}` | No | [Delete Promotion](#delete-promotionsid) |
 | `GET` | `/vendors` | No | [List Vendors](#get-vendors) |
 | `POST` | `/vendors` | No | [Create Vendor](#post-vendors) |
+| `PUT` | `/vendors/{id}` | No | [Update Vendor](#put-vendorsid) |
 | `DELETE` | `/vendors/{id}` | No | [Delete Vendor](#delete-vendorsid) |
-
-### `GET` /
-
-**Welcome Message**
-
-Returns a simple welcome message. Used as a basic liveness check for the service.
-
-**Responses**
-
-| Status | Description | Body |
-| --- | --- | --- |
-| `200` | The welcome message | `application/json` `{ "message": string }` |
-
-[Back to Summary](#summary)
-
----
 
 ### `POST` /auth/login
 
@@ -241,6 +226,22 @@ Returns the created employee without the password field.
 | `201` | The newly created employee | `application/json` [`EmployeeRead`](#employeeread) |
 | `409` | An employee with that username already exists. | `application/json` `{ "detail": string }` |
 | `422` | The provided EmployeeCreate is malformed or invalid. | `application/json` [`HTTPValidationError`](#httpvalidationerror) |
+
+[Back to Summary](#summary)
+
+---
+
+### `GET` /health
+
+**Welcome Message**
+
+Returns a simple welcome message. Used as a basic liveness check for the service.
+
+**Responses**
+
+| Status | Description | Body |
+| --- | --- | --- |
+| `200` | The welcome message | `application/json` `{ "message": string }` |
 
 [Back to Summary](#summary)
 
@@ -516,6 +517,40 @@ and each vendor contact.
 | --- | --- | --- |
 | `201` | The newly created vendor | `application/json` [`VendorRead`](#vendorread) |
 | `422` | Validation Error | `application/json` [`HTTPValidationError`](#httpvalidationerror) |
+
+[Back to Summary](#summary)
+
+---
+
+### `PUT` /vendors/{id}
+
+**Update Vendor**
+
+Update an existing vendor and its contacts.
+
+The list of contacts is processed in the following way:
+- If the contact has an ID, the existing contact with that ID will be updated.
+- If the contact does not have an ID, a new contact will be created.
+- Any of the vendor's existing contacts without a corresponding contact in
+  the request will be deleted.
+
+**Path parameters**
+
+| Name | Type | Required | Notes |
+| --- | --- | --- | --- |
+| `id` | int | yes | The unique identifier of the vendor |
+
+**Request body** (required)
+
+`application/json` — [`VendorUpdate`](#vendorupdate)
+
+**Responses**
+
+| Status | Description | Body |
+| --- | --- | --- |
+| `200` | The updated vendor | `application/json` [`VendorRead`](#vendorread) |
+| `404` | The Vendor was not found, or the VendorContact was not found. | `application/json` `{ "detail": string }` |
+| `422` | The provided VendorUpdate is malformed or invalid, or the provided path parameter is malformed or invalid, or the VendorContact belongs to another Vendor. | `application/json` [`HTTPValidationError`](#httpvalidationerror) |
 
 [Back to Summary](#summary)
 
@@ -869,6 +904,18 @@ Represents a contact belonging to a vendor.
 | `phone` | string | yes | The vendor contact's phone |
 | `vendor_id` | int | yes | The ID of this contact's vendor |
 
+### VendorContactUpdateNested
+
+Input schema for a contact nested inside a [`VendorUpdate`](#vendorupdate) payload. If `id` is provided, the existing contact with that ID is updated; if omitted, a new contact is created. Does not include `vendor_id`.
+
+| Field | Type | Required | Notes |
+| --- | --- | --- | --- |
+| `id` | int \| null | no | The vendor contact's unique identifier; defaults to `null` |
+| `name` | string | yes | The vendor contact's name, min length `1` |
+| `role` | string | yes | The vendor contact's role, min length `1` |
+| `email` | string | yes | The vendor contact's email, must match pattern `.+@.+` |
+| `phone` | string | yes | The vendor contact's phone, must match pattern `\d{3}-\d{3}-\d{4}` |
+
 ### VendorCreate
 
 Input schema for creating a new vendor. Does not include `id`, since this will be assigned on creation.
@@ -877,7 +924,7 @@ Input schema for creating a new vendor. Does not include `id`, since this will b
 | --- | --- | --- | --- |
 | `active` | bool | no | Whether or not the vendor is active, defaults to `true` |
 | `name` | string | yes | The name of the vendor, min length `1` |
-| `contacts` | array[[`VendorContactCreateNested`](#vendorcontactcreatenested)] | no | The vendor's contacts, min length `1`; a vendor must be created with at least one contact |
+| `contacts` | array[[`VendorContactCreateNested`](#vendorcontactcreatenested)] | yes | The vendor's contacts, min length `1`; a vendor must be created with at least one contact |
 
 ### VendorRead
 
@@ -888,4 +935,14 @@ Represents a vendor and its associated contacts.
 | `id` | int | yes | The vendor's unique identifier |
 | `active` | bool | yes | Whether or not the vendor is active |
 | `name` | string | yes | The name of the vendor |
-| `contacts` | array[[`VendorContactRead`](#vendorcontactread)] | yes | The list of this vendor's contacts |
+| `contacts` | array[[`VendorContactRead`](#vendorcontactread)] | yes | The vendor's contacts, min length `1` |
+
+### VendorUpdate
+
+Input schema for updating an existing vendor.
+
+| Field | Type | Required | Notes |
+| --- | --- | --- | --- |
+| `active` | bool | no | Whether or not the vendor is active, defaults to `true` |
+| `name` | string | yes | The name of the vendor, min length `1` |
+| `contacts` | array[[`VendorContactUpdateNested`](#vendorcontactupdatenested)] | yes | The vendor's contacts, min length `1`; a vendor must have at least one contact |

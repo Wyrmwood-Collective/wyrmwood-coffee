@@ -1,5 +1,6 @@
 from datetime import datetime
 
+from pydantic import BaseModel, ConfigDict, Field
 from sqlalchemy import CheckConstraint, DateTime, ForeignKey, Identity, Integer, String
 from sqlalchemy.orm import Mapped, mapped_column
 
@@ -57,4 +58,46 @@ class PurchaseHistory(Base):
     purchased_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True),
         nullable=False,
+    )
+
+
+class PurchaseHistoryCreate(BaseModel):
+    customer_id: int | None = Field(
+        default=None,
+        gt=0,
+        title="Customer ID",
+        description="The ID of the customer associated with the purchase.",
+    )
+    item_type: str = Field(
+        title="Item Type",
+        description="The type of item purchased.",
+    )
+    item_id: int = Field(
+        gt=0,
+        title="Item ID",
+        description="The ID of the purchased item.",
+    )
+    quantity: int = Field(
+        gt=0,
+        title="Quantity",
+        description="The quantity of the item purchased.",
+    )
+    loyalty_points_earned: int = Field(
+        ge=0,
+        title="Loyalty Points Earned",
+        description="The number of loyalty points earned from the purchase.",
+    )
+    purchased_at: datetime = Field(
+        title="Purchased At",
+        description="The date and time the purchase occurred.",
+    )
+
+
+class PurchaseHistoryRead(PurchaseHistoryCreate):
+    model_config = ConfigDict(from_attributes=True)
+
+    id: int = Field(
+        gt=0,
+        title="Purchase History ID",
+        description="The unique ID of the purchase history record.",
     )

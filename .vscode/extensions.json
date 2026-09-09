@@ -1,5 +1,13 @@
 {
-  "recommendations": ["charliermarsh.ruff", "ms-python.python"],
+  "recommendations": [
+    "charliermarsh.ruff",
+    "ms-python.python",
+    "Vue.volar",
+    "dbaeumer.vscode-eslint",
+    "EditorConfig.EditorConfig",
+    "oxc.oxc-vscode",
+    "esbenp.prettier-vscode",
+  ],
   "unwantedRecommendations": [
     "ms-python.black-formatter",
     "ms-python.isort",

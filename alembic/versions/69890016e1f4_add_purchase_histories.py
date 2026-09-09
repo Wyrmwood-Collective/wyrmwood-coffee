@@ -87,5 +87,4 @@ def upgrade() -> None:
 def downgrade() -> None:
     """Downgrade schema."""
     op.drop_table("purchase_histories")
-    op.drop_table("loyalty_point_audits")
     # ### end Alembic commands ###
