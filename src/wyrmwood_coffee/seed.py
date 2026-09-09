@@ -25,6 +25,7 @@ from wyrmwood_coffee.models import (
     Employee,
     Ingredient,
     Promotion,
+    PurchaseHistory,
     Vendor,
     VendorContact,
 )
@@ -36,7 +37,16 @@ logger = logging.getLogger(__name__)
 
 DATA_FILE = Path(__file__).resolve().parents[2] / "data" / "sample_data.json"
 
-SEEDED_MODELS = [Vendor, Ingredient, Drink, BakedGood, Customer, Employee, Promotion]
+SEEDED_MODELS = [
+    Vendor,
+    Ingredient,
+    Drink,
+    BakedGood,
+    Customer,
+    Employee,
+    Promotion,
+    PurchaseHistory,
+]
 
 # Tables truncated on --overwrite. Order doesn't matter here (CASCADE
 # pulls in any dependents), but every seeded table is listed explicitly
