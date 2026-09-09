@@ -54,6 +54,8 @@ const lastName = ref("");
 const username = ref("");
 const password = ref("");
 const confirmPassword = ref("");
+const showPassword = ref(false);
+const showConfirmPassword = ref(false);
 const role = ref<EmployeeRole>("employee");
 const hourlyRate = ref("15.00");
 const hireDate = ref(todayIsoDate());
@@ -70,6 +72,8 @@ function resetForm() {
   username.value = "";
   password.value = "";
   confirmPassword.value = "";
+  showPassword.value = false;
+  showConfirmPassword.value = false;
   role.value = "employee";
   hourlyRate.value = "15.00";
   hireDate.value = todayIsoDate();
@@ -184,13 +188,60 @@ async function handleSubmit() {
 
         <div class="form-field">
           <label for="password">Password</label>
-          <input
-            id="password"
-            v-model="password"
-            type="password"
-            autocomplete="new-password"
-            required
-          />
+
+          <div class="password-field">
+            <input
+              id="password"
+              v-model="password"
+              :type="showPassword ? 'text' : 'password'"
+              autocomplete="new-password"
+              required
+            />
+
+            <button
+              class="password-toggle"
+              type="button"
+              :aria-label="showPassword ? 'Hide password' : 'Show password'"
+              @click="showPassword = !showPassword"
+            >
+              <svg
+                v-if="showPassword"
+                xmlns="http://www.w3.org/2000/svg"
+                width="20"
+                height="20"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                aria-hidden="true"
+              >
+                <path d="M3 3l18 18" />
+                <path d="M10.6 10.6a2 2 0 0 0 2.8 2.8" />
+                <path d="M9.9 4.2A10.6 10.6 0 0 1 12 4c5 0 9 4 10 8a12.7 12.7 0 0 1-2 3.7" />
+                <path d="M6.6 6.6C4.3 8 2.7 10 2 12c1 4 5 8 10 8a10.4 10.4 0 0 0 4.1-.8" />
+              </svg>
+
+              <svg
+                v-else
+                xmlns="http://www.w3.org/2000/svg"
+                width="20"
+                height="20"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                aria-hidden="true"
+              >
+                <path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z" />
+                <circle cx="12" cy="12" r="3" />
+              </svg>
+            </button>
+          </div>
+
           <p class="hint">
             At least 8 characters with a capital letter, a number, and a special character.
           </p>
@@ -198,13 +249,59 @@ async function handleSubmit() {
 
         <div class="form-field">
           <label for="confirm_password">Confirm password</label>
-          <input
-            id="confirm_password"
-            v-model="confirmPassword"
-            type="password"
-            autocomplete="new-password"
-            required
-          />
+
+          <div class="password-field">
+            <input
+              id="confirm_password"
+              v-model="confirmPassword"
+              :type="showConfirmPassword ? 'text' : 'password'"
+              autocomplete="new-password"
+              required
+            />
+
+            <button
+              class="password-toggle"
+              type="button"
+              :aria-label="showConfirmPassword ? 'Hide confirm password' : 'Show confirm password'"
+              @click="showConfirmPassword = !showConfirmPassword"
+            >
+              <svg
+                v-if="showConfirmPassword"
+                xmlns="http://www.w3.org/2000/svg"
+                width="20"
+                height="20"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                aria-hidden="true"
+              >
+                <path d="M3 3l18 18" />
+                <path d="M10.6 10.6a2 2 0 0 0 2.8 2.8" />
+                <path d="M9.9 4.2A10.6 10.6 0 0 1 12 4c5 0 9 4 10 8a12.7 12.7 0 0 1-2 3.7" />
+                <path d="M6.6 6.6C4.3 8 2.7 10 2 12c1 4 5 8 10 8a10.4 10.4 0 0 0 4.1-.8" />
+              </svg>
+
+              <svg
+                v-else
+                xmlns="http://www.w3.org/2000/svg"
+                width="20"
+                height="20"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                aria-hidden="true"
+              >
+                <path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z" />
+                <circle cx="12" cy="12" r="3" />
+              </svg>
+            </button>
+          </div>
         </div>
 
         <p class="form-section-title">Employment</p>

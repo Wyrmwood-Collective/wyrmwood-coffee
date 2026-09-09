@@ -52,6 +52,14 @@ body {
   padding: 2rem;
 }
 
+.login-card {
+  height: 500px;
+}
+
+.login-message {
+  min-height: 4rem;
+}
+
 .card-wide {
   max-width: 560px;
 }
@@ -419,4 +427,37 @@ h2 {
 
 .btn-text:hover {
   text-decoration: underline;
+}
+
+.password-field {
+  position: relative;
+  width: 100%;
+}
+
+.password-field input {
+  width: 100%;
+  box-sizing: border-box;
+  padding-right: 44px;
+}
+
+.password-toggle {
+  position: absolute;
+  top: 50%;
+  right: 12px;
+  transform: translateY(-50%);
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  border: none;
+  background: transparent;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.password-toggle svg {
+  width: 20px;
+  height: 20px;
+  display: block;
 }
