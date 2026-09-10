@@ -38,17 +38,52 @@ async function handleSubmit() {
 }
 </script>
 
+<style scoped>
+main.login-page {
+  min-height: 100vh;
+  background-image: url("@/assets/finals/coffee-shop-interior.jpg");
+  background-position: center center;
+  background-size: 100%;
+
+  .error-slot {
+    min-height: 2.95rem; /* height of one line of .message: padding + line-height + border */
+    margin-bottom: 1rem; /* moved here so it's constant whether the message exists or not */
+  }
+
+  .card {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.4);
+    backdrop-filter: blur(5px);
+    -webkit-backdrop-filter: blur(10px);
+    color: #fff;
+
+    input {
+      background-color: tan;
+      border: none;
+    }
+
+    .btn {
+      background: #1f6b4a;
+      background: #7a2e3a;
+    }
+
+    h2,
+    h1,
+    p {
+      color: inherit;
+    }
+  }
+}
+</style>
+
 <template>
-  <main class="page">
-    <section class="card login-card">
+  <main class="page login-page">
+    <section class="card">
       <header class="brand">
         <h1>Wyrmwood Coffee</h1>
-        <p>Employee login showcase</p>
       </header>
 
-      <h2>Log in</h2>
-
-      <div class="login-message">
+      <div class="error-slot">
         <FormMessage :text="errorMessage" type="error" />
       </div>
 
