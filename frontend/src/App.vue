@@ -1,7 +1,8 @@
 <script setup lang="ts">
-import { computed, ref, watch } from "vue";
+import { computed, nextTick, ref, watch } from "vue";
 import { useRouter } from "vue-router";
 import { usePageTransition } from "@/composables/usePageTransition";
+import { useFadeTransition } from "@/composables/useFadeTransition";
 import { useSession } from "@/composables/useSession";
 import { useCurrentEmployee } from "@/composables/useCurrentEmployee";
 import BookScene from "@/components/BookScene.vue";
@@ -25,6 +26,18 @@ const navigated = ref(false);
 const videoRef = ref<HTMLVideoElement | null>(null);
 const audioRef = ref<HTMLAudioElement | null>(null);
 
+// Fade-to-black-and-back on sign-out: opacity 0->1 (to black), navigate while
+// fully black, then opacity 1->0 (from black) — kept in sync with
+// FADE_MS/the CSS transition duration on .fade-overlay below.
+const FADE_MS = 500;
+const {
+  active: fading,
+  fadeTransition,
+  consumeNavigate: consumeFadeNavigate,
+  finish: finishFade,
+} = useFadeTransition();
+const fadeVisible = ref(false);
+
 const { logout } = useSession();
 const { employee } = useCurrentEmployee();
 const router = useRouter();
@@ -37,9 +50,26 @@ const userName = computed(() => {
 });
 
 function handleSignOut() {
-  logout();
-  router.push({ name: "login" });
+  fadeTransition(async () => {
+    await logout();
+    router.push({ name: "login" });
+  });
 }
+
+watch(fading, async (isActive) => {
+  if (!isActive) return;
+  fadeVisible.value = false;
+  await nextTick();
+  fadeVisible.value = true;
+  setTimeout(async () => {
+    consumeFadeNavigate()?.();
+    await nextTick();
+    fadeVisible.value = false;
+    setTimeout(() => {
+      finishFade();
+    }, FADE_MS);
+  }, FADE_MS);
+});
 
 function navigateOnce() {
   if (navigated.value) return;
@@ -111,6 +141,7 @@ function handleEnded() {
     />
   </div>
   <audio ref="audioRef" :src="dragonBreathSrc" preload="auto" />
+  <div v-if="fading" class="fade-overlay" :class="{ 'fade-visible': fadeVisible }"></div>
 </template>
 
 <style>
@@ -138,5 +169,19 @@ function handleEnded() {
   width: 100%;
   height: 100%;
   object-fit: cover;
+}
+
+.fade-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  background: #000;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.5s ease;
+}
+
+.fade-overlay.fade-visible {
+  opacity: 1;
 }
 </style>
