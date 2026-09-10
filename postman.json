@@ -302,6 +302,25 @@
             }
           },
           "response": []
+        },
+        {
+          "name": "Delete Employee",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "localhost:8000/employees/1",
+              "host": [
+                "localhost"
+              ],
+              "port": "8000",
+              "path": [
+                "employees",
+                "1"
+              ]
+            }
+          },
+          "response": []
         }
       ]
     },

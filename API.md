@@ -16,6 +16,7 @@
 | `GET` | `/employees/{id}` | No | [Get Employee](#get-employeesid) |
 | `POST` | `/employees` | No | [Create Employee](#post-employees) |
 | `PUT` | `/employees/{id}` | No | [Update Employee](#put-employeesid) |
+| `DELETE` | `/employees/{id}` | No | [Delete Employee](#delete-employeesid) |
 | `GET` | `/health` | No | [Welcome Message](#get-health) |
 | `GET` | `/ingredients` | No | [List Ingredients](#get-ingredients) |
 | `GET` | `/ingredients/{id}` | No | [Get Ingredient](#get-ingredientsid) |
@@ -251,6 +252,30 @@ Returns the updated employee without the password field.
 | `404` | The employee was not found. | `application/json` `{ "detail": string }` |
 | `409` | An employee with that username already exists. | `application/json` `{ "detail": string }` |
 | `422` | The provided EmployeeUpdate is malformed or invalid, or the provided path parameter is malformed or invalid. | `application/json` [`HTTPValidationError`](#httpvalidationerror) |
+
+[Back to Summary](#summary)
+
+---
+
+### `DELETE` /employees/{id}
+
+**Delete Employee**
+
+Deactivate an employee. This performs a soft delete by setting the employee's active status to false.
+
+**Path parameters**
+
+| Name | Type | Required | Notes |
+| --- | --- | --- | --- |
+| `id` | int | yes | The ID of the employee to delete |
+
+**Responses**
+
+| Status | Description | Body |
+| --- | --- | --- |
+| `204` | The employee was deleted successfully. | None |
+| `404` | The employee was not found. | `application/json` `{ "detail": string }` |
+| `422` | The provided path parameter is malformed or invalid. | `application/json` [`HTTPValidationError`](#httpvalidationerror) |
 
 [Back to Summary](#summary)
 

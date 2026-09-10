@@ -54,7 +54,7 @@ def get_employee(session: DbSession, id: EmployeeId) -> EmployeeRead:
     Returns the employee without the password field.
     """
     employee = session.get(Employee, id)
-    if employee is None:
+    if employee is None or employee.is_deleted:
         employee_logger.log_resource_not_found(id)
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
@@ -127,7 +127,7 @@ def update_employee(
     """
     # 1. Look up the employee
     employee = session.get(Employee, id)
-    if employee is None:
+    if employee is None or employee.is_deleted is True:
         employee_logger.log_resource_not_found(id)
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
@@ -139,6 +139,7 @@ def update_employee(
 
     for key, value in update_data.items():
         setattr(employee, key, value)
+
     # 3. Save to database with uniqueness safety net
     try:
         session.commit()
@@ -155,3 +156,40 @@ def update_employee(
 
     # 4. Return the updated model
     return EmployeeRead.model_validate(employee)
+
+
+@router.delete(
+    "/employees/{id}",
+    status_code=status.HTTP_204_NO_CONTENT,
+    response_description="The employee was deleted successfully.",
+    responses={
+        404: {"description": "The employee was not found."},
+        422: {"description": "The provided path parameter is malformed or invalid."},
+    },
+)
+def delete_employee(session: DbSession, id: EmployeeId) -> None:
+    """
+    Soft delete an employee.
+
+    The employee remains in the database for historical records
+    but is no longer active or able to log in. As part of
+    the successful request, the employee's username is mutated
+    (e.g., {username}_deleted_{id}) to free it up for future use.
+    """
+    employee = session.get(Employee, id)
+
+    # Check if they don't exist OR are already soft-deleted
+    if employee is None or employee.is_deleted is True:
+        employee_logger.log_resource_not_found(id)
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="The employee was not found.",
+        )
+
+    # Deactivate, soft-delete, and release the unique username
+    employee.active = False  # type: ignore
+    employee.is_deleted = True  # type: ignore
+    employee.username = f"{employee.username}_deleted_{employee.id}"  # type: ignore
+
+    session.commit()
+    employee_logger.log_resource_deleted(id)
