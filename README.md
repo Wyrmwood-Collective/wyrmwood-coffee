@@ -56,8 +56,39 @@ See `vite.config.ts` for proxy configuration.
 
 ### Role Permissions
 
-The UI reads `role` from the JWT after login. These rules are **not enforced by
-the API yet** — they only control what each user sees in the browser.
+Roles come from the JWT issued by `POST /auth/login` (`employee`, `manager`,
+`admin`). For this sprint, **manager and admin have the same API rights**.
+
+#### API enforcement
+
+The backend enforces roles on mutating routes. Unauthorized callers get **401**
+(missing/invalid token) or **403** (wrong role); failed role checks are logged.
+
+| Domain | employee | manager / admin |
+| --- | --- | --- |
+| Vendors, ingredients, drinks, baked goods, promotions (POST/PUT/DELETE) | No | Yes |
+| Employees (POST/PUT/DELETE) | No | Yes |
+| Customers (POST) | Yes | Yes |
+| Reads (GET) and login | Yes* | Yes* |
+
+\* GETs are currently open (no JWT required). Prefer adding auth when you add
+new write endpoints.
+
+**Protecting a new route:** import from `wyrmwood_coffee.dependencies` and add
+`dependencies=[Depends(...)]` on the route decorator (after `responses`):
+
+- `require_manager` — manager or admin only (pricing, vendors, menu, staff writes)
+- `require_auth` — any logged-in employee (e.g. customer signup)
+- `check_role([...])` — custom allow-list when you need something else
+
+Documenting these helpers is safe for teammates; never commit real
+`JWT_SECRET_KEY` values or tokens.
+
+#### Frontend (UI-only)
+
+The UI also reads `role` from the JWT to hide routes and actions. That is a
+convenience layer — the API is the real gate. The UI matrix below may be
+stricter than the API in places (for example hourly-rate visibility).
 
 | Action | Employee | Manager | Admin |
 | --- | --- | --- | --- |
@@ -65,13 +96,7 @@ the API yet** — they only control what each user sees in the browser.
 | List team roster | No | Yes | Yes |
 | View any employee detail | No | Yes | Yes |
 | See hourly rates in roster | No | No | Yes |
-| Create employee | No | No | Yes |
-| Delete employee | No | No | Yes* |
-| Update employee | No | No | Soon* |
-
-\* Delete calls `DELETE /employees/{id}` when you click delete — it will show a
-friendly message until the backend adds that endpoint. Update is noted in the UI
-for when `PUT /employees/{id}` exists.
+| Create / update / delete employee | No | No | Yes |
 
 ### Routes
 
@@ -90,15 +115,16 @@ the dashboard (or to login, if you're not authenticated).
 | View | Endpoint | Notes |
 | --- | --- | --- |
 | Login | `POST /auth/login` | Form-encoded `username` + `password` |
-| Create | `POST /employees` | Full `EmployeeCreate` JSON |
+| Create | `POST /employees` | Manager/admin JWT required |
 | Roster | `GET /employees` | List all employees |
 | Profile / detail | `GET /employees/{id}` | Single employee |
-| Delete (admin) | `DELETE /employees/{id}` | UI only until API exists |
+| Delete | `DELETE /employees/{id}` | Manager/admin JWT required |
 
 ### Editing tips
 
-- Permission rules live in `src/composables/useSession.ts` in the
-  `PERMISSIONS` object.
+- UI permission rules live in `src/composables/useSession.ts` in the
+  `PERMISSIONS` object. API rules live in route `dependencies` using
+  `require_manager` / `require_auth` from `wyrmwood_coffee.dependencies`.
 - Add a nav link in `src/components/AppChrome.vue` when you add a
   new route.
 - Change colors → CSS variables at the top of `src/assets/style.css`.

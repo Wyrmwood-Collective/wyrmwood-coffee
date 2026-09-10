@@ -1,11 +1,11 @@
 import logging
 from typing import Annotated
 
-from fastapi import APIRouter, HTTPException, Path, status
+from fastapi import APIRouter, Depends, HTTPException, Path, status
 from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError
 
-from wyrmwood_coffee.dependencies import DbSession
+from wyrmwood_coffee.dependencies import DbSession, require_manager
 from wyrmwood_coffee.logging import ResourceLogger
 from wyrmwood_coffee.models.ingredient import (
     Ingredient,
@@ -72,12 +72,15 @@ def get_ingredient(
     response_model=IngredientRead,
     response_description="The newly created Ingredient",
     responses={
+        401: {"description": "Could not validate credentials."},
+        403: {"description": "Insufficient permissions."},
         404: {"description": "The vendor was not found."},
         409: {
             "description": "An ingredient with that name and vendor ID already exists."
         },
         422: {"description": "The provided IngredientCreate is malformed or invalid."},
     },
+    dependencies=[Depends(require_manager)],
 )
 def create_ingredient(session: DbSession, payload: IngredientCreate) -> IngredientRead:
     """Create a new ingredient and link it to an existing vendor."""
@@ -130,6 +133,8 @@ def create_ingredient(session: DbSession, payload: IngredientCreate) -> Ingredie
     response_model=IngredientRead,
     response_description="The updated ingredient",
     responses={
+        401: {"description": "Could not validate credentials."},
+        403: {"description": "Insufficient permissions."},
         404: {
             "description": "The ingredient was not found.\n\nThe vendor was not found."
         },
@@ -143,6 +148,7 @@ def create_ingredient(session: DbSession, payload: IngredientCreate) -> Ingredie
             )
         },
     },
+    dependencies=[Depends(require_manager)],
 )
 def update_ingredient(
     id: Annotated[int, Path(gt=0)], payload: IngredientUpdate, session: DbSession
@@ -189,9 +195,12 @@ def update_ingredient(
     status_code=status.HTTP_204_NO_CONTENT,
     response_description="The ingredient was deleted successfully.",
     responses={
+        401: {"description": "Could not validate credentials."},
+        403: {"description": "Insufficient permissions."},
         404: {"description": "The ingredient was not found."},
         422: {"description": "The provided path parameter is malformed or invalid."},
     },
+    dependencies=[Depends(require_manager)],
 )
 def delete_ingredient(id: Annotated[int, Path(gt=0)], session: DbSession) -> None:
     """

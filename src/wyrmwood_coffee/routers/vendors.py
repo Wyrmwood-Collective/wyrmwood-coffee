@@ -1,10 +1,10 @@
 import logging
 
-from fastapi import APIRouter, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy import select
 from sqlalchemy.orm import selectinload
 
-from wyrmwood_coffee.dependencies import DbSession
+from wyrmwood_coffee.dependencies import DbSession, require_manager
 from wyrmwood_coffee.logging import ResourceLogger
 from wyrmwood_coffee.models.ingredient import Ingredient
 from wyrmwood_coffee.models.vendor import (
@@ -46,8 +46,11 @@ def list_vendors(session: DbSession) -> list[VendorRead]:
     response_model=VendorRead,
     response_description="The newly created Vendor",
     responses={
-        422: {"description": "The provided VendorCreate is malformed or invalid."}
+        401: {"description": "Could not validate credentials."},
+        403: {"description": "Insufficient permissions."},
+        422: {"description": "The provided VendorCreate is malformed or invalid."},
     },
+    dependencies=[Depends(require_manager)],
 )
 def create_vendor(session: DbSession, payload: VendorCreate):
     """
@@ -77,6 +80,8 @@ def create_vendor(session: DbSession, payload: VendorCreate):
     response_model=VendorRead,
     response_description="The updated vendor",
     responses={
+        401: {"description": "Could not validate credentials."},
+        403: {"description": "Insufficient permissions."},
         404: {
             "description": "The Vendor was not found, "
             "or the VendorContact was not found."
@@ -87,6 +92,7 @@ def create_vendor(session: DbSession, payload: VendorCreate):
             "or the VendorContact belongs to another Vendor."
         },
     },
+    dependencies=[Depends(require_manager)],
 )
 def update_vendor(session: DbSession, id: int, payload: VendorUpdate) -> VendorRead:
     """
@@ -176,10 +182,13 @@ def update_vendor(session: DbSession, id: int, payload: VendorUpdate) -> VendorR
     status_code=status.HTTP_204_NO_CONTENT,
     response_description="The vendor was deleted successfully.",
     responses={
+        401: {"description": "Could not validate credentials."},
+        403: {"description": "Insufficient permissions."},
         404: {"description": "The vendor was not found."},
         409: {"description": "The vendor has associated ingredients."},
         422: {"description": "The provided path parameter is malformed or invalid."},
     },
+    dependencies=[Depends(require_manager)],
 )
 def delete_vendor(session: DbSession, id: int):
     """Delete the vendor and its associated contacts."""
