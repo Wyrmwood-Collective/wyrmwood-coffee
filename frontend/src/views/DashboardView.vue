@@ -3,7 +3,6 @@ import { computed, onMounted, ref } from "vue";
 import { apiGetEmployee } from "@/api/employees";
 import { useSession } from "@/composables/useSession";
 import AppChrome from "@/components/AppChrome.vue";
-import LogoutButton from "@/components/LogoutButton.vue";
 import FormMessage from "@/components/FormMessage.vue";
 import ProfileList from "@/components/ProfileList.vue";
 import type { EmployeeRead } from "@/types/employee";
@@ -53,8 +52,6 @@ onMounted(async () => {
       <FormMessage :text="errorMessage" type="error" />
 
       <ProfileList v-if="employee" :employee="employee" :limited="limited" />
-
-      <LogoutButton />
     </section>
   </main>
 </template>

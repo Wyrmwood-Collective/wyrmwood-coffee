@@ -3,7 +3,6 @@ import { ref } from "vue";
 import { useRouter } from "vue-router";
 import { apiCreateEmployee } from "@/api/employees";
 import AppChrome from "@/components/AppChrome.vue";
-import LogoutButton from "@/components/LogoutButton.vue";
 import FormMessage from "@/components/FormMessage.vue";
 import type { EmployeeRole } from "@/types/employee";
 
@@ -351,8 +350,6 @@ async function handleSubmit() {
           {{ submitting ? "Please wait…" : "Create employee" }}
         </button>
       </form>
-
-      <LogoutButton />
     </section>
   </main>
 </template>

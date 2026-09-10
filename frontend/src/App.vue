@@ -1,6 +1,9 @@
 <script setup lang="ts">
-import { ref, watch } from "vue";
+import { computed, ref, watch } from "vue";
+import { useRouter } from "vue-router";
 import { usePageTransition } from "@/composables/usePageTransition";
+import { useSession } from "@/composables/useSession";
+import { useCurrentEmployee } from "@/composables/useCurrentEmployee";
 import BookScene from "@/components/BookScene.vue";
 import fireballSrc from "@/assets/finals/fireball.webm";
 import dragonBreathSrc from "@/assets/finals/dragon-breath.mp3";
@@ -21,6 +24,22 @@ const { active, consumeNavigate, finish } = usePageTransition();
 const navigated = ref(false);
 const videoRef = ref<HTMLVideoElement | null>(null);
 const audioRef = ref<HTMLAudioElement | null>(null);
+
+const { logout } = useSession();
+const { employee } = useCurrentEmployee();
+const router = useRouter();
+
+const userName = computed(() => {
+  if (!employee.value) {
+    return "";
+  }
+  return `${employee.value.first_name} ${employee.value.last_name}`;
+});
+
+function handleSignOut() {
+  logout();
+  router.push({ name: "login" });
+}
 
 function navigateOnce() {
   if (navigated.value) return;
@@ -67,7 +86,12 @@ function handleEnded() {
 
 <template>
   <RouterView v-slot="{ Component, route }">
-    <BookScene v-if="route.meta.requiresAuth">
+    <BookScene
+      v-if="route.meta.requiresAuth"
+      wordmark="Wyrmwood Coffee"
+      :user-name="userName"
+      @sign-out="handleSignOut"
+    >
       <transition name="page-fade" mode="out-in">
         <component :is="Component" :key="route.path" />
       </transition>

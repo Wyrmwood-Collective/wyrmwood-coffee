@@ -3,9 +3,20 @@ import { computed, nextTick, onMounted, onUnmounted, ref, watch } from "vue";
 import { useRoute } from "vue-router";
 import { useSession } from "@/composables/useSession";
 import AppSidebar from "@/components/AppSidebar.vue";
+import CounterHeader from "@/components/CounterHeader.vue";
 
-// See src/assets/scratch/DESIGN.md and SCROLLING.md for the reference this
-// is ported from.
+// The counter header (letterhead, coins, slate) is ported below. The
+// wordmark/user name/sign-out handler are props/emit — everything else
+// about the header is presentation, owned by CounterHeader.vue.
+defineProps<{
+  wordmark: string;
+  userName: string;
+}>();
+
+const emit = defineEmits<{
+  signOut: [];
+}>();
+
 // Port target #1: buildBook() becomes this computed setup instead of
 // imperative DOM generation.
 // Port target #7 (SCROLLING.md §7): a ResizeObserver drives layout(),
@@ -149,6 +160,8 @@ watch(
   <div class="countertop"></div>
 
   <div ref="stageEl" class="stage">
+    <CounterHeader :wordmark="wordmark" :user-name="userName" @sign-out="emit('signOut')" />
+
     <div ref="bookEl" class="book">
       <div class="cover"></div>
 
@@ -209,19 +222,38 @@ watch(
 }
 
 .stage {
-  --tab-w: 130px;
+  --tab-w: 165px;
   --tab-h: 40px;
   --tab-gap: 14px;
   --tab-top: 13vh;
   --tab-overlap: 30px;
 
-  --book-top: 8vh;
-  --book-left: max(8vw, calc(var(--tab-w) + 56px));
+  /* --cover-lip and --slate-h must be declared before --book-top, which
+     derives from them (HEADER.md §6) — measuring only to the book's own
+     top edge leaves the gap the slate needs filled with leather. */
+  --cover-lip: 26px;
+  --slate-w: 330px;
+  --slate-h: 104px;
+  --slate-gap: 18px;
+  --book-top: max(11vh, calc(var(--slate-h) + var(--cover-lip) + var(--slate-gap)));
+  --book-left: max(5vw, calc(var(--tab-w) + 24px));
   --right-sliver: 72px;
   --page-w: calc(66.667% - var(--right-sliver) - var(--book-left));
-  --cover-lip: 26px;
   --content-inset-top: 9vh;
   --content-inset-bottom: 9vh;
+
+  /* The riven edge sits ~11.5% in from the slate element's left; because
+     the image is width-scaled by `cover` at this aspect ratio, that stays
+     true at any slate size, so it must be a %, not a px value (§5.1). */
+  --slate-pad-l: calc(11.5% + 32px);
+  --slate-pad-b: 30px;
+  --slate-pad-r: 32px;
+  --coins-w: 333px;
+  --paper-w: 560px;
+  --paper-peek: 128px;
+  --paper-left: calc(var(--book-left) + 2vw);
+  --coins-img: url("@/assets/finals/coins.webp");
+  --slate-img: url("@/assets/finals/slate.png");
 
   --cloth-scale: 320px;
   --ink-weave: 0.7;
@@ -250,6 +282,7 @@ watch(
   top: var(--book-top);
   left: var(--book-left);
   width: 150%;
+  z-index: 3;
   display: flex;
 }
 
@@ -409,7 +442,7 @@ watch(
 
 @media (max-width: 900px) {
   .stage {
-    --tab-w: 110px;
+    --tab-w: 140px;
     --tab-h: 34px;
     --tab-gap: 11px;
     --tab-overlap: 22px;
@@ -424,15 +457,23 @@ watch(
 
 @media (max-width: 600px) {
   .stage {
-    --tab-w: 94px;
+    --tab-w: 120px;
     --tab-h: 30px;
     --tab-gap: 9px;
     --tab-overlap: 18px;
     --tab-size: 11.5px;
-    --book-top: 5vh;
+    --slate-gap: 14px;
+    --coins-w: 226px;
+    --paper-w: 360px;
+    --paper-peek: 96px;
+    --paper-left: calc(var(--book-left) + 1vw);
     --content-inset-top: 7vh;
     --content-inset-bottom: 7vh;
     --cover-lip: 18px;
+    --slate-w: 250px;
+    --slate-h: 88px;
+    --slate-pad-b: 24px;
+    --slate-pad-r: 25px;
     --right-sliver: 40px;
   }
   .gutter {
