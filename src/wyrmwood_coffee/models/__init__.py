@@ -11,7 +11,7 @@ from wyrmwood_coffee.models.purchase_history import (
     PurchaseHistoryCreate,
     PurchaseHistoryRead,
 )
-from wyrmwood_coffee.models.token import Token, TokenBlacklist
+from wyrmwood_coffee.models.token import BlacklistedToken
 from wyrmwood_coffee.models.vendor import Vendor, VendorContact
 
 __all__ = [
@@ -28,5 +28,5 @@ __all__ = [
     "PurchaseHistoryCreate",
     "PurchaseHistoryRead",
     "LoyaltyPointAudit",
-    "TokenBlacklist",
+    "BlacklistedToken",
 ]
