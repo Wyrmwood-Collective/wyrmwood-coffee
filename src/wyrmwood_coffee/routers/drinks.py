@@ -1,9 +1,9 @@
 import logging
 
-from fastapi import APIRouter, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.exc import IntegrityError
 
-from wyrmwood_coffee.dependencies import DbSession
+from wyrmwood_coffee.dependencies import DbSession, require_manager
 from wyrmwood_coffee.logging import ResourceLogger
 from wyrmwood_coffee.models.drink import Drink, DrinkCreate, DrinkRead
 from wyrmwood_coffee.services import drinks as drink_service
@@ -27,10 +27,13 @@ router = APIRouter()
     response_model=DrinkRead,
     response_description="The newly created drink recipe",
     responses={
+        401: {"description": "Could not validate credentials."},
+        403: {"description": "Insufficient permissions."},
         404: {"description": "The ingredient was not found."},
         409: {"description": "A drink with that name already exists."},
         422: {"description": HTTP_422_DESCRIPTION},
     },
+    dependencies=[Depends(require_manager)],
 )
 def create_drink(session: DbSession, payload: DrinkCreate) -> DrinkRead:
     """Create a new drink recipe."""

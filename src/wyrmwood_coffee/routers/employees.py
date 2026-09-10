@@ -2,11 +2,11 @@
 
 import logging
 
-from fastapi import APIRouter, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError
 
-from wyrmwood_coffee.dependencies import DbSession
+from wyrmwood_coffee.dependencies import DbSession, require_manager
 from wyrmwood_coffee.logging import ResourceLogger
 from wyrmwood_coffee.models.employee import (
     Employee,
@@ -69,9 +69,12 @@ def get_employee(session: DbSession, id: EmployeeId) -> EmployeeRead:
     response_model=EmployeeRead,
     response_description="The newly created employee",
     responses={
+        401: {"description": "Could not validate credentials."},
+        403: {"description": "Insufficient permissions."},
         409: {"description": "An employee with that username already exists."},
         422: {"description": "The provided EmployeeCreate is malformed or invalid."},
     },
+    dependencies=[Depends(require_manager)],
 )
 def create_employee(session: DbSession, payload: EmployeeCreate) -> EmployeeRead:
     """
@@ -103,6 +106,8 @@ def create_employee(session: DbSession, payload: EmployeeCreate) -> EmployeeRead
     response_model=EmployeeRead,
     response_description="The updated employee",
     responses={
+        401: {"description": "Could not validate credentials."},
+        403: {"description": "Insufficient permissions."},
         404: {"description": "The employee was not found."},
         409: {"description": "An employee with that username already exists."},
         422: {
@@ -112,6 +117,7 @@ def create_employee(session: DbSession, payload: EmployeeCreate) -> EmployeeRead
             )
         },
     },
+    dependencies=[Depends(require_manager)],
 )
 def update_employee(
     session: DbSession,
@@ -163,9 +169,12 @@ def update_employee(
     status_code=status.HTTP_204_NO_CONTENT,
     response_description="The employee was deleted successfully.",
     responses={
+        401: {"description": "Could not validate credentials."},
+        403: {"description": "Insufficient permissions."},
         404: {"description": "The employee was not found."},
         422: {"description": "The provided path parameter is malformed or invalid."},
     },
+    dependencies=[Depends(require_manager)],
 )
 def delete_employee(session: DbSession, id: EmployeeId) -> None:
     """

@@ -16,7 +16,7 @@ from wyrmwood_coffee.main import app
 from wyrmwood_coffee.models.employee import Employee
 from wyrmwood_coffee.models.ingredient import Ingredient
 from wyrmwood_coffee.models.vendor import Vendor, VendorContact
-from wyrmwood_coffee.security import hash_password
+from wyrmwood_coffee.security import create_access_token, hash_password
 from wyrmwood_coffee.settings import settings
 
 
@@ -95,10 +95,53 @@ def db_session(db_engine):
     connection.close()
 
 
+def _auth_headers(employee_id: int, role: str) -> dict[str, str]:
+    token = create_access_token({"sub": str(employee_id), "role": role})
+    return {"Authorization": f"Bearer {token}"}
+
+
 @pytest.fixture()
-def client(db_session):
+def manager_auth_headers():
+    """Manager JWT headers without persisting an employee row."""
+    return _auth_headers(employee_id=1, role="manager")
+
+
+@pytest.fixture()
+def admin_auth_headers():
+    return _auth_headers(employee_id=1, role="admin")
+
+
+@pytest.fixture()
+def employee_auth_headers():
+    return _auth_headers(employee_id=1, role="employee")
+
+
+@pytest.fixture()
+def client(db_session, manager_auth_headers):
+    """Authenticated as manager by default so mutating route tests pass."""
+    app.dependency_overrides[get_db] = lambda: db_session
+    yield TestClient(app, headers=manager_auth_headers)
+    del app.dependency_overrides[get_db]
+
+
+@pytest.fixture()
+def unauthenticated_client(db_session):
     app.dependency_overrides[get_db] = lambda: db_session
     yield TestClient(app)
+    del app.dependency_overrides[get_db]
+
+
+@pytest.fixture()
+def employee_client(db_session, employee_auth_headers):
+    app.dependency_overrides[get_db] = lambda: db_session
+    yield TestClient(app, headers=employee_auth_headers)
+    del app.dependency_overrides[get_db]
+
+
+@pytest.fixture()
+def admin_client(db_session, admin_auth_headers):
+    app.dependency_overrides[get_db] = lambda: db_session
+    yield TestClient(app, headers=admin_auth_headers)
     del app.dependency_overrides[get_db]
 
 
