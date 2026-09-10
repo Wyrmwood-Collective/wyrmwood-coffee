@@ -183,6 +183,7 @@ def _seed_employees(session, entries: list[dict]) -> None:
         session.add(
             Employee(
                 active=entry.get("active", True),
+                is_deleted=entry.get("is_deleted", False),
                 first_name=entry["first_name"],
                 last_name=entry["last_name"],
                 role=entry["role"],
