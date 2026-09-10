@@ -3,9 +3,11 @@ import { ref } from "vue";
 import { useRouter } from "vue-router";
 import { apiLogin } from "@/api/auth";
 import { useSession } from "@/composables/useSession";
+import { usePageTransition } from "@/composables/usePageTransition";
 import FormMessage from "@/components/FormMessage.vue";
 
 const { login } = useSession();
+const { fireballTransition } = usePageTransition();
 const router = useRouter();
 
 const username = ref("");
@@ -27,7 +29,7 @@ async function handleSubmit() {
   try {
     const result = await apiLogin(trimmedUsername, password.value);
     login(result.access_token);
-    router.push({ name: "dashboard" });
+    fireballTransition(() => router.push({ name: "dashboard" }));
   } catch (error) {
     errorMessage.value = error instanceof Error ? error.message : "Something went wrong.";
   } finally {
