@@ -16,30 +16,46 @@
   --shadow: 0 8px 24px rgba(44, 36, 28, 0.08);
   --radius: 10px;
   --font: "Segoe UI", system-ui, -apple-system, sans-serif;
+
+  /* Book page (authenticated views) */
+  --page: #f4ecd8;
+  --page-gutter: #d8c9a8;
+  --ink: #2b2420;
+  --ink-soft: #6b5f4f;
+  --leather: #5b2e22;
+  --leather-dark: #3d1e16;
 }
 
-*,
-*::before,
-*::after {
-  box-sizing: border-box;
+/*
+  body -> div#app -> RouterView -> BookScene (.stage/.book) -> main.page
+
+  BookScene replaces the old sidebar+detail grid with the leather book
+  layout; the views below just render into its .page-content slot.
+*/
+
+/* SCROLLING.md §5 — html/body must have no height:100% and no
+   overflow-y:hidden, or the book (an authenticated-view descendant that
+   sizes itself to the document) cannot make the document scroll. */
+html {
+  overflow-x: hidden;
 }
 
 body {
   margin: 0;
-  min-height: 100vh;
+  padding: 0;
+
   font-family: var(--font);
   font-size: 16px;
   line-height: 1.5;
   color: var(--color-text);
-  background: linear-gradient(160deg, #ebe3d6 0%, var(--color-bg) 45%, #e8dcc8 100%);
+  background: url("@/assets/finals/sleeping-dragon.jpg") center center no-repeat;
+  background-size: 100%;
 }
 
-.page {
-  min-height: 100vh;
+main.page {
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 1.5rem;
 }
 
 .card {
@@ -104,6 +120,7 @@ h2 {
 
 .form-field input,
 .form-field select {
+  box-sizing: border-box;
   width: 100%;
   padding: 0.65rem 0.75rem;
   border: 1px solid var(--color-border);
@@ -460,4 +477,204 @@ h2 {
   width: 20px;
   height: 20px;
   display: block;
+}
+
+/*************************************************/
+/** BOOK PAGE — restyle authenticated views ---- */
+/*************************************************/
+
+.page-content {
+  font-family: Georgia, "Iowan Old Style", "Palatino Linotype", serif;
+  color: var(--ink);
+}
+
+.page-content .card {
+  max-width: 620px;
+  margin: 0 auto;
+  background: none;
+  border: none;
+  box-shadow: none;
+  border-radius: 0;
+  padding: 0;
+}
+
+.page-content .card-full {
+  max-width: 860px;
+}
+
+.page-content .brand {
+  text-align: left;
+  margin-bottom: 1.5rem;
+}
+
+.page-content .brand h1 {
+  font-family: "MedievalSharp", Georgia, serif;
+  font-weight: 400;
+  font-size: 1.6rem;
+  color: var(--ink);
+}
+
+.page-content .brand p {
+  color: var(--ink-soft);
+  font-style: italic;
+}
+
+.page-content h2 {
+  font-family: "MedievalSharp", Georgia, serif;
+  font-weight: 400;
+  color: var(--ink);
+}
+
+.page-content .hint {
+  color: var(--ink-soft);
+}
+
+.page-content .app-bar {
+  border-bottom: 3px double rgba(43, 36, 32, 0.4);
+}
+
+.page-content .role-badge {
+  font-family: "MedievalSharp", Georgia, serif;
+  letter-spacing: 0.05em;
+  background: none;
+  border: 1px solid rgba(43, 36, 32, 0.3);
+  color: var(--ink-soft);
+}
+
+.page-content .form-field input,
+.page-content .form-field select {
+  background: rgba(255, 248, 228, 0.55);
+  border: 1px solid rgba(43, 36, 32, 0.3);
+  color: var(--ink);
+  border-radius: 2px;
+}
+
+.page-content .form-field input:focus,
+.page-content .form-field select:focus {
+  outline: none;
+  border-color: rgba(192, 138, 62, 0.9);
+  box-shadow: 0 0 0 1px rgba(192, 138, 62, 0.4);
+}
+
+.page-content .form-section-title {
+  font-family: "MedievalSharp", Georgia, serif;
+  letter-spacing: 0.05em;
+  color: var(--ink-soft);
+}
+
+.page-content .btn {
+  border-radius: 2px;
+  font-family: "MedievalSharp", Georgia, serif;
+  letter-spacing: 0.04em;
+  font-weight: 400;
+}
+
+.page-content .btn-primary {
+  background: var(--leather);
+}
+
+.page-content .btn-primary:hover {
+  background: var(--leather-dark);
+}
+
+.page-content .btn-secondary {
+  background: none;
+  border: 1px solid rgba(43, 36, 32, 0.3);
+  color: var(--ink);
+}
+
+.page-content .btn-secondary:hover {
+  background: rgba(120, 86, 32, 0.08);
+}
+
+.page-content .btn-danger {
+  background: rgba(140, 58, 43, 0.9);
+}
+
+.page-content .btn-danger:hover {
+  background: rgba(112, 42, 29, 1);
+}
+
+.page-content .btn-text {
+  font-family: inherit;
+  color: var(--ink-soft);
+  text-decoration: underline dotted;
+  text-underline-offset: 3px;
+}
+
+.page-content .btn-text:hover {
+  color: var(--ink);
+  text-decoration: underline solid;
+}
+
+.page-content .message {
+  background: none;
+  border: none;
+  border-bottom: 1px solid rgba(43, 36, 32, 0.13);
+  border-radius: 0;
+  padding: 0.6rem 0;
+}
+
+.page-content .message-error {
+  color: rgba(140, 58, 43, 0.95);
+}
+
+.page-content .message-success {
+  color: #1a6b3c;
+}
+
+.page-content .detail-panel {
+  background: rgba(255, 248, 228, 0.4);
+  border: 1px solid rgba(43, 36, 32, 0.2);
+  border-radius: 2px;
+}
+
+.page-content .detail-panel h3 {
+  font-family: "MedievalSharp", Georgia, serif;
+  color: var(--ink);
+}
+
+/* Data table (employee roster) — ledger styling */
+.page-content .data-table {
+  font-size: 14px;
+}
+
+.page-content .data-table th {
+  font-family: "MedievalSharp", Georgia, serif;
+  font-weight: 400;
+  font-size: 13.5px;
+  letter-spacing: 0.05em;
+  color: var(--ink-soft);
+  border-bottom: 3px double rgba(43, 36, 32, 0.4);
+}
+
+.page-content .data-table td {
+  border-bottom: 1px solid rgba(43, 36, 32, 0.13);
+}
+
+.page-content .data-table tbody tr:hover {
+  background: rgba(120, 86, 32, 0.055);
+}
+
+/* Profile list — ledger row styling */
+.page-content .profile-list li {
+  border-bottom: 1px solid rgba(43, 36, 32, 0.13);
+}
+
+.page-content .profile-list span {
+  color: var(--ink-soft);
+}
+
+.page-content .profile-list strong {
+  color: var(--ink);
+}
+
+.page-content .token-note {
+  background: rgba(255, 248, 228, 0.4);
+  border: 1px solid rgba(43, 36, 32, 0.2);
+  color: var(--ink-soft);
+}
+
+.page-content .token-note code {
+  color: var(--leather);
 }

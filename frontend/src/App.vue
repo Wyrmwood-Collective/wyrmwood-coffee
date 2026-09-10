@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref, watch } from "vue";
 import { usePageTransition } from "@/composables/usePageTransition";
+import BookScene from "@/components/BookScene.vue";
 import fireballSrc from "@/assets/finals/fireball.webm";
 import dragonBreathSrc from "@/assets/finals/dragon-breath.mp3";
 
@@ -65,7 +66,14 @@ function handleEnded() {
 </script>
 
 <template>
-  <RouterView />
+  <RouterView v-slot="{ Component, route }">
+    <BookScene v-if="route.meta.requiresAuth">
+      <transition name="page-fade" mode="out-in">
+        <component :is="Component" :key="route.path" />
+      </transition>
+    </BookScene>
+    <component :is="Component" v-else />
+  </RouterView>
   <div v-if="active" class="fireball-overlay">
     <video
       ref="videoRef"
@@ -80,6 +88,18 @@ function handleEnded() {
   </div>
   <audio ref="audioRef" :src="dragonBreathSrc" preload="auto" />
 </template>
+
+<style>
+.page-fade-enter-active,
+.page-fade-leave-active {
+  transition: opacity 0.2s ease;
+}
+
+.page-fade-enter-from,
+.page-fade-leave-to {
+  opacity: 0;
+}
+</style>
 
 <style scoped>
 .fireball-overlay {
