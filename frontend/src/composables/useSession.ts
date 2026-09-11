@@ -1,5 +1,6 @@
 import { computed, ref } from "vue";
 import { clearToken, getToken, setToken } from "@/api/client";
+import { apiLogout } from "@/api/auth";
 import type { EmployeeRole, Session } from "@/types/employee";
 
 function parseJwtPayload(token: string): { sub?: string; role?: string } | null {
@@ -53,9 +54,13 @@ export function useSession() {
     session.value = readSession();
   }
 
-  function logout(): void {
-    clearToken();
-    session.value = null;
+  async function logout(): Promise<void> {
+    try {
+      await apiLogout();
+    } finally {
+      clearToken();
+      session.value = null;
+    }
   }
 
   function can(action: PermissionAction): boolean {
