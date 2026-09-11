@@ -28,7 +28,7 @@ logger = logging.getLogger(__name__)
 
 app = FastAPI()
 app.add_middleware(RequestLoggingMiddleware)
-app.include_router(auth.router)
+app.include_router(auth.router, prefix="/auth", tags=["Authentication"])
 app.include_router(baked_goods.router, prefix="/baked-goods", tags=["Baked Goods"])
 app.include_router(customers.router, prefix="/customers", tags=["Customers"])
 app.include_router(drinks.router, prefix="/drinks", tags=["Drinks"])

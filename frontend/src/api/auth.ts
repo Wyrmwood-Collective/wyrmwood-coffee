@@ -20,3 +20,7 @@ export async function apiLogin(username: string, password: string): Promise<Toke
     { contentType: null },
   );
 }
+
+export async function apiLogout(): Promise<void> {
+  return apiFetch<void>("/auth/logout", { method: "POST" });
+}

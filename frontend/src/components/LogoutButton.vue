@@ -5,8 +5,8 @@ import { useSession } from "@/composables/useSession";
 const { logout } = useSession();
 const router = useRouter();
 
-function handleLogout() {
-  logout();
+async function handleLogout() {
+  await logout();
   router.push({ name: "login" });
 }
 </script>

@@ -7,6 +7,7 @@
 | Method | Path | Requires Auth | Description |
 | --- | --- | --- | --- |
 | `POST` | `/auth/login` | No | [Login](#post-authlogin) |
+| `POST` | `/auth/logout` | No | [Logout](#post-authlogout) |
 | `POST` | `/baked-goods` | No | [Create Baked Good](#post-baked-goods) |
 | `GET` | `/customers` | No | [List Customers](#get-customers) |
 | `GET` | `/customers/{id}` | No | [Get Customer](#get-customersid) |
@@ -52,6 +53,25 @@ Accepts standard OAuth2 form data (username, password).
 | `200` | The generated JWT access token | `application/json` [`Token`](#token) |
 | `401` | Incorrect username or password. | `application/json` `{ "detail": string }` |
 | `422` | The provided Login is malformed or invalid. | `application/json` [`HTTPValidationError`](#httpvalidationerror) |
+
+[Back to Summary](#summary)
+
+---
+
+### `POST` /auth/logout
+
+**Logout**
+
+Terminate the caller's current session.
+
+Adds the token's `jti` to the blacklist so it can no longer be used, even thought it hasn't reached its natural expiry yet.
+
+**Responses**
+
+| Status | Description | Body |
+| --- | --- | --- |
+| `204` | The user logged out successfully. | None |
+| `401` | Missing, invalid, or already-expired token. | `application/json` `{ "detail": string }` |
 
 [Back to Summary](#summary)
 

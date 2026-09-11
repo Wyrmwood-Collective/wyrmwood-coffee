@@ -1,5 +1,6 @@
 """Password hashing and JWT helpers."""
 
+import uuid
 from datetime import UTC, datetime, timedelta
 
 import bcrypt
@@ -32,9 +33,16 @@ def create_access_token(
         if expires_delta is not None
         else timedelta(minutes=settings.jwt_expiration_minutes)
     )
-    to_encode.update({"exp": expire})
+    to_encode.update({"exp": expire, "jti": str(uuid.uuid4())})
     return jwt.encode(
         to_encode,
         settings.jwt_secret_key,
         algorithm=settings.jwt_algorithm,
+    )
+
+
+def decode_access_token(token: str) -> dict:
+    """Decode and validate a JWT access token."""
+    return jwt.decode(
+        token, settings.jwt_secret_key, algorithms=[settings.jwt_algorithm]
     )
