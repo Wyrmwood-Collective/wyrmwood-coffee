@@ -37,3 +37,6 @@ __screenshots__/
 
 # Vite
 *.timestamp-*-*.mjs
+
+# Raw video masters (too large for git; transcode to mp4/webm for actual use)
+*.mov

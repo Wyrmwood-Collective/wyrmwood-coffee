@@ -3,7 +3,6 @@ import { computed, onMounted, ref } from "vue";
 import { apiListEmployees } from "@/api/employees";
 import { useSession } from "@/composables/useSession";
 import AppChrome from "@/components/AppChrome.vue";
-import LogoutButton from "@/components/LogoutButton.vue";
 import FormMessage from "@/components/FormMessage.vue";
 import EmployeeTable from "@/components/EmployeeTable.vue";
 import type { EmployeeRead } from "@/types/employee";
@@ -72,8 +71,6 @@ onMounted(async () => {
         @deleted="handleDeleted"
         @error="handleError"
       />
-
-      <LogoutButton />
     </section>
   </main>
 </template>

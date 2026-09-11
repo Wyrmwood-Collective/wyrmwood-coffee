@@ -13,6 +13,15 @@ winget install -e --id OpenJS.NodeJS.LTS
 git clone git@github.com:Wyrmwood-Collective/wyrmwood-coffee.git
 ```
 
+This repo uses [Git LFS](https://git-lfs.com/) for media assets (`*.png`, `*.jpg`,
+`*.webp`, `*.mp3`, `*.flac`, `*.webm`, `*.af`). Git for Windows bundles `git-lfs`,
+so just run this once per machine before pulling, or those files will check out
+as small text pointers instead of the real content:
+
+```shell
+git lfs install
+```
+
 Create a local env file from the committed template and fill in real values
 (never commit `.env.local`). If `.env` files are new to you, read
 [docs/configuration.md](docs/configuration.md) first — it explains what each
