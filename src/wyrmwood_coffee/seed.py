@@ -25,7 +25,8 @@ from wyrmwood_coffee.models import (
     Employee,
     Ingredient,
     Promotion,
-    PurchaseHistory,
+    Purchase,
+    PurchaseItem,
     Vendor,
     VendorContact,
 )
@@ -45,13 +46,15 @@ SEEDED_MODELS = [
     Customer,
     Employee,
     Promotion,
-    PurchaseHistory,
+    Purchase,
 ]
 
 # Tables truncated on --overwrite. Order doesn't matter here (CASCADE
 # pulls in any dependents), but every seeded table is listed explicitly
 # so RESTART IDENTITY resets each one's sequence back to 1.
 _TRUNCATE_MODELS = [
+    PurchaseItem,
+    Purchase,
     DrinkIngredient,
     VendorContact,
     Drink,
@@ -125,9 +128,11 @@ def _seed_drinks(session, entries: list[dict], ingredient_ids: dict[str, int]) -
         for di in entry["ingredients"]:
             amount = Decimal(di["amount"])
             ingredient = session.get(Ingredient, ingredient_ids[di["ingredient_key"]])
-            production_cost += (amount * ingredient.purchasing_cost).quantize(
-                Decimal("0.01")
-            )
+
+            # THE FIX: Calculate the cost per unit first!
+            unit_cost = ingredient.purchasing_cost / ingredient.unit_amount
+            production_cost += (amount * unit_cost).quantize(Decimal("0.01"))
+
             drink_ingredients.append(
                 DrinkIngredient(
                     ingredient_id=ingredient.id, amount=amount, unit=di["unit"]
@@ -212,6 +217,29 @@ def _seed_promotions(session, entries: list[dict]) -> None:
         )
 
 
+def _seed_purchases(session, entries: list[dict]) -> None:
+    for entry in entries:
+        items = []
+        for item in entry["items"]:
+            items.append(
+                PurchaseItem(
+                    name=item["name"],
+                    quantity=item["quantity"],
+                    unit_price=Decimal(item["unit_price"]),
+                )
+            )
+        session.add(
+            Purchase(
+                customer_id=entry.get("customer_id"),
+                promo_id=entry.get("promo_id"),
+                subtotal=Decimal(entry["subtotal"]),
+                tax=Decimal(entry["tax"]),
+                total=Decimal(entry["total"]),
+                items=items,
+            )
+        )
+
+
 def seed(overwrite: bool = False) -> None:
     if settings.app_environment == Environment.STAGING:
         logger.critical("Refusing to seed sample data into the staging environment.")
@@ -239,6 +267,9 @@ def seed(overwrite: bool = False) -> None:
         _seed_customers(session, data["customers"])
         _seed_employees(session, data["employees"])
         _seed_promotions(session, data["promotions"])
+
+        if "purchases" in data:
+            _seed_purchases(session, data["purchases"])
 
         session.commit()
         logger.info("Sample data seeded successfully.")

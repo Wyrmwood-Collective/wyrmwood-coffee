@@ -109,16 +109,26 @@ def process_purchase(session: Session, payload: PurchaseCreate) -> Purchase:
     """
     Process a purchase by coordinating helper functions and committing the transaction.
     """
-    # 1. Build items and get subtotal
+    # 1. Validate Customer FIRST (before we add anything to the session)
+    customer = None
+    if payload.customer_id:
+        customer = session.get(Customer, payload.customer_id)
+        if not customer:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="The customer was not found.",
+            )
+
+    # 2. Build items and get subtotal
     subtotal, purchase_items = get_prices_and_subtotal(session, payload.items)
 
-    # 2. Get discount
+    # 3. Get discount
     discount = calculate_discount(session, payload.promo_id, subtotal)
 
-    # 3. Calculate taxes and final total
+    # 4. Calculate taxes and final total
     discounted_subtotal, tax, total = calculate_taxes_and_total(subtotal, discount)
 
-    # 4. Create the initial purchase object
+    # 5. Create the initial purchase object
     purchase = Purchase(
         customer_id=payload.customer_id,
         promo_id=payload.promo_id,
@@ -129,20 +139,13 @@ def process_purchase(session: Session, payload: PurchaseCreate) -> Purchase:
     )
     session.add(purchase)
 
-    # 5. Handle loyalty points if a customer is attached
-    if payload.customer_id:
-        customer = session.get(Customer, payload.customer_id)
-        if not customer:
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail="The customer was not found.",
-            )
-
+    # 6. Handle loyalty points using the customer we already fetched
+    if customer:
         points_earned, expires_at = calculate_loyalty_points_and_expiration(total)
         customer.loyalty_points += points_earned
         customer.loyalty_expires_at = expires_at
 
-    # 6. Commit the atomic transaction
+    # 7. Commit the atomic transaction
     session.commit()
     session.refresh(purchase)
 
