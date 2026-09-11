@@ -53,6 +53,9 @@ const sections = computed(() => {
   if (can("listEmployees")) {
     items.push({ to: "/employees", label: "Team Roster", colour: "#4f7086" });
   }
+  if (can("viewReports")) {
+    items.push({ to: "/reports", label: "Reports", colour: "#6b5b4a" });
+  }
   if (can("createEmployee")) {
     items.push({ to: "/signup", label: "New Employee", colour: "#c08a3e" });
   }

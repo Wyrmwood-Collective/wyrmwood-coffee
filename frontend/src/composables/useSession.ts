@@ -44,6 +44,7 @@ const PERMISSIONS = {
   createEmployee: ["admin"],
   updateEmployee: ["admin"],
   deleteEmployee: ["admin"],
+  viewReports: ["manager", "admin"],
 } as const satisfies Record<string, EmployeeRole[]>;
 
 export type PermissionAction = keyof typeof PERMISSIONS;
