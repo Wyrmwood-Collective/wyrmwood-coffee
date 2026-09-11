@@ -6,11 +6,6 @@ from wyrmwood_coffee.models.employee import Employee
 from wyrmwood_coffee.models.ingredient import Ingredient
 from wyrmwood_coffee.models.loyalty_point_audit import LoyaltyPointAudit
 from wyrmwood_coffee.models.promotions import Promotion
-from wyrmwood_coffee.models.purchase_history import (
-    PurchaseHistory,
-    PurchaseHistoryCreate,
-    PurchaseHistoryRead,
-)
 from wyrmwood_coffee.models.token import Token
 from wyrmwood_coffee.models.vendor import Vendor, VendorContact
 
@@ -25,9 +20,6 @@ __all__ = [
     "Vendor",
     "VendorContact",
     "Promotion",
-    "PurchaseHistory",
-    "PurchaseHistoryCreate",
-    "PurchaseHistoryRead",
     "Purchase",
     "PurchaseItem",
     "LoyaltyPointAudit",

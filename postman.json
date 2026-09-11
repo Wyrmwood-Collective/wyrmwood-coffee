@@ -657,6 +657,43 @@
           "response": []
         }
       ]
+    },
+    {
+      "name": "Purchases",
+      "item": [
+        {
+          "name": "Create Purchase",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"customer_id\": 1,\r\n    \"promo_id\": 1,\r\n    \"items\": [\r\n        {\r\n            \"name\": \"Blueberry Muffin\",\r\n            \"quantity\": 2\r\n        },\r\n        {\r\n            \"name\": \"Caramel Latte\",\r\n            \"quantity\": 1\r\n        }\r\n    ]\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "localhost:8000/purchases",
+              "host": [
+                "localhost"
+              ],
+              "port": "8000",
+              "path": [
+                "purchases"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
     }
   ]
 }
