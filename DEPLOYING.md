@@ -48,3 +48,23 @@ az ad sp create-for-rbac `
 # terraform init
 terraform -chdir=infra init
 ```
+
+# Applying Configuration Changes
+
+```PowerShell
+terraform -chdir=infra apply
+```
+
+You can run `terraform -chdir=infra output postgres_fqdn` to see the address of the database server.
+
+Viewing the password:
+
+```PowerShell
+terraform -chdir=infra output -raw postgres_admin_password
+```
+
+Connect to the database:
+
+```PowerShell
+psql "postgresql://wyrmwood_coffee_db_admin_user@wyrmwood-coffee-db.postgres.database.azure.com/postgres"
+```
