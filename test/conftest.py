@@ -1,7 +1,7 @@
 import itertools
 import os
 import subprocess
-from datetime import date
+from datetime import UTC, date, datetime
 from decimal import Decimal
 from typing import cast
 
@@ -13,6 +13,8 @@ from sqlalchemy.orm import sessionmaker
 
 from wyrmwood_coffee.database import Base, get_db
 from wyrmwood_coffee.main import app
+from wyrmwood_coffee.models.baked_goods import BakedGood
+from wyrmwood_coffee.models.customer import Customer
 from wyrmwood_coffee.models.employee import Employee
 from wyrmwood_coffee.models.ingredient import Ingredient
 from wyrmwood_coffee.models.vendor import Vendor, VendorContact
@@ -199,3 +201,36 @@ def make_ingredient(db_session, make_vendor):
         return ingredient
 
     return _make_ingredient
+
+
+@pytest.fixture
+def sample_baked_good(db_session):
+    """Creates a fake baked good to use in purchase tests."""
+    bg = BakedGood(
+        name="Test Muffin",
+        description="A delicious test muffin.",
+        purchase_cost=Decimal("2.00"),
+        retail_price=Decimal("5.00"),
+    )
+    db_session.add(bg)
+    db_session.commit()
+    db_session.refresh(bg)
+    return bg
+
+
+@pytest.fixture
+def sample_customer(db_session):
+    """Creates a fake customer to test loyalty points."""
+    customer = Customer(
+        active=True,  # Required by your DB
+        first_name="Test",
+        last_name="Customer",
+        email="test.customer@example.com",
+        phone="555-555-5555",  # Changed from phone_number to phone!
+        loyalty_points=0,
+        loyalty_expires_at=datetime.now(UTC),  # Required by your DB
+    )
+    db_session.add(customer)
+    db_session.commit()
+    db_session.refresh(customer)
+    return customer
