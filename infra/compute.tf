@@ -130,27 +130,6 @@ resource "azurerm_role_assignment" "github_staging_postgres" {
 
 data "azurerm_client_config" "current" {}
 
-output "azure_client_id" {
-  value = azuread_application.github_actions.client_id
-}
-
-output "azure_tenant_id" {
-  value = data.azurerm_client_config.current.tenant_id
-}
-
-output "azure_subscription_id" {
-  value = data.azurerm_client_config.current.subscription_id
-}
-
-output "postgres_fqdn" {
-  value = azurerm_postgresql_flexible_server.wyrmwood_db.fqdn
-}
-
-output "postgres_admin_password" {
-  value = random_password.postgres-admin-password.result
-  sensitive = true
-}
-
 output "web_app_default_hostname" {
   value = azurerm_linux_web_app.fastapi.default_hostname
 }
