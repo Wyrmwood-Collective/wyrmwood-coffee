@@ -83,13 +83,17 @@ To apply changes:
 terraform apply
 ```
 
-## Other Commands
-
-To see the database hostname and admin password:
+To see outputs:
 
 ```PowerShell
-terraform output postgres_fqdn
+terraform output
 terraform output -raw postgres_admin_password
+```
+
+Rotate a password:
+
+```PowerShell
+terraform apply -replace="random_password.postgres-admin-password"
 ```
 
 ## Configuring GitHub for Deployment
@@ -99,6 +103,7 @@ It authenticates as a service principal which has permission to deploy to the ap
 
 ### Environment Secrets
 
-AZURE_CLIENT_ID
-AZURE_TENANT_ID
-AZURE_SUBSCRIPTION_ID
+AZURE_CLIENT_ID (secret)
+AZURE_TENANT_ID (secret)
+AZURE_SUBSCRIPTION_ID (secret)
+AZURE_WEBAPP_NAME (env)
