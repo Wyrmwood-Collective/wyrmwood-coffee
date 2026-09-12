@@ -1,8 +1,11 @@
+#Requires -Version 7.0
+
 $subscriptionId = "9d3db13e-5092-43f3-94e9-e1e916637239"
 $configResourceGroup = "wyrmwood_collective"
 $location = "centralus"
 $storageAccount = "wyrmwoodstorage"
 $adminGroup = "terraform-infra-admins"
+$appDisplayName = "github-actions-deploy-myapp"
 
 $ErrorActionPreference = "Stop"
 
@@ -66,15 +69,15 @@ Invoke-Step "Adding current user to Terraform admins group..." {
     }
 }
 
+Invoke-Step "Creating the app registration..." {
+    $existingApp = az ad app list --display-name $appDisplayName --query "[0]" | ConvertFrom-Json
+    if (-not $existingApp) {
+        az ad app create --display-name $appDisplayName --query appId -o tsv
+    }
+}
+
 Write-Host "[boot] Boot process finished successfully."
 Write-Host '[boot] Run `terraform init` to initialize Terraform,'
 Write-Host '[boot] then `terraform apply` to provision.'
 Write-Host "[boot] You may need to wait for permissions to propagate."
 Write-Host "[boot] If you get an error, wait and try again."
-
-# create the service principal (for CI/CD authentication)
-# save this information somwhere safe!
-# az ad sp create-for-rbac `
-#   --name "wyrmwood-terraform-sp" `
-#   --role "Contributor" `
-#   --scopes "/subscriptions/$(az account show --query id -o tsv)"

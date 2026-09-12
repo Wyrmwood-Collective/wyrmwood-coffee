@@ -61,6 +61,48 @@ resource "azurerm_postgresql_flexible_server_firewall_rule" "allow_range" {
   end_ip_address   = "216.80.50.122"
 }
 
+data "azuread_group" "terraform_infra_admins" {
+  display_name     = "terraform-infra-admins"
+  security_enabled = true
+}
+
+resource "azuread_application" "github_actions" {
+  display_name = "github-actions-deploy-myapp"
+  owners       = data.azuread_group.terraform_infra_admins.members
+}
+
+resource "azuread_service_principal" "github_actions" {
+  client_id = azuread_application.github_actions.client_id
+}
+
+resource "azuread_application_federated_identity_credential" "github_actions_deploy_env" {
+  application_id = azuread_application.github_actions.id
+  display_name   = "github-actions-deploy-environment"
+  audiences      = ["api://AzureADTokenExchange"]
+  issuer         = "https://token.actions.githubusercontent.com"
+  subject        = "repo:Wyrmwood-Collective@319175686/wyrmwood-coffee@1323499178:environment:deploy"
+}
+
+resource "azurerm_role_assignment" "github_deploy" {
+  scope                = azurerm_linux_web_app.fastapi.id
+  role_definition_name = "Website Contributor"
+  principal_id         = azuread_service_principal.github_actions.object_id
+}
+
+data "azurerm_client_config" "current" {}
+
+output "azure_client_id" {
+  value = azuread_application.github_actions.client_id
+}
+
+output "azure_tenant_id" {
+  value = data.azurerm_client_config.current.tenant_id
+}
+
+output "azure_subscription_id" {
+  value = data.azurerm_client_config.current.subscription_id
+}
+
 output "postgres_fqdn" {
   value = azurerm_postgresql_flexible_server.wyrmwood_db.fqdn
 }

@@ -91,3 +91,14 @@ To see the database hostname and admin password:
 terraform output postgres_fqdn
 terraform output -raw postgres_admin_password
 ```
+
+## Configuring GitHub for Deployment
+
+GitHub authenticates with Azure using OIDC.
+It authenticates as a service principal which has permission to deploy to the app service.
+
+### Environment Secrets
+
+AZURE_CLIENT_ID
+AZURE_TENANT_ID
+AZURE_SUBSCRIPTION_ID
