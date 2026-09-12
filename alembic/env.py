@@ -8,8 +8,11 @@ from wyrmwood_coffee.settings import settings
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
+# Note: ConfigParser treats percent signs in the string as interpolation
+# syntax (like in "%(name)"), and this interferes with the URL-encoded
+# database password. To fix, we must escape the percent signs.
 config = context.config
-config.set_main_option("sqlalchemy.url", settings.database_url)
+config.set_main_option("sqlalchemy.url", settings.database_url.replace("%", "%%"))
 
 # Interpret the config file for Python logging.
 # This line sets up loggers basically.

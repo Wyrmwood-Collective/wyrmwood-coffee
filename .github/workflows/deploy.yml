@@ -1,4 +1,4 @@
-name: Test Azure Auth
+name: Deploy
 
 on:
   workflow_dispatch:
@@ -6,14 +6,56 @@ on:
     branches:
       - infra
 
+env:
+  AZURE_WEBAPP_NAME: wyrmwood-coffee-api
+
 jobs:
-  test-auth:
+  deploy:
     runs-on: ubuntu-latest
-    environment: deploy
+    environment: staging
     permissions:
       id-token: write
       contents: read
+
     steps:
+      - name: Check out repo
+        uses: actions/checkout@v7
+
+      - name: Set up Node
+        uses: actions/setup-node@v7
+        with:
+          node-version: '24'
+          cache: 'npm'
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Install frontend dependencies
+        working-directory: frontend
+        run: npm ci
+
+      - name: Build frontend
+        working-directory: frontend
+        run: npm run build
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v10.1.0
+        with:
+          enable-cache: true
+
+      - name: Export locked dependencies to requirements.txt
+        run: uv export --no-dev --no-emit-project --format requirements-txt --output-file requirements.txt
+
+      - name: Assemble deployment package
+        run: |
+          mkdir -p deploy-package/frontend
+          cp -r src deploy-package/src
+          cp -r frontend/dist deploy-package/frontend/dist
+          cp -r alembic deploy-package/alembic
+          cp alembic.ini deploy-package/alembic.ini
+          cp requirements.txt deploy-package/requirements.txt
+          cp infra/startup.sh deploy-package/startup.sh
+          cd deploy-package
+          zip -r ../app.zip .
+
       - name: Azure Login (OIDC)
         uses: azure/login@v3
         with:
@@ -21,5 +63,8 @@ jobs:
           tenant-id: ${{ secrets.AZURE_TENANT_ID }}
           subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
 
-      - name: Verify auth worked
-        run: az webapp show --name wyrmwood-coffee-api --resource-group wyrmwood-coffee-rg
+      - name: Deploy to Azure Web App
+        uses: azure/webapps-deploy@v3
+        with:
+          app-name: ${{ env.AZURE_WEBAPP_NAME }}
+          package: app.zip
