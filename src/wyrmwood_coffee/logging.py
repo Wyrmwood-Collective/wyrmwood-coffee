@@ -43,11 +43,11 @@ class Sensitive:
 @cache
 def sensitive_field_names() -> set[str]:
     """Field names marked `Sensitive` across every known Pydantic model."""
-    from wyrmwood_coffee.settings import Settings
+    from wyrmwood_coffee.settings import BaseAppSettings
 
     names: set[str] = set()
     seen: set[type[BaseModel]] = set()
-    stack = [*BaseModel.__subclasses__(), Settings]
+    stack = [*BaseModel.__subclasses__(), BaseAppSettings]
     while stack:
         model = stack.pop()
         if model in seen:
@@ -163,7 +163,7 @@ class DevJsonFormatter(AppJsonFormatter):
 
 
 def setup_logging():
-    from wyrmwood_coffee.settings import Environment, settings
+    from wyrmwood_coffee.settings import Environment, script_settings
 
     fmt = "%(asctime)s %(levelname)s %(name)s %(module)s %(funcName)s %(lineno)d %(message)s"  # noqa: E501
     rename_fields = {
@@ -176,11 +176,11 @@ def setup_logging():
     }
 
     handler = logging.StreamHandler()
-    if settings.app_environment == Environment.DEV:
+    if script_settings().core.app_environment == Environment.DEV:
         handler.setFormatter(
             DevJsonFormatter(fmt, rename_fields=rename_fields, json_indent=2)
         )
     else:
         handler.setFormatter(AppJsonFormatter(fmt, rename_fields=rename_fields))
     handler.addFilter(RequestContextFilter())
-    logging.basicConfig(level=settings.log_level, handlers=[handler])
+    logging.basicConfig(level=script_settings().core.log_level, handlers=[handler])

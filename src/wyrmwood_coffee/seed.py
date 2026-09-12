@@ -31,7 +31,7 @@ from wyrmwood_coffee.models import (
 )
 from wyrmwood_coffee.models.drink import DrinkIngredient
 from wyrmwood_coffee.security import hash_password
-from wyrmwood_coffee.settings import Environment, settings
+from wyrmwood_coffee.settings import Environment, script_settings
 
 logger = logging.getLogger(__name__)
 
@@ -213,7 +213,7 @@ def _seed_promotions(session, entries: list[dict]) -> None:
 
 
 def seed(overwrite: bool = False) -> None:
-    if settings.app_environment == Environment.STAGING:
+    if script_settings().core.app_environment == Environment.STAGING:
         logger.critical("Refusing to seed sample data into the staging environment.")
         sys.exit(1)
 

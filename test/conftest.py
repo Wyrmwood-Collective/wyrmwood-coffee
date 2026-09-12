@@ -17,11 +17,11 @@ from wyrmwood_coffee.models.employee import Employee
 from wyrmwood_coffee.models.ingredient import Ingredient
 from wyrmwood_coffee.models.vendor import Vendor, VendorContact
 from wyrmwood_coffee.security import hash_password
-from wyrmwood_coffee.settings import settings
+from wyrmwood_coffee.settings import app_settings
 
 
 def create_test_database(db_url: str) -> None:
-    url = make_url(cast(str, settings.test_database_url))
+    url = make_url(cast(str, app_settings().database.url))
 
     env = os.environ.copy()
     if url.password:
@@ -41,7 +41,7 @@ def create_test_database(db_url: str) -> None:
 
 
 def destroy_test_database(db_name: str) -> None:
-    url = make_url(cast(str, settings.test_database_url))
+    url = make_url(cast(str, app_settings().database.url))
 
     env = os.environ.copy()
     if url.password:
@@ -62,8 +62,8 @@ def destroy_test_database(db_name: str) -> None:
 
 @pytest.fixture(scope="session")
 def db_engine(request):
-    db_name = cast(str, settings.test_database_url).split("/")[-1]
-    db_url = cast(str, settings.test_database_url)
+    db_name = cast(str, app_settings().database.url).split("/")[-1]
+    db_url = cast(str, app_settings().database.url)
     create_test_database(db_name)
     request.addfinalizer(lambda: destroy_test_database(db_name))
 

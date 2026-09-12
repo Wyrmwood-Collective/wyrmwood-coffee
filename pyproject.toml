@@ -17,6 +17,7 @@ dependencies = [
     "python-dateutil>=2.9.0.post0",
     "python-json-logger>=4.2.0",
     "sqlalchemy>=2.0.51",
+    "pytest-env>=1.7.1",
 ]
 
 [build-system]
@@ -25,6 +26,11 @@ build-backend = "uv_build"
 
 [tool.coverage.run]
 source = ["src"]
+
+[tool.pytest.ini_options]
+env = [
+    "APP_ENVIRONMENT=test",
+]
 
 [tool.ruff]
 target-version = "py312"

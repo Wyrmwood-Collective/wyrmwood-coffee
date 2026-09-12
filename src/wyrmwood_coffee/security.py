@@ -6,7 +6,7 @@ from datetime import UTC, datetime, timedelta
 import bcrypt
 import jwt
 
-from wyrmwood_coffee.settings import settings
+from wyrmwood_coffee.settings import app_settings
 
 
 def hash_password(password: str) -> str:
@@ -31,18 +31,20 @@ def create_access_token(
     expire = datetime.now(UTC) + (
         expires_delta
         if expires_delta is not None
-        else timedelta(minutes=settings.jwt_expiration_minutes)
+        else timedelta(minutes=app_settings().auth.jwt_expiration_minutes)
     )
     to_encode.update({"exp": expire, "jti": str(uuid.uuid4())})
     return jwt.encode(
         to_encode,
-        settings.jwt_secret_key,
-        algorithm=settings.jwt_algorithm,
+        app_settings().auth.jwt_secret_key,
+        algorithm=app_settings().auth.jwt_algorithm,
     )
 
 
 def decode_access_token(token: str) -> dict:
     """Decode and validate a JWT access token."""
     return jwt.decode(
-        token, settings.jwt_secret_key, algorithms=[settings.jwt_algorithm]
+        token,
+        app_settings().auth.jwt_secret_key,
+        algorithms=[app_settings().auth.jwt_algorithm],
     )
