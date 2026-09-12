@@ -92,13 +92,21 @@ resource "azurerm_linux_web_app" "fastapi" {
   }
 }
 
+variable "terraform_infra_admins_group_name" {
+  type = string
+}
+
 data "azuread_group" "terraform_infra_admins" {
-  display_name     = "terraform-infra-admins"
+  display_name     = var.terraform_infra_admins_group_name
   security_enabled = true
 }
 
+variable "terraform_github_actions_deploy_app_name" {
+  type = string
+}
+
 resource "azuread_application" "github_actions" {
-  display_name = "github-actions-deploy-myapp"
+  display_name = var.terraform_github_actions_deploy_app_name
   owners       = data.azuread_group.terraform_infra_admins.members
 }
 

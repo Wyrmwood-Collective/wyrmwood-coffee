@@ -1,11 +1,18 @@
 #Requires -Version 7.0
 
-$subscriptionId = "9d3db13e-5092-43f3-94e9-e1e916637239"
-$configResourceGroup = "wyrmwood_collective"
-$location = "centralus"
-$storageAccount = "wyrmwoodstorage"
+# Terraform state file resource group and storage account/container
+$terraformResourceGroupName = "wyrmwood_collective"
+$terraformStorageAccountName = "wyrmwoodstorage"
+$terraformContainerName = "tfstate"
+$terraformKey = "prod.terraform.tfstate"
+
+# Other constants shared between the boot script and the configuration files
 $adminGroup = "terraform-infra-admins"
-$appDisplayName = "github-actions-deploy-myapp"
+$githubAppDisplayName = "github-actions-deploy-myapp"
+
+# Constants only needed by the boot script
+$subscriptionId = "9d3db13e-5092-43f3-94e9-e1e916637239"
+$location = "centralus"
 
 $ErrorActionPreference = "Stop"
 
@@ -19,27 +26,27 @@ function Invoke-Step {
 }
 
 Invoke-Step "Creating resource group for the object storage account..." {
-    az group create --name $configResourceGroup --location $location
+    az group create --name $terraformResourceGroupName --location $location
 }
 
 Invoke-Step "Creating storage account for the state container..." {
     az storage account create `
-        --name $storageAccount `
-        --resource-group $configResourceGroup `
+        --name $terraformStorageAccountName `
+        --resource-group $terraformResourceGroupName `
         --sku Standard_LRS `
         --encryption-services blob
 }
 
 Invoke-Step "Enabling blob versioning on the storage account (for versioning the state file)..." {
     az storage account blob-service-properties update `
-        --account-name $storageAccount `
+        --account-name $terraformStorageAccountName `
         --enable-versioning true
 }
 
 Invoke-Step "Creating the storage container to hold the Terraform state file..." {
     az storage container create `
         --name tfstate `
-        --account-name $storageAccount
+        --account-name $terraformStorageAccountName
 }
 
 Invoke-Step "Creating group for Terraform admins..." {
@@ -51,7 +58,7 @@ Invoke-Step "Assigning permissions to Terraform admins group for resource group.
         --assignee-object-id $(az ad group show --group $adminGroup --query id -o tsv) `
         --assignee-principal-type Group `
         --role "Contributor" `
-        --scope "/subscriptions/$subscriptionId/resourceGroups/$configResourceGroup"
+        --scope "/subscriptions/$subscriptionId/resourceGroups/$terraformResourceGroupName"
 }
 
 Invoke-Step "Assigning permissions to Terraform admins group for storage account..." {
@@ -59,7 +66,7 @@ Invoke-Step "Assigning permissions to Terraform admins group for storage account
         --assignee-object-id $(az ad group show --group $adminGroup --query id -o tsv) `
         --assignee-principal-type Group `
         --role "Storage Blob Data Contributor" `
-        --scope "/subscriptions/$subscriptionId/resourceGroups/$configResourceGroup/providers/Microsoft.Storage/storageAccounts/$storageAccount"
+        --scope "/subscriptions/$subscriptionId/resourceGroups/$terraformResourceGroupName/providers/Microsoft.Storage/storageAccounts/$terraformStorageAccountName"
 }
 
 Invoke-Step "Adding current user to Terraform admins group..." {
@@ -70,10 +77,28 @@ Invoke-Step "Adding current user to Terraform admins group..." {
 }
 
 Invoke-Step "Creating the app registration..." {
-    $existingApp = az ad app list --display-name $appDisplayName --query "[0]" | ConvertFrom-Json
+    $existingApp = az ad app list --display-name \$githubAppDisplayName --query "[0]" | ConvertFrom-Json
     if (-not $existingApp) {
-        az ad app create --display-name $appDisplayName --query appId -o tsv
+        az ad app create --display-name \$githubAppDisplayName --query appId -o tsv
     }
+}
+
+Invoke-Step "Writing the backend configuration..." {
+@"
+# Do not manually edit this file; it is generated automatically by the boot script.
+# Make changes in ``boot.ps1`` and run to regenerate.
+resource_group_name  = "$terraformResourceGroupName"
+storage_account_name = "$terraformStorageAccountName"
+container_name       = "$terraformContainerName"
+key                  = "$terraformKey"
+"@ | Out-File -FilePath (Join-Path $PSScriptRoot "backend.hcl") -Encoding utf8
+
+@"
+# Do not manually edit this file; it is generated automatically by the boot script.
+# Make changes in ``boot.ps1`` and run to regenerate.
+terraform_infra_admins_group_name = "$adminGroup"
+terraform_github_actions_deploy_app_name = "$githubAppDisplayName"
+"@ | Out-File -FilePath (Join-Path $PSScriptRoot "generated.auto.tfvars") -Encoding utf8 -NoNewline
 }
 
 Write-Host "[boot] Boot process finished successfully."
