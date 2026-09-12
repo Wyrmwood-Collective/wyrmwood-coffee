@@ -54,22 +54,22 @@ resource "azurerm_postgresql_flexible_server_database" "wyrmwood_app_db" {
 }
 
 resource "azurerm_service_plan" "main" {
-  name = "wyrmwood_app_plan"
+  name                = "wyrmwood_app_plan"
   resource_group_name = azurerm_resource_group.main.name
-  location = azurerm_resource_group.main.location
-  os_type = "Linux"
-  sku_name = "B1"
+  location            = azurerm_resource_group.main.location
+  os_type             = "Linux"
+  sku_name            = "B1"
 }
 
 resource "random_password" "jwt_secret_key" {
-  length  = 64
+  length = 64
 }
 
 resource "azurerm_linux_web_app" "fastapi" {
-  name = "wyrmwood-coffee-api"
+  name                = "wyrmwood-coffee-api"
   resource_group_name = azurerm_resource_group.main.name
-  location = azurerm_resource_group.main.location
-  service_plan_id = azurerm_service_plan.main.id
+  location            = azurerm_resource_group.main.location
+  service_plan_id     = azurerm_service_plan.main.id
 
   site_config {
     application_stack {
@@ -79,7 +79,7 @@ resource "azurerm_linux_web_app" "fastapi" {
   }
 
   app_settings = {
-    APP_ENVIRONMENT = "staging"
+    APP_ENVIRONMENT                = "staging"
     SCM_DO_BUILD_DURING_DEPLOYMENT = true
     STAGING_DATABASE_URL = format(
       "postgresql+psycopg://%s:%s@%s/%s",

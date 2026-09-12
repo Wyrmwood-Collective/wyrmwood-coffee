@@ -96,7 +96,7 @@ key                  = "$terraformKey"
 @"
 # Do not manually edit this file; it is generated automatically by the boot script.
 # Make changes in ``boot.ps1`` and run to regenerate.
-terraform_infra_admins_group_name = "$adminGroup"
+terraform_infra_admins_group_name        = "$adminGroup"
 terraform_github_actions_deploy_app_name = "$githubAppDisplayName"
 "@ | Out-File -FilePath (Join-Path $PSScriptRoot "generated.auto.tfvars") -Encoding utf8 -NoNewline
 }
