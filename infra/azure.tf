@@ -1,16 +1,27 @@
+locals {
+  environment = "staging"
+  staging_database_url = format(
+    "postgresql+psycopg://%s:%s@%s/%s",
+    azurerm_postgresql_flexible_server.main.administrator_login,
+    urlencode(random_password.postgres_admin_password.result),
+    azurerm_postgresql_flexible_server.main.fqdn,
+    azurerm_postgresql_flexible_server_database.main.name
+  )
+}
+
 resource "azurerm_resource_group" "main" {
   name     = "wyrmwood-coffee-rg"
   location = "centralus"
 }
 
-resource "random_password" "postgres-admin-password" {
+resource "random_password" "postgres_admin_password" {
   length = 24
 }
 
-resource "azurerm_postgresql_flexible_server" "wyrmwood_db" {
+resource "azurerm_postgresql_flexible_server" "main" {
   name                = "wyrmwood-coffee-db"
   resource_group_name = azurerm_resource_group.main.name
-  location            = "centralus"
+  location            = azurerm_resource_group.main.location
 
   version  = 18
   sku_name = "B_Standard_B1ms"
@@ -18,7 +29,7 @@ resource "azurerm_postgresql_flexible_server" "wyrmwood_db" {
   storage_mb = 32768 # 32 GB (minimum allowed)
 
   administrator_login    = "wyrmwood_coffee_db_admin_user"
-  administrator_password = random_password.postgres-admin-password.result
+  administrator_password = random_password.postgres_admin_password.result
 
   backup_retention_days        = 7 # minimum
   geo_redundant_backup_enabled = false
@@ -34,21 +45,21 @@ resource "azurerm_postgresql_flexible_server" "wyrmwood_db" {
 
 resource "azurerm_postgresql_flexible_server_firewall_rule" "azure" {
   name             = "allow-azure-internal-ips"
-  server_id        = azurerm_postgresql_flexible_server.wyrmwood_db.id
+  server_id        = azurerm_postgresql_flexible_server.main.id
   start_ip_address = "0.0.0.0"
   end_ip_address   = "0.0.0.0"
 }
 
 resource "azurerm_postgresql_flexible_server_firewall_rule" "xchange" {
   name             = "allow-xchange-ip"
-  server_id        = azurerm_postgresql_flexible_server.wyrmwood_db.id
+  server_id        = azurerm_postgresql_flexible_server.main.id
   start_ip_address = "216.80.50.122"
   end_ip_address   = "216.80.50.122"
 }
 
-resource "azurerm_postgresql_flexible_server_database" "wyrmwood_app_db" {
+resource "azurerm_postgresql_flexible_server_database" "main" {
   name      = "wyrmwood_coffee"
-  server_id = azurerm_postgresql_flexible_server.wyrmwood_db.id
+  server_id = azurerm_postgresql_flexible_server.main.id
   collation = "en_US.utf8"
   charset   = "utf8"
 }
@@ -65,7 +76,7 @@ resource "random_password" "jwt_secret_key" {
   length = 64
 }
 
-resource "azurerm_linux_web_app" "fastapi" {
+resource "azurerm_linux_web_app" "main" {
   name                = "wyrmwood-coffee-api"
   resource_group_name = azurerm_resource_group.main.name
   location            = azurerm_resource_group.main.location
@@ -79,16 +90,10 @@ resource "azurerm_linux_web_app" "fastapi" {
   }
 
   app_settings = {
-    APP_ENVIRONMENT                = "staging"
+    APP_ENVIRONMENT                = local.environment
     SCM_DO_BUILD_DURING_DEPLOYMENT = true
-    STAGING_DATABASE_URL = format(
-      "postgresql+psycopg://%s:%s@%s/%s",
-      azurerm_postgresql_flexible_server.wyrmwood_db.administrator_login,
-      urlencode(random_password.postgres-admin-password.result),
-      azurerm_postgresql_flexible_server.wyrmwood_db.fqdn,
-      azurerm_postgresql_flexible_server_database.wyrmwood_app_db.name
-    )
-    JWT_SECRET_KEY = random_password.jwt_secret_key.result
+    STAGING_DATABASE_URL           = local.staging_database_url
+    JWT_SECRET_KEY                 = random_password.jwt_secret_key.result
   }
 }
 
@@ -119,19 +124,18 @@ resource "azuread_application_federated_identity_credential" "github_actions_sta
   display_name   = "github-actions-staging-environment"
   audiences      = ["api://AzureADTokenExchange"]
   issuer         = "https://token.actions.githubusercontent.com"
-  subject        = "repo:Wyrmwood-Collective@319175686/wyrmwood-coffee@1323499178:environment:staging"
+  subject        = "repo:Wyrmwood-Collective@319175686/wyrmwood-coffee@1323499178:environment:${local.environment}"
 }
 
 resource "azurerm_role_assignment" "github_staging" {
-  scope                = azurerm_linux_web_app.fastapi.id
+  scope                = azurerm_linux_web_app.main.id
   role_definition_name = "Website Contributor"
   principal_id         = azuread_service_principal.github_actions.object_id
 }
 
-# Lets the seed-staging workflow read the flexible server and manage its
-# firewall rules (it opens/closes a rule for the runner's IP each run).
+# Lets the database-seeding workflow open/close a hole in the database firewall.
 resource "azurerm_role_assignment" "github_staging_postgres" {
-  scope                = azurerm_postgresql_flexible_server.wyrmwood_db.id
+  scope                = azurerm_postgresql_flexible_server.main.id
   role_definition_name = "Contributor"
   principal_id         = azuread_service_principal.github_actions.object_id
 }
@@ -139,5 +143,5 @@ resource "azurerm_role_assignment" "github_staging_postgres" {
 data "azurerm_client_config" "current" {}
 
 output "web_app_default_hostname" {
-  value = azurerm_linux_web_app.fastapi.default_hostname
+  value = azurerm_linux_web_app.main.default_hostname
 }
