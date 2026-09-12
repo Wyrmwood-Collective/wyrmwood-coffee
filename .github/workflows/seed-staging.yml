@@ -1,0 +1,73 @@
+name: Seed Staging Database
+
+on:
+  workflow_dispatch:
+    inputs:
+      overwrite:
+        description: 'Delete existing seeded data and reinsert (resets IDs)'
+        type: boolean
+        default: false
+
+env:
+  AZURE_RESOURCE_GROUP: wyrmwood-coffee-rg
+  AZURE_POSTGRES_SERVER: wyrmwood-coffee-db
+
+jobs:
+  seed:
+    runs-on: ubuntu-latest
+    environment: staging
+    permissions:
+      id-token: write
+      contents: read
+
+    steps:
+      - name: Check out repo
+        uses: actions/checkout@v7
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v10.1.0
+        with:
+          enable-cache: true
+
+      - name: Set up Python
+        run: uv python install
+
+      - name: Install dependencies
+        run: uv sync --all-extras --dev
+
+      - name: Azure Login (OIDC)
+        uses: azure/login@v3
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+      - name: Determine runner's public IP
+        id: ip
+        run: echo "ip=$(curl -s https://api.ipify.org)" >> "$GITHUB_OUTPUT"
+
+      - name: Allow runner through database firewall
+        run: |
+          az postgres flexible-server firewall-rule create \
+            --resource-group "$AZURE_RESOURCE_GROUP" \
+            --name "$AZURE_POSTGRES_SERVER" \
+            --rule-name "github-actions-seed-${{ github.run_id }}" \
+            --start-ip-address "${{ steps.ip.outputs.ip }}" \
+            --end-ip-address "${{ steps.ip.outputs.ip }}"
+
+      - name: Seed staging database
+        env:
+          APP_ENVIRONMENT: staging
+          STAGING_DATABASE_URL: ${{ secrets.DATABASE_URL }}
+        run: |
+          uv run seed --confirm-staging-seed \
+            ${{ inputs.overwrite && '--overwrite' || '' }}
+
+      - name: Remove temporary firewall rule
+        if: always()
+        run: |
+          az postgres flexible-server firewall-rule delete \
+            --resource-group "$AZURE_RESOURCE_GROUP" \
+            --name "$AZURE_POSTGRES_SERVER" \
+            --rule-name "github-actions-seed-${{ github.run_id }}" \
+            --yes

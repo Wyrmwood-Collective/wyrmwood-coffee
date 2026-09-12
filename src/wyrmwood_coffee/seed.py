@@ -9,6 +9,7 @@ JSON file, so IDs are predictable across reseeds.
 import argparse
 import json
 import logging
+import os
 import sys
 from datetime import date, datetime
 from decimal import Decimal
@@ -212,10 +213,37 @@ def _seed_promotions(session, entries: list[dict]) -> None:
         )
 
 
-def seed(overwrite: bool = False) -> None:
-    if script_settings().core.app_environment == Environment.STAGING:
-        logger.critical("Refusing to seed sample data into the staging environment.")
+def _ensure_staging_seed_allowed(confirm_staging_seed: bool) -> None:
+    """Only the seed-staging GitHub Actions workflow may seed staging.
+
+    Requires both an explicit --confirm-staging-seed flag (so seeding staging
+    is never a side effect of a plain `uv run seed`) and GITHUB_ACTIONS=true,
+    which GitHub sets automatically on every workflow run and a developer's
+    machine will not have set. Neither signal alone is enough: the flag can
+    be copy-pasted into a local run, and the env var could in principle leak
+    into a shell.
+    """
+    if script_settings().core.app_environment != Environment.STAGING:
+        return
+
+    if not confirm_staging_seed:
+        logger.critical(
+            "Refusing to seed sample data into staging. Pass "
+            "--confirm-staging-seed to seed staging from the seed-staging "
+            "GitHub Actions workflow."
+        )
         sys.exit(1)
+
+    if os.environ.get("GITHUB_ACTIONS") != "true":
+        logger.critical(
+            "Refusing to seed sample data into staging outside of the "
+            "seed-staging GitHub Actions workflow."
+        )
+        sys.exit(1)
+
+
+def seed(overwrite: bool = False, confirm_staging_seed: bool = False) -> None:
+    _ensure_staging_seed_allowed(confirm_staging_seed)
 
     session = get_session_local()()
     try:
@@ -254,8 +282,16 @@ def main():
         action="store_true",
         help="Delete existing seeded data and reinsert from data/sample_data.json",
     )
+    parser.add_argument(
+        "--confirm-staging-seed",
+        action="store_true",
+        help=(
+            "Required, in addition to running inside the seed-staging GitHub "
+            "Actions workflow, to seed the staging environment."
+        ),
+    )
     args = parser.parse_args()
-    seed(overwrite=args.overwrite)
+    seed(overwrite=args.overwrite, confirm_staging_seed=args.confirm_staging_seed)
 
 
 if __name__ == "__main__":
