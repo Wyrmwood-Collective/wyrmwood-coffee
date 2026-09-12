@@ -1,16 +1,15 @@
 name: Seed Staging Database
 
 on:
+  push:
+    branches:
+      - infra
   workflow_dispatch:
-    inputs:
-      overwrite:
-        description: 'Delete existing seeded data and reinsert (resets IDs)'
-        type: boolean
-        default: false
 
 env:
   AZURE_RESOURCE_GROUP: wyrmwood-coffee-rg
   AZURE_POSTGRES_SERVER: wyrmwood-coffee-db
+  LOG_LEVEL: INFO
 
 jobs:
   seed:
@@ -50,24 +49,22 @@ jobs:
         run: |
           az postgres flexible-server firewall-rule create \
             --resource-group "$AZURE_RESOURCE_GROUP" \
-            --name "$AZURE_POSTGRES_SERVER" \
-            --rule-name "github-actions-seed-${{ github.run_id }}" \
+            --server-name "$AZURE_POSTGRES_SERVER" \
+            --name "github-actions-seed-${{ github.run_id }}" \
             --start-ip-address "${{ steps.ip.outputs.ip }}" \
             --end-ip-address "${{ steps.ip.outputs.ip }}"
 
       - name: Seed staging database
         env:
           APP_ENVIRONMENT: staging
-          STAGING_DATABASE_URL: ${{ secrets.DATABASE_URL }}
-        run: |
-          uv run seed --confirm-staging-seed \
-            ${{ inputs.overwrite && '--overwrite' || '' }}
+          STAGING_DATABASE_URL: ${{ secrets.STAGING_DATABASE_URL }}
+        run: uv run seed --confirm-staging-seed --overwrite
 
       - name: Remove temporary firewall rule
         if: always()
         run: |
           az postgres flexible-server firewall-rule delete \
             --resource-group "$AZURE_RESOURCE_GROUP" \
-            --name "$AZURE_POSTGRES_SERVER" \
-            --rule-name "github-actions-seed-${{ github.run_id }}" \
+            --server-name "$AZURE_POSTGRES_SERVER" \
+            --name "github-actions-seed-${{ github.run_id }}" \
             --yes

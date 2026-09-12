@@ -120,6 +120,14 @@ resource "azurerm_role_assignment" "github_staging" {
   principal_id         = azuread_service_principal.github_actions.object_id
 }
 
+# Lets the seed-staging workflow read the flexible server and manage its
+# firewall rules (it opens/closes a rule for the runner's IP each run).
+resource "azurerm_role_assignment" "github_staging_postgres" {
+  scope                = azurerm_postgresql_flexible_server.wyrmwood_db.id
+  role_definition_name = "Contributor"
+  principal_id         = azuread_service_principal.github_actions.object_id
+}
+
 data "azurerm_client_config" "current" {}
 
 output "azure_client_id" {
