@@ -162,22 +162,6 @@ uv run alembic current        # show the currently applied revision
 uv run alembic check          # verify that models match schema
 ```
 
-## Hosted PostgreSQL Database
-
-The development database is hosted on Neon PostgreSQL.
-
-- Provider: Neon
-- Project: Wyrmwood-Collective Coffee API
-- Branch: production
-- Database: wyrmwood_collective
-- Port: 5432
-- SSL: Required
-- Environment variable: DEV_DATABASE_URL
-
-Connection credentials are stored locally in the `.env` file and must not be committed to source control.
-
-Team members should retrieve the current database credentials through the approved team credential-sharing method rather than placing passwords in GitHub, Jira, or documentation.
-
 ## Sample Data
 
 After running migrations, you can load the sample data with:

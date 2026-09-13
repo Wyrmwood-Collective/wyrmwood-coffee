@@ -130,6 +130,14 @@ When satisfied, apply the changes with:
 terraform apply
 ```
 
+## Connecting to the Staging Database
+
+If your IP is allowed through the database firewall, you can connect with `psql` using:
+
+```shell
+psql "$(terraform -chdir=infra output -raw staging_database_url_psql)"
+```
+
 ## Deprovisioning
 
 To deprovision all resources, run `terraform destroy`,
