@@ -26,6 +26,11 @@ build-backend = "uv_build"
 [tool.coverage.run]
 source = ["src"]
 
+[tool.pytest.ini_options]
+env = [
+    "APP_ENVIRONMENT=test",
+]
+
 [tool.ruff]
 target-version = "py312"
 line-length = 88
@@ -46,6 +51,7 @@ skip-magic-trailing-comma = false
 dev = [
     "pytest>=9.1.1",
     "pytest-cov>=7.1.0",
+    "pytest-env>=1.7.1",
     "ruff>=0.16.1",
 ]
 

@@ -23,7 +23,9 @@ from wyrmwood_coffee.routers import (
     vendors,
 )
 from wyrmwood_coffee.routers.promotions import router as promotions_router
+from wyrmwood_coffee.settings import require_app_settings
 
+require_app_settings()
 setup_logging()
 logger = logging.getLogger(__name__)
 
