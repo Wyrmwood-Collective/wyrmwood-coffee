@@ -105,6 +105,71 @@ resource "azurerm_linux_web_app" "main" {
   }
 }
 
+variable "terraform_infra_admins_group_name" {
+  type = string
+}
+
+# Members of this group may make changes to the infrastructure.
+# The group is created by the boot script and members are added manually.
+data "azuread_group" "terraform_infra_admins" {
+  display_name     = var.terraform_infra_admins_group_name
+  security_enabled = true
+}
+
+# An "application" in this context (from OAuth2/OIDC "client application")
+# is a party requesting tokens from an identity provider. In this case,
+# the identity provider is Azure AD.
+resource "azuread_application" "github_actions" {
+  display_name = "github-actions-wyrmwood-coffee"
+  owners       = data.azuread_group.terraform_infra_admins.members
+}
+
+# A "service principal" is a type of security principal, which is an identity
+# that can be granted permissions (it is a generalization that covers terms like
+# "user" and "group", and more abstract terms like "managed identity").
+# This resource represents the identity GitHub Actions authenticates as when
+# running workflows.
+resource "azuread_service_principal" "github_actions" {
+  client_id = azuread_application.github_actions.client_id
+}
+
+# This resource is a "federated identity credential" ("credential" in this context
+# has the sense "means of authentication"). This resource defines an approved
+# method of authentication for the `azuread_application.github_actions` application.
+# Any principal authenticating via this credential is identified as the service
+# principal defined above.
+#
+# The method used here is called "workload identity federation".
+# The OIDC issuer, in this case token.actions.githubusercontent.com, issues an
+# identity token to the GitHub workflow. Azure AD will trust this token
+# as long as it can verify the token really did come from the issuer (it will
+# verify the token's signature against the public key defined by the issuer),
+# and as long as the "subject" claim matches what is configured here (correct
+# repository and environment). If it does, Azure AD will grant a different token
+# to Actions, which is the token identifying it as the service principal.
+resource "azuread_application_federated_identity_credential" "github_actions_staging_env" {
+  application_id = azuread_application.github_actions.id
+  display_name   = "github-actions-staging-environment"
+  audiences      = ["api://AzureADTokenExchange"]
+  issuer         = "https://token.actions.githubusercontent.com"
+  subject        = "repo:Wyrmwood-Collective@319175686/wyrmwood-coffee@1323499178:environment:${local.environment}"
+}
+
+# This role is granted to the service principal defined above (the identity used
+# by GitHub Actions).
+resource "azurerm_role_assignment" "github_staging" {
+  scope                = azurerm_linux_web_app.main.id
+  role_definition_name = "Website Contributor"
+  principal_id         = azuread_service_principal.github_actions.object_id
+}
+
+# Lets the database-seeding workflow open/close a hole in the database firewall.
+resource "azurerm_role_assignment" "github_staging_postgres" {
+  scope                = azurerm_postgresql_flexible_server.main.id
+  role_definition_name = "Contributor"
+  principal_id         = azuread_service_principal.github_actions.object_id
+}
+
 output "staging_database_url_psql" {
   description = "Database URL for direct connections with psql"
   value       = replace(local.staging_database_url, "+psycopg", "")

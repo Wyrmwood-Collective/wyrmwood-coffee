@@ -108,8 +108,10 @@ tenant_id            = "$tenantId"
 @"
 # Do not manually edit this file; it is generated automatically by the boot script.
 # Make changes in ``boot.ps1`` and run to regenerate.
-subscription_id = "$subscriptionId"
-tenant_id       = "$tenantId"
+terraform_infra_admins_group_name = "$adminGroup"
+app_resource_group_name           = "$appResourceGroupName"
+subscription_id                   = "$subscriptionId"
+tenant_id                         = "$tenantId"
 "@ | Out-File -FilePath (Join-Path $PSScriptRoot "generated.auto.tfvars") -Encoding utf8
 }
 
