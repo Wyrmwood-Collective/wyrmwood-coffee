@@ -1,14 +1,8 @@
 locals {
   environment = "staging"
-  staging_database_url = format(
-    "postgresql+psycopg://%s:%s@%s/%s",
-    azurerm_postgresql_flexible_server.main.administrator_login,
-    urlencode(random_password.postgres_admin_password.result),
-    azurerm_postgresql_flexible_server.main.fqdn,
-    azurerm_postgresql_flexible_server_database.main.name
-  )
 }
 
+# The resource group for this application's resources.
 resource "azurerm_resource_group" "main" {
   name     = "wyrmwood-coffee-rg"
   location = "centralus"
@@ -34,13 +28,22 @@ resource "azurerm_postgresql_flexible_server" "main" {
   backup_retention_days        = 7 # minimum
   geo_redundant_backup_enabled = false
 
-  # leave zone unspecified let Azure pick, avoids needing paired-zone setup
-
   public_network_access_enabled = true
 
+  # ignore zone drift since we leave it unspecified
   lifecycle {
     ignore_changes = [zone]
   }
+}
+
+locals {
+  staging_database_url = format(
+    "postgresql+psycopg://%s:%s@%s/%s",
+    azurerm_postgresql_flexible_server.main.administrator_login,
+    urlencode(random_password.postgres_admin_password.result),
+    azurerm_postgresql_flexible_server.main.fqdn,
+    azurerm_postgresql_flexible_server_database.main.name
+  )
 }
 
 resource "azurerm_postgresql_flexible_server_firewall_rule" "azure" {
@@ -77,7 +80,7 @@ resource "random_password" "jwt_secret_key" {
 }
 
 resource "azurerm_linux_web_app" "main" {
-  name                = "wyrmwood-coffee-api"
+  name                = "wyrmwood-coffee-app"
   resource_group_name = azurerm_resource_group.main.name
   location            = azurerm_resource_group.main.location
   service_plan_id     = azurerm_service_plan.main.id
@@ -101,6 +104,8 @@ variable "terraform_infra_admins_group_name" {
   type = string
 }
 
+# Members of this group may make changes to the infrastructure.
+# The group is created by the boot script and members are added manually.
 data "azuread_group" "terraform_infra_admins" {
   display_name     = var.terraform_infra_admins_group_name
   security_enabled = true
@@ -110,15 +115,37 @@ variable "terraform_github_actions_deploy_app_name" {
   type = string
 }
 
+# An "application" in this context (from OAuth2/OIDC "client application")
+# is a party requesting tokens from an identity provider. In this case,
+# the identity provider is Azure AD.
 resource "azuread_application" "github_actions" {
   display_name = var.terraform_github_actions_deploy_app_name
   owners       = data.azuread_group.terraform_infra_admins.members
 }
 
+# A "service principal" is a type of security principal, which is an identity
+# that can be granted permissions (it is a generalization that covers terms like
+# "user" and "group", and more abstract terms like "managed identity").
+# This resource represents the identity GitHub Actions authenticates as when
+# running workflows.
 resource "azuread_service_principal" "github_actions" {
   client_id = azuread_application.github_actions.client_id
 }
 
+# This resource is a "federated identity credential" ("credential" in this context
+# has the sense "means of authentication"). This resource defines an approved
+# method of authentication for the `azuread_application.github_actions` application.
+# Any principal authenticating via this credential is identified as the service
+# principal defined above.
+#
+# The method used here is called "workload identity federation".
+# The OIDC issuer, in this case token.actions.githubusercontent.com, issues an
+# identity token to the GitHub workflow. Azure AD will trust this token
+# as long as it can verify the token really did come from the issuer (it will
+# verify the token's signature against the public key defined by the issuer),
+# and as long as the "subject" claim matches what is configured here (correct
+# repository and environment). If it does, Azure AD will grant a different token
+# to Actions, which is the token identifying it as the service principal.
 resource "azuread_application_federated_identity_credential" "github_actions_staging_env" {
   application_id = azuread_application.github_actions.id
   display_name   = "github-actions-staging-environment"
@@ -127,6 +154,8 @@ resource "azuread_application_federated_identity_credential" "github_actions_sta
   subject        = "repo:Wyrmwood-Collective@319175686/wyrmwood-coffee@1323499178:environment:${local.environment}"
 }
 
+# This role is granted to the service principal defined above (the identity used
+# by GitHub Actions).
 resource "azurerm_role_assignment" "github_staging" {
   scope                = azurerm_linux_web_app.main.id
   role_definition_name = "Website Contributor"
@@ -139,8 +168,6 @@ resource "azurerm_role_assignment" "github_staging_postgres" {
   role_definition_name = "Contributor"
   principal_id         = azuread_service_principal.github_actions.object_id
 }
-
-data "azurerm_client_config" "current" {}
 
 output "web_app_default_hostname" {
   value = azurerm_linux_web_app.main.default_hostname

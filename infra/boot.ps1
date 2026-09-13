@@ -8,7 +8,7 @@ $terraformKey = "prod.terraform.tfstate"
 
 # Other constants shared between the boot script and the configuration files
 $adminGroup = "terraform-infra-admins"
-$githubAppDisplayName = "github-actions-deploy-myapp"
+$githubAppDisplayName = "github-actions-wyrmwood-coffee"
 
 # Constants only needed by the boot script
 $subscriptionId = "9d3db13e-5092-43f3-94e9-e1e916637239"
@@ -73,13 +73,6 @@ Invoke-Step "Adding current user to Terraform admins group..." {
     $currentUserId = $(az ad signed-in-user show --query id -o tsv)
     if ($(az ad group member check --group $adminGroup --member-id $currentUserId --query value -o tsv) -ceq "false") {
         az ad group member add --group $adminGroup --member-id $currentUserId
-    }
-}
-
-Invoke-Step "Creating the app registration..." {
-    $existingApp = az ad app list --display-name \$githubAppDisplayName --query "[0]" | ConvertFrom-Json
-    if (-not $existingApp) {
-        az ad app create --display-name \$githubAppDisplayName --query appId -o tsv
     }
 }
 

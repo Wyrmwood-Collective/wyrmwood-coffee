@@ -1,9 +1,9 @@
 name: Seed Staging Database
 
 on:
-  push:
-    branches:
-      - infra
+  # push:
+  #   branches:
+  #     - infra
   workflow_dispatch:
 
 env:

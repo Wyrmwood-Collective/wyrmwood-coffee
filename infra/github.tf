@@ -1,3 +1,5 @@
+data "azurerm_client_config" "current" {}
+
 data "github_repository" "wyrmwood_coffee" {
   name = "wyrmwood-coffee"
 }
