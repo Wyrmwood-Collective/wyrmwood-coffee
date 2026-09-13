@@ -33,11 +33,12 @@ Install the Azure command-line tool, the GitHub command-line tool, and Terraform
 
 ```PowerShell
 winget install -e --id Microsoft.AzureCLI
+winget install -e --id GitHub.cli
 winget install -e --id Hashicorp.Terraform
 ```
 
-Terraform will use the Azure CLI to authenticate, so it is required.
-Make sure to log in before proceeding.
+Terraform will use the Azure CLI and the GitHub CLI to authenticate, so they are required.
+Make sure to log in with both tools before proceeding.
 When logging in to Azure, replace `TENANT_ID` with the ID specified in `infra/backend.hcl`.
 
 **Note:** For the initial bootstrap, when there is no `infra/backend.hcl` file,
@@ -45,6 +46,7 @@ specify whichever tenant you want to host the infrastructure.
 
 ```PowerShell
 az login --tenant TENANT_ID
+gh auth login
 ```
 
 ### Bootstrapping
@@ -128,6 +130,20 @@ When satisfied, apply the changes with:
 
 ```PowerShell
 terraform apply
+```
+
+## Continuous Deployment
+
+A deployment is automatically run once a PR has been approved and merged into a sprint branch.
+Manual deployments can also be triggered via the [Deploy](https://github.com/Wyrmwood-Collective/wyrmwood-coffee/actions/workflows/deploy.yml) GitHub Action.
+
+## Rotating Passwords
+
+If a password is ever compromised, rotate with:
+
+```PowerShell
+terraform apply -replace="random_password.postgres_admin_password"
+terraform apply -replace="random_password.jwt_secret_key"
 ```
 
 ## Connecting to the Staging Database

@@ -10,6 +10,11 @@ terraform {
       version = "~> 3.0"
     }
 
+    github = {
+      source  = "integrations/github"
+      version = "~> 6.0"
+    }
+
     random = {
       source  = "hashicorp/random"
       version = "~> 3.0"
@@ -39,4 +44,8 @@ provider "azurerm" {
 provider "azuread" {
   use_cli   = true
   tenant_id = var.tenant_id
+}
+
+provider "github" {
+  owner = "Wyrmwood-Collective"
 }

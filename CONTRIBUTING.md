@@ -78,11 +78,7 @@ Do not manually create, remove, or modify schema objects in the shared staging d
 
 CI validates that the Alembic migration history can be applied successfully and that the resulting schema matches the SQLAlchemy models.
 
-Staging migrations are applied automatically through GitHub Actions using:
-
-```bash
-uv run alembic upgrade head
-```
+Staging migrations are applied automatically on each deployment: the Azure Web App's startup script (`infra/startup.sh`) runs `alembic upgrade head` before starting the application server.
 
 Developers should not manually run staging migrations as part of the normal deployment workflow.
 

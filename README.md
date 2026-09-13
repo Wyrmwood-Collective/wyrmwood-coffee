@@ -3,6 +3,10 @@
 - [Group Jira](https://catalystit.atlassian.net/jira/software/projects/WC/summary)
 - [Group Confluence](https://catalystit.atlassian.net/wiki/spaces/WC1/overview)
 
+## Deployment Details (Staging)
+
+- [Wyrmwood Coffee Frontend](https://wyrmwood-coffee-app.azurewebsites.net/app/)
+
 ## Development Setup
 
 Install `uv` and `npm`, then clone the repository:
