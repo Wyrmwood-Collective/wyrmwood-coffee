@@ -183,6 +183,8 @@ If you want to overwrite already existing data, run:
 uv run seed --overwrite
 ```
 
+You can (re)load the sample data on the staging database by running the [Seed Staging Database](https://github.com/Wyrmwood-Collective/wyrmwood-coffee/actions/workflows/seed-staging.yml) GitHub Action.
+
 ### Mock Data Generation
 
 To generate a robust set of mock purchases for testing UI pagination, date-range filtering, and edge cases (long strings, special characters/emojis, missing optional fields), run:
@@ -190,3 +192,4 @@ To generate a robust set of mock purchases for testing UI pagination, date-range
 ```shell
 uv run python src/wyrmwood_coffee/generate_purchases.py
 uv run seed --overwrite
+```
