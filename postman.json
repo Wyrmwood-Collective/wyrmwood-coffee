@@ -181,6 +181,31 @@
           "response": []
         },
         {
+          "name": "Get Customer Favorites",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "localhost:8000/customers/favorites?phone=312-555-0134",
+              "host": [
+                "localhost"
+              ],
+              "port": "8000",
+              "path": [
+                "customers",
+                "favorites"
+              ],
+              "query": [
+                {
+                  "key": "phone",
+                  "value": "312-555-0134"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
           "name": "Create Customer",
           "event": [
             {

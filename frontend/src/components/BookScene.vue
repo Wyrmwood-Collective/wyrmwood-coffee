@@ -45,7 +45,10 @@ function inkOn(hex: string): string {
 }
 
 const sections = computed(() => {
-  const items = [{ to: "/dashboard", label: "My Profile", colour: "#7c8b6f" }];
+  const items = [
+    { to: "/dashboard", label: "My Profile", colour: "#7c8b6f" },
+    { to: "/customer-favorites", label: "Customer Favorites", colour: "#8a6f5a" },
+  ];
   if (can("listEmployees")) {
     items.push({ to: "/employees", label: "Team Roster", colour: "#4f7086" });
   }

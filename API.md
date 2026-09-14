@@ -12,6 +12,7 @@ Mutating routes require a Bearer JWT from `POST /auth/login`. `Manager` means ro
 | `POST` | `/auth/logout` | Employee | [Logout](#post-authlogout) |
 | `POST` | `/baked-goods` | Manager | [Create Baked Good](#post-baked-goods) |
 | `GET` | `/customers` | No | [List Customers](#get-customers) |
+| `GET` | `/customers/favorites` | No | [Get Customer Favorites](#get-customersfavorites) |
 | `GET` | `/customers/{id}` | No | [Get Customer](#get-customersid) |
 | `POST` | `/customers` | Employee | [Create Customer](#post-customers) |
 | `POST` | `/drinks` | Manager | [Create Drink](#post-drinks) |
@@ -114,6 +115,32 @@ Returns a list of all customer records in the system.
 | Status | Description | Body |
 | --- | --- | --- |
 | `200` | The list of all customers in the system, or an empty list if none exist. | `application/json` `array of` [`CustomerRead`](#customerread) |
+
+[Back to Summary](#summary)
+
+---
+
+### **`GET` /customers/favorites**
+
+**Get Customer Favorites**
+
+Retrieve an active customer by phone number and return their favorite drink and baked good based on total quantity purchased.
+
+Guest purchases are not included. An item is considered a favorite when the customer has purchased that item at least 5 times.
+
+**Query parameters**
+
+| Name | Type | Required | Notes |
+| --- | --- | --- | --- |
+| `phone` | string | yes | The customer's phone number; must match pattern `\d{3}-\d{3}-\d{4}` |
+
+**Responses**
+
+| Status | Description | Body |
+| --- | --- | --- |
+| `200` | The customer's favorite drink and baked good | `application/json` [`CustomerFavoriteRead`](#customerfavoriteread) |
+| `404` | The customer was not found. | `application/json` `{ "detail": string }` |
+| `422` | The provided query parameter is malformed or invalid. | `application/json` [`HTTPValidationError`](#httpvalidationerror) |
 
 [Back to Summary](#summary)
 
@@ -777,6 +804,26 @@ Represents a customer in the system.
 | `loyalty_points` | int | no | The customer's loyalty points, defaults to `0` |
 | `id` | int | yes | The unique identifier of the customer |
 | `loyalty_expires_at` | datetime | no | The expiration date of the customer's loyalty points; set to one year after customer record creation |
+
+### **CustomerFavoriteItemRead**
+
+Represents a customer's most purchased item within a category.
+
+| Field | Type | Required | Notes |
+| --- | --- | --- | --- |
+| `name` | string \| null | no | The name of the customer's most purchased item; defaults to `None` when no purchase history exists |
+| `quantity` | int | no | The total quantity of the item purchased; defaults to `0` |
+| `is_favorite` | bool | no | Whether the item has reached the favorite threshold of 5 purchases; defaults to `false` |
+
+### **CustomerFavoriteRead**
+
+Represents a customer's favorite drink and baked good.
+
+| Field | Type | Required | Notes |
+| --- | --- | --- | --- |
+| `customer` | [`CustomerRead`](#customerread) | yes | The active customer associated with the favorites |
+| `drink` | [`CustomerFavoriteItemRead`](#customerfavoriteitemread) | yes | The customer's most purchased drink |
+| `baked_good` | [`CustomerFavoriteItemRead`](#customerfavoriteitemread) | yes | The customer's most purchased baked good |
 
 ### DrinkBase
 

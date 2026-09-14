@@ -128,3 +128,19 @@ class CustomerRead(CustomerBase):
         title=CUSTOMER_LOYALTY_EXPIRATION_DATE_TITLE,
         description=CUSTOMER_LOYALTY_EXPIRATION_DATE_DESC,
     )
+
+
+class CustomerFavoriteItemRead(BaseModel):
+    """Represents a customers most purchased item in a category."""
+
+    name: str | None = None
+    quantity: int = Field(default=0, ge=0)
+    is_favorite: bool = False
+
+
+class CustomerFavoriteRead(BaseModel):
+    """Represents a customers favorite drink and baked good."""
+
+    customer: CustomerRead
+    drink: CustomerFavoriteItemRead
+    baked_good: CustomerFavoriteItemRead
