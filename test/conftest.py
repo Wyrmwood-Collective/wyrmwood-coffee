@@ -15,6 +15,7 @@ from sqlalchemy.orm import sessionmaker
 from wyrmwood_coffee.database import Base, get_db
 from wyrmwood_coffee.dependencies import get_current_employee
 from wyrmwood_coffee.main import app
+from wyrmwood_coffee.models.baked_goods import BakedGood
 from wyrmwood_coffee.models.employee import Employee
 from wyrmwood_coffee.models.ingredient import Ingredient
 from wyrmwood_coffee.models.vendor import Vendor, VendorContact
@@ -212,3 +213,18 @@ def make_ingredient(db_session, make_vendor):
         return ingredient
 
     return _make_ingredient
+
+
+@pytest.fixture
+def sample_baked_good(db_session):
+    """Creates a fake baked good to use in purchase tests."""
+    bg = BakedGood(
+        name="Test Muffin",
+        description="A delicious test muffin.",
+        purchase_cost=Decimal("2.00"),
+        retail_price=Decimal("5.00"),
+    )
+    db_session.add(bg)
+    db_session.commit()
+    db_session.refresh(bg)
+    return bg

@@ -31,6 +31,7 @@ Mutating routes require a Bearer JWT from `POST /auth/login`. `Manager` means ro
 | `POST` | `/promotions` | Manager | [Create Promotion](#post-promotions) |
 | `PUT` | `/promotions/{id}` | Manager | [Update Promotion](#put-promotionsid) |
 | `DELETE` | `/promotions/{id}` | Manager | [Delete Promotion](#delete-promotionsid) |
+| `POST` | `/purchases` | Employee | [Create Purchase](#post-purchases) |
 | `GET` | `/vendors` | No | [List Vendors](#get-vendors) |
 | `POST` | `/vendors` | Manager | [Create Vendor](#post-vendors) |
 | `PUT` | `/vendors/{id}` | Manager | [Update Vendor](#put-vendorsid) |
@@ -577,6 +578,30 @@ The promotion remains stored in the database for historical records, but it is n
 
 ---
 
+### `POST` /purchases
+
+**Create Purchase**
+
+Process a new purchase. Looks up item prices, applies active promotions, calculates taxes, and updates customer loyalty points.
+
+**Request body** (required)
+
+`application/json` — [`PurchaseCreate`](#purchasecreate)
+
+**Responses**
+
+| Status | Description | Body |
+| --- | --- | --- |
+| `201` | The newly created purchase | `application/json` [`PurchaseRead`](#purchaseread) |
+| `401` | Could not validate credentials. | `application/json` `{ "detail": string }` |
+| `403` | Insufficient permissions. | `application/json` `{ "detail": string }` |
+| `404` | The customer was not found, or the promotion was not found. | `application/json` `{ "detail": string }` |
+| `422` | The provided PurchaseCreate is malformed or invalid, an unknown item name was provided, or the promotion is inactive/expired. | `application/json` [`HTTPValidationError`](#httpvalidationerror) |
+
+[Back to Summary](#summary)
+
+---
+
 ### `GET` /vendors
 
 **List Vendors**
@@ -966,6 +991,53 @@ Input schema for updating an existing promotion.
 | `discount_percentage` | decimal | yes      | Must be numeric and between `0` and `100`                                      |
 | `start_date`          | date    | yes      | Promotion start date; must use one of the supported date formats               |
 | `end_date`            | date    | yes      | Promotion end date; cannot occur before `start_date`                           |
+
+### PurchaseCreate
+
+Input schema for processing a new purchase.
+
+| Field | Type | Required | Notes |
+| --- | --- | --- | --- |
+| `customer_id` | int \| null | no | The ID of the customer making the purchase |
+| `promo_id` | int \| null | no | The ID of a promotion to apply to the subtotal |
+| `items` | array[[`PurchaseItemCreateNested`](#purchaseitemcreatenested)] | yes | The items being purchased; must contain at least 1 item |
+
+### PurchaseItemCreateNested
+
+Input schema for an item nested inside a [`PurchaseCreate`](#purchasecreate) payload.
+
+| Field | Type | Required | Notes |
+| --- | --- | --- | --- |
+| `name` | string | yes | The name of the drink or baked good being purchased |
+| `quantity` | int | no | The quantity being purchased; defaults to 1, must be greater than 0 |
+
+### PurchaseItemRead
+
+Represents an item in a completed purchase.
+
+| Field | Type | Required | Notes |
+| --- | --- | --- | --- |
+| `id` | int | yes | The unique identifier of the purchase item record |
+| `purchase_id` | int | yes | The ID of the parent purchase |
+| `name` | string | yes | The name of the item purchased |
+| `quantity` | int | yes | The quantity purchased |
+| `unit_price` | decimal | yes | The locked-in price of the item at the time of sale |
+| `item_type` | string | yes | The type of item purchased (drink or baked_good) |
+
+### PurchaseRead
+
+Represents a completed purchase transaction.
+
+| Field | Type | Required | Notes |
+| --- | --- | --- | --- |
+| `id` | int | yes | The unique identifier of the purchase |
+| `customer_id` | int \| null | yes | The ID of the customer, if provided |
+| `promo_id` | int \| null | yes | The ID of the promotion, if provided |
+| `subtotal` | decimal | yes | The sum of all items minus the promotion discount |
+| `tax` | decimal | yes | The calculated tax (7% of the subtotal) |
+| `total` | decimal | yes | The final total charged (subtotal + tax) |
+| `created_at` | datetime | yes | The timestamp the purchase was recorded |
+| `items` | array[[`PurchaseItemRead`](#purchaseitemread)] | yes | The items included in the purchase |
 
 ### Token
 

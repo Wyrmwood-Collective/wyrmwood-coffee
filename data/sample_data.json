@@ -318,5 +318,64 @@
     { "active": false, "deleted": false, "promo_code": "SUMMER SIPPER", "discount_percentage": "20.00", "start_date": "2026-06-01", "end_date": "2026-08-31" },
     { "active": true, "deleted": false, "promo_code": "HOLIDAY CHEER", "discount_percentage": "25.00", "start_date": "2026-11-15", "end_date": "2026-12-31" },
     { "active": false, "deleted": true, "promo_code": "LOYALTY BONUS", "discount_percentage": "5.00", "start_date": "2025-01-01", "end_date": "2025-12-31" }
+  ],
+  "purchases": [
+    {
+      "customer_id": 1,
+      "promo_id": 1,
+      "subtotal": "11.05",
+      "tax": "0.77",
+      "total": "11.82",
+      "items": [
+        {
+          "name": "Blueberry Muffin",
+          "quantity": 2,
+          "unit_price": "3.75"
+        },
+        {
+          "name": "Caramel Latte",
+          "quantity": 1,
+          "unit_price": "5.50"
+        }
+      ]
+    },
+    {
+      "customer_id": null,
+      "promo_id": null,
+      "subtotal": "7.00",
+      "tax": "0.49",
+      "total": "7.49",
+      "items": [
+        {
+          "name": "Butter Croissant",
+          "quantity": 1,
+          "unit_price": "4.25"
+        },
+        {
+          "name": "Drip Coffee",
+          "quantity": 1,
+          "unit_price": "2.75"
+        }
+      ]
+    },
+    {
+      "customer_id": 2,
+      "promo_id": 2,
+      "subtotal": "19.35",
+      "tax": "1.35",
+      "total": "20.70",
+      "items": [
+        {
+          "name": "Pumpkin Coffee Cake",
+          "quantity": 2,
+          "unit_price": "4.75"
+        },
+        {
+          "name": "Pumpkin Spice Latte",
+          "quantity": 2,
+          "unit_price": "6.00"
+        }
+      ]
+    }
   ]
 }
