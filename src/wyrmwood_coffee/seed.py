@@ -10,7 +10,7 @@ import argparse
 import json
 import logging
 import sys
-from datetime import date, datetime
+from datetime import UTC, date, datetime
 from decimal import Decimal
 from pathlib import Path
 
@@ -224,7 +224,6 @@ def _seed_purchases(session, entries: list[dict]) -> None:
     for entry in entries:
         items = []
         for item in entry["items"]:
-            # Dynamically determine the type based on the name!
             item_type = "baked_good" if item["name"] in baked_good_names else "drink"
 
             items.append(
@@ -235,13 +234,23 @@ def _seed_purchases(session, entries: list[dict]) -> None:
                     unit_price=Decimal(item["unit_price"]),
                 )
             )
+
+        # Handle historical dates for filtering tests
+        created_at_str = entry.get("created_at")
+        created_at = (
+            datetime.fromisoformat(created_at_str)
+            if created_at_str
+            else datetime.now(UTC)
+        )
+
         session.add(
             Purchase(
                 customer_id=entry.get("customer_id"),
                 promo_id=entry.get("promo_id"),
-                subtotal=Decimal(entry["subtotal"]),
-                tax=Decimal(entry["tax"]),
-                total=Decimal(entry["total"]),
+                subtotal=Decimal(str(entry["subtotal"])),
+                tax=Decimal(str(entry["tax"])),
+                total=Decimal(str(entry["total"])),
+                created_at=created_at,  # <-- Added historical date support!
                 items=items,
             )
         )
