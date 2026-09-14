@@ -245,3 +245,56 @@ function clearSearch() {
     </section>
   </main>
 </template>
+
+<style scoped>
+.favorites-section {
+  margin-top: 1.5rem;
+}
+
+.favorites-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+.favorite-card {
+  padding: 1.25rem;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  background: #faf7f2;
+}
+
+.favorite-card h3 {
+  margin: 0.35rem 0 0.75rem;
+  color: var(--color-primary);
+  font-size: 1.1rem;
+}
+
+.favorite-type {
+  margin: 0;
+  color: var(--color-muted);
+  font-size: 0.8rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.favorite-count {
+  margin: 0;
+  color: var(--color-muted);
+}
+
+.favorite-count strong {
+  color: var(--color-text);
+}
+
+.favorites-note {
+  margin-top: 1rem;
+}
+
+@media (max-width: 600px) {
+  .favorites-grid {
+    grid-template-columns: 1fr;
+  }
+}
+</style>

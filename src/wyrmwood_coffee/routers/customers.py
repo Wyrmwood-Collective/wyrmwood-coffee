@@ -1,11 +1,11 @@
 import logging
 
 import psycopg
-from fastapi import APIRouter, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlalchemy import func, select
 from sqlalchemy.exc import IntegrityError
 
-from wyrmwood_coffee.dependencies import DbSession
+from wyrmwood_coffee.dependencies import DbSession, require_auth
 from wyrmwood_coffee.logging import ResourceLogger
 from wyrmwood_coffee.models.customer import (
     Customer,
@@ -38,10 +38,12 @@ def get_active_customer_by_phone(session: DbSession, phone: str) -> Customer:
     )
 
     if customer is None:
+        customer_logger.log_resource_not_found(phone)
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="The customer was not found.",
         )
+
     return customer
 
 
@@ -114,7 +116,10 @@ def get_customer_favorite_item(
         422: {"description": "The provided query parameter is malformed or invalid."},
     },
 )
-def get_customer_favorites(session: DbSession, phone: str) -> CustomerFavoriteRead:
+def get_customer_favorites(
+    session: DbSession,
+    phone: str = Query(pattern=r"\d{3}-\d{3}-\d{4}$"),
+) -> CustomerFavoriteRead:
     """
     Retrieve an active customer's favorite drink and baked good by phone number.
     """
@@ -161,6 +166,7 @@ def get_customer(session: DbSession, id: CustomerId) -> CustomerRead:
     response_model=CustomerRead,
     response_description="The newly created customer",
     responses={
+        401: {"description": "Could not validate credentials."},
         status.HTTP_409_CONFLICT: {
             "description": "A customer with the given email or phone already exists"
         },
@@ -168,6 +174,7 @@ def get_customer(session: DbSession, id: CustomerId) -> CustomerRead:
             "description": "Missing or invalid values",
         },
     },
+    dependencies=[Depends(require_auth)],
 )
 def create_customer(session: DbSession, payload: CustomerCreate) -> CustomerRead:
     """

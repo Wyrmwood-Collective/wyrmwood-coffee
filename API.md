@@ -120,13 +120,13 @@ Returns a list of all customer records in the system.
 
 ---
 
-### **`GET` /customers/favorites**
+### `GET` /customers/favorites
 
 **Get Customer Favorites**
 
 Retrieve an active customer by phone number and return their favorite drink and baked good based on total quantity purchased.
 
-Guest purchases are not included. An item is considered a favorite when the customer has purchased that item at least 5 times.
+Guest purchases are not included. An item is considered a favorite when the total quantity purchased is at least 5.
 
 **Query parameters**
 
@@ -790,6 +790,26 @@ Input schema for creating a new customer. At least `email` or `phone` must be pr
 | `loyalty_points` | int | no | The customer's loyalty points, defaults to `0` |
 | `loyalty_expires_at` | datetime | no | The expiration date of the customer's loyalty points; set to one year after customer record creation |
 
+### CustomerFavoriteItemRead
+
+Represents a customer's most purchased item within a category.
+
+| Field | Type | Required | Notes |
+| --- | --- | --- | --- |
+| `name` | string \| null | no | The name of the customer's most purchased item; defaults to `None` when no purchase history exists |
+| `quantity` | int | no | The total quantity of the item purchased; defaults to `0` |
+| `is_favorite` | bool | no | Whether the item has reached the favorite threshold of 5 purchases; defaults to `false` |
+
+### CustomerFavoriteRead
+
+Represents a customer's favorite drink and baked good.
+
+| Field | Type | Required | Notes |
+| --- | --- | --- | --- |
+| `customer` | [`CustomerRead`](#customerread) | yes | The active customer associated with the favorites |
+| `drink` | [`CustomerFavoriteItemRead`](#customerfavoriteitemread) | yes | The customer's most purchased drink |
+| `baked_good` | [`CustomerFavoriteItemRead`](#customerfavoriteitemread) | yes | The customer's most purchased baked good |
+
 ### CustomerRead
 
 Represents a customer in the system.
@@ -804,26 +824,6 @@ Represents a customer in the system.
 | `loyalty_points` | int | no | The customer's loyalty points, defaults to `0` |
 | `id` | int | yes | The unique identifier of the customer |
 | `loyalty_expires_at` | datetime | no | The expiration date of the customer's loyalty points; set to one year after customer record creation |
-
-### **CustomerFavoriteItemRead**
-
-Represents a customer's most purchased item within a category.
-
-| Field | Type | Required | Notes |
-| --- | --- | --- | --- |
-| `name` | string \| null | no | The name of the customer's most purchased item; defaults to `None` when no purchase history exists |
-| `quantity` | int | no | The total quantity of the item purchased; defaults to `0` |
-| `is_favorite` | bool | no | Whether the item has reached the favorite threshold of 5 purchases; defaults to `false` |
-
-### **CustomerFavoriteRead**
-
-Represents a customer's favorite drink and baked good.
-
-| Field | Type | Required | Notes |
-| --- | --- | --- | --- |
-| `customer` | [`CustomerRead`](#customerread) | yes | The active customer associated with the favorites |
-| `drink` | [`CustomerFavoriteItemRead`](#customerfavoriteitemread) | yes | The customer's most purchased drink |
-| `baked_good` | [`CustomerFavoriteItemRead`](#customerfavoriteitemread) | yes | The customer's most purchased baked good |
 
 ### DrinkBase
 

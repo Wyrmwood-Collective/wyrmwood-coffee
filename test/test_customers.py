@@ -186,6 +186,285 @@ def test_list_customers_should_not_modify_data(db_session, client, make_customer
 
 
 # ==========================================
+# GET CUSTOMER FAVORITES
+# ==========================================
+
+
+# --------------------
+# Successful Responses
+# --------------------
+
+
+@pytest.fixture()
+def make_purchase(db_session):
+    def _make_purchase(customer_id, items):
+        purchase = Purchase(
+            customer_id=customer_id,
+            promo_id=None,
+            subtotal="10.00",
+            tax="0.70",
+            total="10.70",
+        )
+        db_session.add(purchase)
+        db_session.flush()
+
+        for item in items:
+            db_session.add(
+                PurchaseItem(
+                    purchase_id=purchase.id,
+                    item_type=item["item_type"],
+                    name=item["name"],
+                    quantity=item["quantity"],
+                    unit_price=item["unit_price"],
+                )
+            )
+
+        db_session.commit()
+        return purchase
+
+    return _make_purchase
+
+
+# ==========================================
+# GET CUSTOMER FAVORITES
+# ==========================================
+
+
+# --------------------
+# Successful Responses
+# --------------------
+def test_get_customer_favorites_should_return_favorite_drink_and_baked_good(
+    client, make_customer, make_purchase
+):
+    customer = make_customer(phone="312-555-0134")
+
+    make_purchase(
+        customer.id,
+        [
+            {
+                "item_type": "drink",
+                "name": "Caramel Latte",
+                "quantity": 7,
+                "unit_price": "5.50",
+            },
+            {
+                "item_type": "baked_good",
+                "name": "Blueberry Muffin",
+                "quantity": 6,
+                "unit_price": "3.75",
+            },
+        ],
+    )
+
+    response = client.get(f"/customers/favorites?phone={customer.phone}")
+
+    assert response.status_code == 200
+
+    body = response.json()
+
+    assert body["customer"]["id"] == customer.id
+    assert body["customer"]["phone"] == customer.phone
+
+    assert body["drink"]["name"] == "Caramel Latte"
+    assert body["drink"]["quantity"] == 7
+    assert body["drink"]["is_favorite"] is True
+
+    assert body["baked_good"]["name"] == "Blueberry Muffin"
+    assert body["baked_good"]["quantity"] == 6
+    assert body["baked_good"]["is_favorite"] is True
+
+    response = client.get(f"/customers/favorites?phone={customer.phone}")
+
+    assert response.status_code == 200
+
+
+def test_get_customer_favorites_should_return_sum_item_quantities_across_purchases(
+    client, make_customer, make_purchase
+):
+    customer = make_customer(phone="312-555-0134")
+
+    make_purchase(
+        customer.id,
+        [
+            {
+                "item_type": "drink",
+                "name": "Caramel Latte",
+                "quantity": 2,
+                "unit_price": "5.50",
+            }
+        ],
+    )
+
+    make_purchase(
+        customer.id,
+        [
+            {
+                "item_type": "drink",
+                "name": "Caramel Latte",
+                "quantity": 4,
+                "unit_price": "5.50",
+            }
+        ],
+    )
+
+    response = client.get(f"/customers/favorites?phone={customer.phone}")
+
+    assert response.status_code == 200
+
+    body = response.json()
+
+    assert body["drink"]["name"] == "Caramel Latte"
+    assert body["drink"]["quantity"] == 6
+    assert body["drink"]["is_favorite"] is True
+
+
+def test_get_customer_favorites_with_below_threshold_should_return_not_favorite(
+    client,
+    make_customer,
+    make_purchase,
+):
+    customer = make_customer(phone="312-555-0134")
+
+    make_purchase(
+        customer.id,
+        [
+            {
+                "item_type": "drink",
+                "name": "Drip Coffee",
+                "quantity": 4,
+                "unit_price": "2.75",
+            }
+        ],
+    )
+
+    response = client.get(f"/customers/favorites?phone={customer.phone}")
+
+    assert response.status_code == 200
+
+    body = response.json()
+
+    assert body["drink"]["name"] == "Drip Coffee"
+    assert body["drink"]["quantity"] == 4
+    assert body["drink"]["is_favorite"] is False
+
+
+def test_get_customer_favorites_with_no_purchase_history_should_return_empty_favorites(
+    client, make_customer
+):
+    customer = make_customer(phone="312-555-0134")
+
+    response = client.get(f"/customers/favorites?phone={customer.phone}")
+
+    assert response.status_code == 200
+
+    body = response.json()
+
+    assert body["drink"]["name"] is None
+    assert body["drink"]["quantity"] == 0
+    assert body["drink"]["is_favorite"] is False
+
+    assert body["baked_good"]["name"] is None
+    assert body["baked_good"]["quantity"] == 0
+    assert body["baked_good"]["is_favorite"] is False
+
+
+def test_get_customer_favorites_with_guest_purchases_should_return_customer_only(
+    client, make_customer, make_purchase
+):
+    customer = make_customer(phone="312-555-0134")
+
+    make_purchase(
+        customer.id,
+        [
+            {
+                "item_type": "drink",
+                "name": "Caramel Latte",
+                "quantity": 2,
+                "unit_price": "5.50",
+            }
+        ],
+    )
+
+    make_purchase(
+        None,
+        [
+            {
+                "item_type": "drink",
+                "name": "Caramel Latte",
+                "quantity": 10,
+                "unit_price": "5.50",
+            }
+        ],
+    )
+
+    response = client.get(f"/customers/favorites?phone={customer.phone}")
+
+    assert response.status_code == 200
+
+    body = response.json()
+
+    assert body["drink"]["quantity"] == 2
+    assert body["drink"]["is_favorite"] is False
+
+    # --------------------
+
+
+# Error / Invalid Responses
+# --------------------
+def test_get_customer_favorites_with_nonexistent_phone_should_return_404(client):
+    response = client.get("/customers/favorites?phone=999-999-9999")
+
+    assert response.status_code == 404
+    assert response.json()["detail"] == "The customer was not found."
+
+
+def test_get_customer_favorites_with_inactive_customer_should_return_404(
+    client, make_customer
+):
+    customer = make_customer(
+        active=False,
+        phone="312-555-0134",
+    )
+
+    response = client.get(f"/customers/favorites?phone={customer.phone}")
+
+    assert response.status_code == 404
+    assert response.json()["detail"] == "The customer was not found."
+
+    # --------------------
+
+
+# Side Effects
+# --------------------
+
+
+def test_get_customer_favorites_should_not_modify_purchase_data(
+    db_session, client, make_customer, make_purchase
+):
+    customer = make_customer(phone="312-555-0134")
+
+    make_purchase(
+        customer.id,
+        [
+            {
+                "item_type": "drink",
+                "name": "Caramel Latte",
+                "quantity": 6,
+                "unit_price": "5.50",
+            }
+        ],
+    )
+
+    before = db_session.query(PurchaseItem).count()
+
+    client.get(f"/customers/favorites?phone={customer.phone}")
+
+    after = db_session.query(PurchaseItem).count()
+
+    assert before == after
+
+
+# ==========================================
 # GET CUSTOMER
 # ==========================================
 
@@ -491,274 +770,3 @@ def test_create_customer_with_duplicate_email_should_not_persist(
 
     current_count = db_session.query(Customer).count()
     assert previous_count == current_count
-
-
-# ==========================================
-# GET CUSTOMER FAVORITES
-# ==========================================
-
-
-# --------------------
-# Successful Responses
-# --------------------
-
-
-@pytest.fixture()
-def make_purchase(db_session):
-    def _make_purchase(customer_id, items):
-        purchase = Purchase(
-            customer_id=customer_id,
-            promo_id=None,
-            subtotal="10.00",
-            tax="0.70",
-            total="10.70",
-        )
-        db_session.add(purchase)
-        db_session.flush()
-
-        for item in items:
-            db_session.add(
-                PurchaseItem(
-                    purchase_id=purchase.id,
-                    item_type=item["item_type"],
-                    name=item["name"],
-                    quantity=item["quantity"],
-                    unit_price=item["unit_price"],
-                )
-            )
-
-        db_session.commit()
-        return purchase
-
-    return _make_purchase
-
-
-# ==========================================
-# GET CUSTOMER FAVORITES
-# ==========================================
-
-
-# --------------------
-# Successful Responses
-# --------------------
-def test_get_customer_favorites_should_return_favorite_drink_and_baked_good(
-    client, make_customer, make_purchase
-):
-    customer = make_customer(phone="312-555-0134")
-
-    make_purchase(
-        customer.id,
-        [
-            {
-                "item_type": "drink",
-                "name": "Caramel Latte",
-                "quantity": 7,
-                "unit_price": "5.50",
-            },
-            {
-                "item_type": "baked_good",
-                "name": "Blueberry Muffin",
-                "quantity": 6,
-                "unit_price": "3.75",
-            },
-        ],
-    )
-
-    response = client.get(f"/customers/favorites?phone={customer.phone}")
-
-    assert response.status_code == 200
-
-    body = response.json()
-
-    assert body["customer"]["id"] == customer.id
-    assert body["customer"]["phone"] == customer.phone
-
-    assert body["drink"]["name"] == "Caramel Latte"
-    assert body["drink"]["quantity"] == 7
-    assert body["drink"]["is_favorite"] is True
-
-    assert body["baked_good"]["name"] == "Blueberry Muffin"
-    assert body["baked_good"]["quantity"] == 6
-    assert body["baked_good"]["is_favorite"] is True
-
-
-def test_get_customer_favorites_should_sum_item_quantities_across_purchases(
-    client, make_customer, make_purchase
-):
-    customer = make_customer(phone="312-555-0134")
-
-    make_purchase(
-        customer.id,
-        [
-            {
-                "item_type": "drink",
-                "name": "Caramel Latte",
-                "quantity": 2,
-                "unit_price": "5.50",
-            }
-        ],
-    )
-
-    make_purchase(
-        customer.id,
-        [
-            {
-                "item_type": "drink",
-                "name": "Caramel Latte",
-                "quantity": 4,
-                "unit_price": "5.50",
-            }
-        ],
-    )
-
-    response = client.get(f"/customers/favorites?phone={customer.phone}")
-
-    assert response.status_code == 200
-
-    body = response.json()
-
-    assert body["drink"]["name"] == "Caramel Latte"
-    assert body["drink"]["quantity"] == 6
-    assert body["drink"]["is_favorite"] is True
-
-
-def test_get_customer_favorites_with_item_below_threshold_should_not_be_favorite(
-    client, make_customer, make_purchase
-):
-    customer = make_customer(phone="312-555-0134")
-
-    make_purchase(
-        customer.id,
-        [
-            {
-                "item_type": "drink",
-                "name": "Drip Coffee",
-                "quantity": 4,
-                "unit_price": "2.75",
-            }
-        ],
-    )
-
-    response = client.get(f"/customers/favorites?phone={customer.phone}")
-
-    assert response.status_code == 200
-
-    body = response.json()
-
-    assert body["drink"]["name"] == "Drip Coffee"
-    assert body["drink"]["quantity"] == 4
-    assert body["drink"]["is_favorite"] is False
-
-
-def test_get_customer_favorites_with_no_purchase_history_should_return_empty_favorites(
-    client, make_customer
-):
-    customer = make_customer(phone="312-555-0134")
-
-    response = client.get(f"/customers/favorites?phone={customer.phone}")
-
-    assert response.status_code == 200
-
-    body = response.json()
-
-    assert body["drink"]["name"] is None
-    assert body["drink"]["quantity"] == 0
-    assert body["drink"]["is_favorite"] is False
-
-    assert body["baked_good"]["name"] is None
-    assert body["baked_good"]["quantity"] == 0
-    assert body["baked_good"]["is_favorite"] is False
-
-
-def test_get_customer_favorites_should_not_include_guest_purchases(
-    client, make_customer, make_purchase
-):
-    customer = make_customer(phone="312-555-0134")
-
-    make_purchase(
-        customer.id,
-        [
-            {
-                "item_type": "drink",
-                "name": "Caramel Latte",
-                "quantity": 2,
-                "unit_price": "5.50",
-            }
-        ],
-    )
-
-    make_purchase(
-        None,
-        [
-            {
-                "item_type": "drink",
-                "name": "Caramel Latte",
-                "quantity": 10,
-                "unit_price": "5.50",
-            }
-        ],
-    )
-
-    response = client.get(f"/customers/favorites?phone={customer.phone}")
-
-    assert response.status_code == 200
-
-    body = response.json()
-
-    assert body["drink"]["quantity"] == 2
-    assert body["drink"]["is_favorite"] is False
-
-    # --------------------
-
-
-# Error / Invalid Responses
-# --------------------
-def test_get_customer_favorites_with_nonexistent_phone_should_return_404(client):
-    response = client.get("/customers/favorites?phone=999-999-9999")
-
-    assert response.status_code == 404
-    assert response.json()["detail"] == "The customer was not found."
-
-
-def test_get_customer_favorites_with_inactive_customer_should_return_404(
-    client, make_customer
-):
-    customer = make_customer(
-        active=False,
-        phone="312-555-0134",
-    )
-
-    response = client.get(f"/customers/favorites?phone={customer.phone}")
-
-    assert response.status_code == 404
-    assert response.json()["detail"] == "The customer was not found."
-
-    # --------------------
-
-
-# Side Effects
-# --------------------
-def test_get_customer_favorites_should_not_modify_purchase_data(
-    db_session, client, make_customer, make_purchase
-):
-    customer = make_customer(phone="312-555-0134")
-
-    make_purchase(
-        customer.id,
-        [
-            {
-                "item_type": "drink",
-                "name": "Caramel Latte",
-                "quantity": 6,
-                "unit_price": "5.50",
-            }
-        ],
-    )
-
-    before = db_session.query(PurchaseItem).count()
-
-    client.get(f"/customers/favorites?phone={customer.phone}")
-
-    after = db_session.query(PurchaseItem).count()
-
-    assert before == after
