@@ -6,6 +6,9 @@
 ## Deployment Details (Staging)
 
 - [Wyrmwood Coffee Frontend](https://wyrmwood-coffee-app.azurewebsites.net/app/)
+- API Root: `https://wyrmwood-coffee-app.azurewebsites.net`
+- API Health Check: [`/health`](https://wyrmwood-coffee-app.azurewebsites.net/health)
+- Database Health Check: [`/ready`](https://wyrmwood-coffee-app.azurewebsites.net/ready)
 
 ## Development Setup
 

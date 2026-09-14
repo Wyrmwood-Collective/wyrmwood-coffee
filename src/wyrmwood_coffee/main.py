@@ -4,12 +4,14 @@ import subprocess
 import sys
 from pathlib import Path
 
-from fastapi import FastAPI, Request
+from fastapi import FastAPI, HTTPException, Request, status
 from fastapi.responses import JSONResponse, RedirectResponse
 from fastapi.staticfiles import StaticFiles
+from sqlalchemy import text
 from starlette.exceptions import HTTPException as StarletteHTTPException
 from starlette.types import Scope
 
+from wyrmwood_coffee.dependencies import DbSession
 from wyrmwood_coffee.logging import setup_logging
 from wyrmwood_coffee.middleware import RequestLoggingMiddleware
 from wyrmwood_coffee.routers import (
@@ -23,7 +25,7 @@ from wyrmwood_coffee.routers import (
     vendors,
 )
 from wyrmwood_coffee.routers.promotions import router as promotions_router
-from wyrmwood_coffee.settings import require_app_settings
+from wyrmwood_coffee.settings import app_settings, require_app_settings
 
 require_app_settings()
 setup_logging()
@@ -89,4 +91,24 @@ def root():
 
 @app.get("/health")
 def health():
-    return {"message": "Welcome to Wyrmwood Coffee!"}
+    """Check the health of the API."""
+    return {"message": "The API is running and reachable."}
+
+
+@app.get(
+    "/ready",
+    responses={
+        500: {"description": "The database server is not reachable."},
+    },
+)
+def ready(session: DbSession):
+    """Check the health of the database."""
+    result = session.execute(text("select 1")).scalar()
+    if result != 1:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Could not connect to {app_settings().core.app_environment} database",  # noqa: E501
+        )
+
+    logger.info("Database check successful")
+    return {"message": "The database is running and reachable."}

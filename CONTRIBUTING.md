@@ -262,6 +262,7 @@ Tests for the same handler should be ordered so that tests for successful respon
 - `422`: The provided `REQUEST_MODEL` is malformed or invalid.
 - `422`: The provided path parameter is malformed or invalid.
 - `422`: The `REQUEST_MODEL_1` belongs to another `REQUEST_MODEL_2`.
+- `500`: The database server is not reachable.
 
 If a response code can be returned for multiple reasons, the response description may combine those reasons in prose or as a list. Either format is acceptable:
 
