@@ -111,18 +111,24 @@ Those values are not staging secrets.
 
 ## Every setting, in plain language
 
-These names must appear in `.env.example`. The database URLs and JWT key are
-secrets.
+`DEV_DATABASE_URL`, `TEST_DATABASE_URL`, and `JWT_SECRET_KEY` must appear in
+`.env.example` — the app has no default for them, so a fresh checkout with
+only `.env.example` copied to `.env.local` needs real values for those three
+before it will start. Everything else in the table below has a working
+default. `JWT_ALGORITHM` and `JWT_EXPIRATION_MINUTES` appear in
+`.env.example` as commented-out hints; `APP_ENVIRONMENT` and
+`STAGING_DATABASE_URL` don't appear in `.env.example` at all
+(`STAGING_DATABASE_URL` is only ever set on the deployed host).
 
-| Name | Secret? | Why it exists | If the real value leaked |
-| --- | --- | --- | --- |
-| `DEV_DATABASE_URL` | Yes | Local Postgres on your laptop when `APP_ENVIRONMENT=dev`. | Someone could read or change data on your local database. Rotate the password if you reuse it elsewhere. |
-| `TEST_DATABASE_URL` | Yes | Postgres for pytest / CI when `APP_ENVIRONMENT=test`. | Usually only test data. Still rotate if you reused the password elsewhere. Never reuse the staging password here. |
-| `STAGING_DATABASE_URL` | Yes | Hosted Postgres when `APP_ENVIRONMENT=staging`. | Attacker could read or change staging data (customers, employees, vendors, etc.). Rotate the database password and treat staging data as possibly accessed. |
-| `JWT_SECRET_KEY` | Yes | Private string used to sign login tokens. | Attacker could mint tokens and pretend to be any employee until the key is rotated. Everyone must log in again after rotation. |
-| `APP_ENVIRONMENT` | No | Switches between `dev`, `test`, and `staging`. | Not a password. Wrong values make the app connect to the wrong database. |
-| `JWT_ALGORITHM` | No | Signing method (`HS256`). Leave unless the team changes it. | Not a secret. |
-| `JWT_EXPIRATION_MINUTES` | No | How long login tokens stay valid (default `30`). | Not a secret. |
+| Name | Secret? | Required in `.env.example`? | Why it exists | If the real value leaked |
+| --- | --- | --- | --- | --- |
+| `DEV_DATABASE_URL` | Yes | Yes | Local Postgres on your laptop when `APP_ENVIRONMENT=dev`. | Someone could read or change data on your local database. Rotate the password if you reuse it elsewhere. |
+| `TEST_DATABASE_URL` | Yes | Yes | Postgres for pytest / CI when `APP_ENVIRONMENT=test`. | Usually only test data. Still rotate if you reused the password elsewhere. Never reuse the staging password here. |
+| `JWT_SECRET_KEY` | Yes | Yes | Private string used to sign login tokens. | Attacker could mint tokens and pretend to be any employee until the key is rotated. Everyone must log in again after rotation. |
+| `STAGING_DATABASE_URL` | Yes | No — set on the host, never in git | Hosted Postgres when `APP_ENVIRONMENT=staging`. | Attacker could read or change staging data (customers, employees, vendors, etc.). Rotate the database password and treat staging data as possibly accessed. |
+| `APP_ENVIRONMENT` | No | No (defaults to `dev`) | Switches between `dev`, `test`, and `staging`. | Not a password. Wrong values make the app connect to the wrong database. |
+| `JWT_ALGORITHM` | No | No (defaults to `HS256`) | Signing method. Leave unless the team changes it. | Not a secret. |
+| `JWT_EXPIRATION_MINUTES` | No | No (defaults to `30`) | How long login tokens stay valid. | Not a secret. |
 
 ---
 

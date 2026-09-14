@@ -6,10 +6,11 @@ Missing or placeholder secrets stop the process with a clear error.
 """
 
 import logging
+import os
 from enum import StrEnum
 from typing import Annotated, Self
 
-from pydantic import Field, ValidationError, model_validator
+from pydantic import BaseModel, Field, ValidationError, model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 from wyrmwood_coffee.logging import Sensitive
@@ -50,16 +51,7 @@ class LogLevel(StrEnum):
     CRITICAL = "CRITICAL"
 
 
-class Settings(BaseSettings):
-    app_environment: Environment = Environment.DEV
-    dev_database_url: Annotated[str | None, Sensitive] = None
-    test_database_url: Annotated[str | None, Sensitive] = None
-    staging_database_url: Annotated[str | None, Sensitive] = None
-    jwt_secret_key: Annotated[str, Sensitive] = Field(min_length=32)
-    jwt_algorithm: str = "HS256"
-    jwt_expiration_minutes: int = Field(default=30, gt=0)
-    log_level: LogLevel = LogLevel.WARNING
-
+class BaseAppSettings(BaseSettings):
     model_config = SettingsConfigDict(
         env_file=(".env", ".env.local"),
         env_file_encoding="utf-8",
@@ -67,88 +59,116 @@ class Settings(BaseSettings):
         env_ignore_empty=True,
     )
 
-    @model_validator(mode="after")
-    def validate_required_secrets(self) -> Self:
-        match self.app_environment:
-            case Environment.TEST:
-                _require_database_url(
-                    self.test_database_url,
-                    setting_name="TEST_DATABASE_URL",
-                    environment="test",
-                    local_hint=True,
-                )
-            case Environment.STAGING:
-                _require_database_url(
-                    self.staging_database_url,
-                    setting_name="STAGING_DATABASE_URL",
-                    environment="staging",
-                    local_hint=False,
-                )
-            case Environment.DEV:
-                _require_database_url(
-                    self.dev_database_url,
-                    setting_name="DEV_DATABASE_URL",
-                    environment="dev",
-                    local_hint=True,
-                )
 
-        if self.jwt_secret_key in PLACEHOLDER_JWT_SECRETS:
+class CoreSettings(BaseAppSettings):
+    app_environment: Environment = Environment.DEV
+    log_level: LogLevel = LogLevel.WARNING
+
+
+class DatabaseSettings(BaseAppSettings):
+    url: Annotated[str, Sensitive]
+
+    @model_validator(mode="after")
+    def validate_url(self) -> Self:
+        if _contains_placeholder_database_url(self.url):
             raise ValueError(
-                "JWT_SECRET_KEY is still the example placeholder. "
-                "Generate a unique random string of at least 32 characters."
-            )
-        if (
-            self.app_environment != Environment.TEST
-            and self.jwt_secret_key in TEST_ONLY_JWT_SECRETS
-        ):
-            raise ValueError(
-                "JWT_SECRET_KEY is the CI test value and cannot be used when "
-                f"APP_ENVIRONMENT={self.app_environment}."
+                "DATABASE_URL still uses a placeholder value. "
+                "Replace USER:PASSWORD (and HOST) with real credentials."
             )
         return self
-
-    @property
-    def database_url(self) -> str:
-        match self.app_environment:
-            case Environment.TEST:
-                assert self.test_database_url is not None
-                return self.test_database_url
-            case Environment.STAGING:
-                assert self.staging_database_url is not None
-                return self.staging_database_url
-            case Environment.DEV:
-                assert self.dev_database_url is not None
-                return self.dev_database_url
-
-
-def _require_database_url(
-    url: str | None,
-    *,
-    setting_name: str,
-    environment: str,
-    local_hint: bool,
-) -> None:
-    if not url:
-        where = (
-            "Set it in .env.local (local) or the process environment."
-            if local_hint
-            else "Set it as an environment variable on the deployed host."
-        )
-        raise ValueError(
-            f"{setting_name} is required when APP_ENVIRONMENT={environment}. {where}"
-        )
-    if _contains_placeholder_database_url(url):
-        raise ValueError(
-            f"{setting_name} still uses a placeholder value. "
-            "Replace USER:PASSWORD (and HOST for staging) with real credentials."
-        )
 
 
 def _contains_placeholder_database_url(url: str) -> bool:
     return any(marker in url for marker in PLACEHOLDER_DATABASE_MARKERS)
 
 
+def _load_database_settings(core: CoreSettings) -> DatabaseSettings:
+    prefix = core.app_environment.upper()
+    database = DatabaseSettings(_env_prefix=f"{prefix}_DATABASE_")  # type: ignore[call-arg]
+    return database
+
+
+class AuthSettings(BaseAppSettings):
+    jwt_secret_key: Annotated[str, Sensitive] = Field(min_length=32)
+    jwt_algorithm: str = "HS256"
+    jwt_expiration_minutes: int = Field(default=30, gt=0)
+
+    @model_validator(mode="after")
+    def validate_required_secrets(self) -> Self:
+        if self.jwt_secret_key in PLACEHOLDER_JWT_SECRETS:
+            raise ValueError(
+                "JWT_SECRET_KEY is still the example placeholder. "
+                "Generate a unique random string of at least 32 characters."
+            )
+        return self
+
+
+class ScriptSettings(BaseModel):
+    core: CoreSettings
+    database: DatabaseSettings
+
+
+def _load_script_settings() -> ScriptSettings:
+    core = CoreSettings()
+    database = _load_database_settings(core)
+    return ScriptSettings(core=core, database=database)
+
+
+_script_settings = None
+
+
+def script_settings():
+    global _script_settings
+    if _script_settings:
+        return _script_settings
+
+    _script_settings = _load_script_settings()
+    return _script_settings
+
+
+class AppSettings(ScriptSettings):
+    auth: AuthSettings
+
+    @model_validator(mode="after")
+    def validate_required_secrets(self) -> Self:
+        if (
+            self.core.app_environment != Environment.TEST
+            and self.auth.jwt_secret_key in TEST_ONLY_JWT_SECRETS
+        ):
+            raise ValueError(
+                "JWT_SECRET_KEY is the CI test value and cannot be used when "
+                f"APP_ENVIRONMENT={self.core.app_environment}."
+            )
+        return self
+
+
+def _load_app_settings() -> AppSettings:
+    script = _load_script_settings()
+    auth = AuthSettings()  # type: ignore[call-arg]
+    return AppSettings(core=script.core, database=script.database, auth=auth)
+
+
+_app_settings = None
+
+
+def app_settings():
+    global _app_settings
+    if _app_settings:
+        return _app_settings
+
+    _app_settings = _load_app_settings()
+    return _app_settings
+
+
+def _field_env_var_name(field: str) -> str:
+    if field == "url":
+        prefix = os.environ.get("APP_ENVIRONMENT", Environment.DEV.value).upper()
+        return f"{prefix}_DATABASE_URL"
+    return field.upper()
+
+
 def _format_settings_error(exc: ValidationError) -> str:
+    database_prefix = os.environ.get("APP_ENVIRONMENT", Environment.DEV.value).upper()
     lines = [
         "Application cannot start: required configuration is missing or invalid.",
         "",
@@ -156,11 +176,15 @@ def _format_settings_error(exc: ValidationError) -> str:
     for err in exc.errors():
         loc = err.get("loc", ())
         name = ""
-        if loc:
-            field = loc[0]
-            if isinstance(field, str) and field in Settings.model_fields:
-                name = f"{field.upper()}: "
-        lines.append(f"  - {name}{err['msg']}")
+        msg = err["msg"]
+        if loc and isinstance(loc[0], str):
+            name = f"{_field_env_var_name(loc[0])}: "
+        elif "DATABASE_URL" in msg:
+            # Model-level validators (e.g. DatabaseSettings.validate_url) raise
+            # a generic "DATABASE_URL" message with no field loc, since the
+            # model itself doesn't know which environment's prefix applies.
+            msg = msg.replace("DATABASE_URL", f"{database_prefix}_DATABASE_URL")
+        lines.append(f"  - {name}{msg}")
     lines.extend(
         [
             "",
@@ -174,12 +198,16 @@ def _format_settings_error(exc: ValidationError) -> str:
     return "\n".join(lines)
 
 
-def load_settings(**kwargs) -> Settings:
+def require_app_settings() -> AppSettings:
+    """Eagerly validate every required setting, stopping the process with a
+    clear error if any are missing or invalid. Call this once at process
+    startup (see main.py).
+
+    Scripts that don't touch auth (`seed`, `alembic`) should call
+    `script_settings()` instead, since they don't require `JWT_SECRET_KEY`.
+    """
     try:
-        return Settings(**kwargs)  # type: ignore[call-arg]
+        return _load_app_settings()
     except ValidationError as exc:
         logger.critical(_format_settings_error(exc))
         raise SystemExit(1) from exc
-
-
-settings = load_settings()

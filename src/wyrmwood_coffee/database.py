@@ -4,7 +4,7 @@ from collections.abc import Generator
 from sqlalchemy import Engine, create_engine
 from sqlalchemy.orm import Session, declarative_base, sessionmaker
 
-from wyrmwood_coffee.settings import settings
+from wyrmwood_coffee.settings import script_settings
 
 logger = logging.getLogger(__name__)
 
@@ -17,8 +17,8 @@ def get_engine() -> Engine:
     if _engine is not None:
         return _engine
 
-    logger.info("Connecting to %s database", settings.app_environment)
-    _engine = create_engine(settings.database_url)
+    logger.info("Connecting to %s database", script_settings().core.app_environment)
+    _engine = create_engine(script_settings().database.url)
     return _engine
 
 

@@ -3,6 +3,13 @@
 - [Group Jira](https://catalystit.atlassian.net/jira/software/projects/WC/summary)
 - [Group Confluence](https://catalystit.atlassian.net/wiki/spaces/WC1/overview)
 
+## Deployment Details (Staging)
+
+- [Wyrmwood Coffee Frontend](https://wyrmwood-coffee-app.azurewebsites.net/app/)
+- API Root: `https://wyrmwood-coffee-app.azurewebsites.net`
+- API Health Check: [`/health`](https://wyrmwood-coffee-app.azurewebsites.net/health)
+- Database Health Check: [`/ready`](https://wyrmwood-coffee-app.azurewebsites.net/ready)
+
 ## Development Setup
 
 Install `uv` and `npm`, then clone the repository:
@@ -162,22 +169,6 @@ uv run alembic current        # show the currently applied revision
 uv run alembic check          # verify that models match schema
 ```
 
-## Hosted PostgreSQL Database
-
-The development database is hosted on Neon PostgreSQL.
-
-- Provider: Neon
-- Project: Wyrmwood-Collective Coffee API
-- Branch: production
-- Database: wyrmwood_collective
-- Port: 5432
-- SSL: Required
-- Environment variable: DEV_DATABASE_URL
-
-Connection credentials are stored locally in the `.env` file and must not be committed to source control.
-
-Team members should retrieve the current database credentials through the approved team credential-sharing method rather than placing passwords in GitHub, Jira, or documentation.
-
 ## Sample Data
 
 After running migrations, you can load the sample data with:
@@ -195,6 +186,8 @@ If you want to overwrite already existing data, run:
 uv run seed --overwrite
 ```
 
+You can (re)load the sample data on the staging database by running the [Seed Staging Database](https://github.com/Wyrmwood-Collective/wyrmwood-coffee/actions/workflows/seed-staging.yml) GitHub Action.
+
 ### Mock Data Generation
 
 To generate a robust set of mock purchases for testing UI pagination, date-range filtering, and edge cases (long strings, special characters/emojis, missing optional fields), run:
@@ -202,3 +195,4 @@ To generate a robust set of mock purchases for testing UI pagination, date-range
 ```shell
 uv run python src/wyrmwood_coffee/generate_purchases.py
 uv run seed --overwrite
+```

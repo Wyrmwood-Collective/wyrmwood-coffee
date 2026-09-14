@@ -1,20 +1,34 @@
-"""Settings loading, fail-fast behavior, and secrets-policy checks."""
+"""Settings loading, validation, and secrets-policy checks."""
 
-import logging
 import subprocess
 from pathlib import Path
 
 import pytest
 from pydantic import ValidationError
 
-from wyrmwood_coffee.logging import Sensitive
-from wyrmwood_coffee.settings import Settings, load_settings
+from wyrmwood_coffee.logging import Sensitive, sensitive_field_names
+from wyrmwood_coffee.settings import (
+    AuthSettings,
+    CoreSettings,
+    DatabaseSettings,
+    Environment,
+    LogLevel,
+    _load_app_settings,
+    _load_script_settings,
+    require_app_settings,
+)
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
 ENV_EXAMPLE_PATH = REPO_ROOT / ".env.example"
 GITIGNORE_PATH = REPO_ROOT / ".gitignore"
 
 REQUIRED_EXAMPLE_VARS = {
+    "DEV_DATABASE_URL",
+    "TEST_DATABASE_URL",
+    "JWT_SECRET_KEY",
+}
+
+ENV_VARS_UNDER_TEST = {
     "APP_ENVIRONMENT",
     "DEV_DATABASE_URL",
     "TEST_DATABASE_URL",
@@ -22,6 +36,7 @@ REQUIRED_EXAMPLE_VARS = {
     "JWT_SECRET_KEY",
     "JWT_ALGORITHM",
     "JWT_EXPIRATION_MINUTES",
+    "LOG_LEVEL",
 }
 
 VALID_DEV_DATABASE_URL = (
@@ -34,8 +49,7 @@ VALID_STAGING_DATABASE_URL = (
     "postgresql+psycopg://staginguser:stagingpass@db.example.com:5432/wyrmwood_coffee"
 )
 VALID_JWT_SECRET_KEY = "local-dev-jwt-secret-key-not-a-real-secret"
-
-SETTINGS_LOGGER = "wyrmwood_coffee.settings"
+CI_ONLY_JWT_SECRET_KEY = "test-jwt-secret-key-not-for-production"
 
 
 def _example_env_keys():
@@ -49,118 +63,94 @@ def _example_env_keys():
 
 
 def _clear_settings_env(monkeypatch):
-    for key in REQUIRED_EXAMPLE_VARS:
+    for key in ENV_VARS_UNDER_TEST:
         monkeypatch.delenv(key, raising=False)
 
 
-def test_load_settings_with_valid_env_should_succeed(monkeypatch):
+def test_load_app_settings_with_valid_dev_env_should_succeed(monkeypatch):
     _clear_settings_env(monkeypatch)
     monkeypatch.setenv("APP_ENVIRONMENT", "dev")
     monkeypatch.setenv("DEV_DATABASE_URL", VALID_DEV_DATABASE_URL)
     monkeypatch.setenv("JWT_SECRET_KEY", VALID_JWT_SECRET_KEY)
 
-    loaded = load_settings(_env_file=None)
+    loaded = _load_app_settings()
 
-    assert loaded.app_environment == "dev"
-    assert loaded.database_url == VALID_DEV_DATABASE_URL
-    assert loaded.jwt_secret_key == VALID_JWT_SECRET_KEY
+    assert loaded.core.app_environment == Environment.DEV
+    assert loaded.database.url == VALID_DEV_DATABASE_URL
+    assert loaded.auth.jwt_secret_key == VALID_JWT_SECRET_KEY
 
 
-def test_load_settings_with_valid_test_env_should_succeed(monkeypatch):
+def test_load_app_settings_with_valid_test_env_should_succeed(monkeypatch):
     _clear_settings_env(monkeypatch)
     monkeypatch.setenv("APP_ENVIRONMENT", "test")
     monkeypatch.setenv("TEST_DATABASE_URL", VALID_TEST_DATABASE_URL)
-    monkeypatch.setenv("JWT_SECRET_KEY", "test-jwt-secret-key-not-for-production")
+    monkeypatch.setenv("JWT_SECRET_KEY", VALID_JWT_SECRET_KEY)
 
-    loaded = load_settings(_env_file=None)
+    loaded = _load_app_settings()
 
-    assert loaded.app_environment == "test"
-    assert loaded.database_url == VALID_TEST_DATABASE_URL
+    assert loaded.core.app_environment == Environment.TEST
+    assert loaded.database.url == VALID_TEST_DATABASE_URL
 
 
-def test_load_settings_with_valid_staging_env_should_succeed(monkeypatch):
+def test_load_app_settings_with_valid_staging_env_should_succeed(monkeypatch):
     _clear_settings_env(monkeypatch)
     monkeypatch.setenv("APP_ENVIRONMENT", "staging")
     monkeypatch.setenv("STAGING_DATABASE_URL", VALID_STAGING_DATABASE_URL)
     monkeypatch.setenv("JWT_SECRET_KEY", VALID_JWT_SECRET_KEY)
 
-    loaded = load_settings(_env_file=None)
+    loaded = _load_app_settings()
 
-    assert loaded.app_environment == "staging"
-    assert loaded.database_url == VALID_STAGING_DATABASE_URL
-
-
-def test_load_settings_with_missing_jwt_secret_key_should_exit(monkeypatch, caplog):
-    caplog.set_level(logging.CRITICAL, logger=SETTINGS_LOGGER)
-    _clear_settings_env(monkeypatch)
-    monkeypatch.setenv("APP_ENVIRONMENT", "dev")
-    monkeypatch.setenv("DEV_DATABASE_URL", VALID_DEV_DATABASE_URL)
-
-    with pytest.raises(SystemExit) as exc_info:
-        load_settings(_env_file=None)
-
-    assert exc_info.value.code == 1
-    assert "Application cannot start" in caplog.text
-    assert "JWT_SECRET_KEY" in caplog.text
+    assert loaded.core.app_environment == Environment.STAGING
+    assert loaded.database.url == VALID_STAGING_DATABASE_URL
 
 
-def test_load_settings_with_missing_dev_database_url_should_exit(monkeypatch, caplog):
-    caplog.set_level(logging.CRITICAL, logger=SETTINGS_LOGGER)
-    _clear_settings_env(monkeypatch)
-    monkeypatch.setenv("APP_ENVIRONMENT", "dev")
-    monkeypatch.setenv("JWT_SECRET_KEY", VALID_JWT_SECRET_KEY)
-
-    with pytest.raises(SystemExit) as exc_info:
-        load_settings(_env_file=None)
-
-    assert exc_info.value.code == 1
-    assert "DEV_DATABASE_URL" in caplog.text
-
-
-def test_load_settings_with_missing_test_database_url_should_exit(monkeypatch, caplog):
-    caplog.set_level(logging.CRITICAL, logger=SETTINGS_LOGGER)
-    _clear_settings_env(monkeypatch)
-    monkeypatch.setenv("APP_ENVIRONMENT", "test")
-    monkeypatch.setenv("JWT_SECRET_KEY", VALID_JWT_SECRET_KEY)
-
-    with pytest.raises(SystemExit) as exc_info:
-        load_settings(_env_file=None)
-
-    assert exc_info.value.code == 1
-    assert "TEST_DATABASE_URL" in caplog.text
-
-
-def test_load_settings_with_missing_staging_database_url_should_exit(
-    monkeypatch, caplog
-):
-    caplog.set_level(logging.CRITICAL, logger=SETTINGS_LOGGER)
+def test_load_script_settings_uses_environment_specific_database_prefix(monkeypatch):
     _clear_settings_env(monkeypatch)
     monkeypatch.setenv("APP_ENVIRONMENT", "staging")
-    monkeypatch.setenv("JWT_SECRET_KEY", VALID_JWT_SECRET_KEY)
-
-    with pytest.raises(SystemExit) as exc_info:
-        load_settings(_env_file=None)
-
-    assert exc_info.value.code == 1
-    assert "STAGING_DATABASE_URL" in caplog.text
-
-
-def test_load_settings_with_placeholder_jwt_secret_key_should_exit(monkeypatch, caplog):
-    caplog.set_level(logging.CRITICAL, logger=SETTINGS_LOGGER)
-    _clear_settings_env(monkeypatch)
-    monkeypatch.setenv("APP_ENVIRONMENT", "dev")
+    monkeypatch.setenv("STAGING_DATABASE_URL", VALID_STAGING_DATABASE_URL)
+    # A DEV_DATABASE_URL set alongside it should be ignored for staging.
     monkeypatch.setenv("DEV_DATABASE_URL", VALID_DEV_DATABASE_URL)
-    monkeypatch.setenv("JWT_SECRET_KEY", "change-me-must-be-at-least-32-characters")
 
-    with pytest.raises(SystemExit) as exc_info:
-        load_settings(_env_file=None)
+    script = _load_script_settings()
 
-    assert exc_info.value.code == 1
-    assert "placeholder" in caplog.text.lower()
+    assert script.core.app_environment == Environment.STAGING
+    assert script.database.url == VALID_STAGING_DATABASE_URL
 
 
-def test_load_settings_with_placeholder_database_url_should_exit(monkeypatch, caplog):
-    caplog.set_level(logging.CRITICAL, logger=SETTINGS_LOGGER)
+def test_auth_settings_with_missing_jwt_secret_key_should_raise(monkeypatch):
+    # _env_file=None bypasses .env/.env.local so a developer's local secret
+    # can't mask the "missing" case.
+    _clear_settings_env(monkeypatch)
+
+    with pytest.raises(ValidationError) as exc_info:
+        AuthSettings(_env_file=None)  # type: ignore[call-arg]
+
+    assert "jwt_secret_key" in str(exc_info.value)
+
+
+def test_database_settings_with_missing_url_should_raise(monkeypatch):
+    _clear_settings_env(monkeypatch)
+
+    with pytest.raises(ValidationError) as exc_info:
+        DatabaseSettings(_env_prefix="DEV_DATABASE_", _env_file=None)  # type: ignore[call-arg]
+
+    assert "url" in str(exc_info.value)
+
+
+def test_database_settings_with_placeholder_url_should_raise(monkeypatch):
+    _clear_settings_env(monkeypatch)
+    monkeypatch.setenv(
+        "DEV_DATABASE_URL",
+        "postgresql+psycopg://USER:PASSWORD@localhost:5432/wyrmwood_coffee",
+    )
+
+    with pytest.raises(ValidationError) as exc_info:
+        DatabaseSettings(_env_prefix="DEV_DATABASE_", _env_file=None)  # type: ignore[call-arg]
+
+    assert "placeholder" in str(exc_info.value).lower()
+
+
+def test_load_app_settings_with_placeholder_dev_database_url_should_raise(monkeypatch):
     _clear_settings_env(monkeypatch)
     monkeypatch.setenv("APP_ENVIRONMENT", "dev")
     monkeypatch.setenv(
@@ -169,18 +159,13 @@ def test_load_settings_with_placeholder_database_url_should_exit(monkeypatch, ca
     )
     monkeypatch.setenv("JWT_SECRET_KEY", VALID_JWT_SECRET_KEY)
 
-    with pytest.raises(SystemExit) as exc_info:
-        load_settings(_env_file=None)
+    with pytest.raises(ValidationError) as exc_info:
+        _load_app_settings()
 
-    assert exc_info.value.code == 1
-    assert "DEV_DATABASE_URL" in caplog.text
-    assert "placeholder" in caplog.text.lower()
+    assert "placeholder" in str(exc_info.value).lower()
 
 
-def test_load_settings_with_placeholder_test_database_url_should_exit(
-    monkeypatch, caplog
-):
-    caplog.set_level(logging.CRITICAL, logger=SETTINGS_LOGGER)
+def test_load_app_settings_with_placeholder_test_database_url_should_raise(monkeypatch):
     _clear_settings_env(monkeypatch)
     monkeypatch.setenv("APP_ENVIRONMENT", "test")
     monkeypatch.setenv(
@@ -189,18 +174,15 @@ def test_load_settings_with_placeholder_test_database_url_should_exit(
     )
     monkeypatch.setenv("JWT_SECRET_KEY", VALID_JWT_SECRET_KEY)
 
-    with pytest.raises(SystemExit) as exc_info:
-        load_settings(_env_file=None)
+    with pytest.raises(ValidationError) as exc_info:
+        _load_app_settings()
 
-    assert exc_info.value.code == 1
-    assert "TEST_DATABASE_URL" in caplog.text
-    assert "placeholder" in caplog.text.lower()
+    assert "placeholder" in str(exc_info.value).lower()
 
 
-def test_load_settings_with_placeholder_staging_database_url_should_exit(
-    monkeypatch, caplog
+def test_load_app_settings_with_placeholder_staging_database_url_should_raise(
+    monkeypatch,
 ):
-    caplog.set_level(logging.CRITICAL, logger=SETTINGS_LOGGER)
     _clear_settings_env(monkeypatch)
     monkeypatch.setenv("APP_ENVIRONMENT", "staging")
     monkeypatch.setenv(
@@ -209,56 +191,80 @@ def test_load_settings_with_placeholder_staging_database_url_should_exit(
     )
     monkeypatch.setenv("JWT_SECRET_KEY", VALID_JWT_SECRET_KEY)
 
-    with pytest.raises(SystemExit) as exc_info:
-        load_settings(_env_file=None)
+    with pytest.raises(ValidationError) as exc_info:
+        _load_app_settings()
 
-    assert exc_info.value.code == 1
-    assert "STAGING_DATABASE_URL" in caplog.text
-    assert "placeholder" in caplog.text.lower()
+    assert "placeholder" in str(exc_info.value).lower()
 
 
-def test_load_settings_with_ci_jwt_in_dev_should_exit(monkeypatch, caplog):
-    caplog.set_level(logging.CRITICAL, logger=SETTINGS_LOGGER)
+def test_load_app_settings_with_placeholder_jwt_secret_key_should_raise(monkeypatch):
     _clear_settings_env(monkeypatch)
     monkeypatch.setenv("APP_ENVIRONMENT", "dev")
     monkeypatch.setenv("DEV_DATABASE_URL", VALID_DEV_DATABASE_URL)
-    monkeypatch.setenv("JWT_SECRET_KEY", "test-jwt-secret-key-not-for-production")
+    monkeypatch.setenv("JWT_SECRET_KEY", "change-me-must-be-at-least-32-characters")
 
-    with pytest.raises(SystemExit) as exc_info:
-        load_settings(_env_file=None)
+    with pytest.raises(ValidationError) as exc_info:
+        _load_app_settings()
 
-    assert exc_info.value.code == 1
-    assert "CI test value" in caplog.text
+    assert "placeholder" in str(exc_info.value).lower()
 
 
-def test_load_settings_with_ci_jwt_in_staging_should_exit(monkeypatch, caplog):
-    caplog.set_level(logging.CRITICAL, logger=SETTINGS_LOGGER)
+def test_load_app_settings_with_ci_jwt_in_dev_should_raise(monkeypatch):
+    _clear_settings_env(monkeypatch)
+    monkeypatch.setenv("APP_ENVIRONMENT", "dev")
+    monkeypatch.setenv("DEV_DATABASE_URL", VALID_DEV_DATABASE_URL)
+    monkeypatch.setenv("JWT_SECRET_KEY", CI_ONLY_JWT_SECRET_KEY)
+
+    with pytest.raises(ValidationError) as exc_info:
+        _load_app_settings()
+
+    assert "CI test value" in str(exc_info.value)
+
+
+def test_load_app_settings_with_ci_jwt_in_staging_should_raise(monkeypatch):
     _clear_settings_env(monkeypatch)
     monkeypatch.setenv("APP_ENVIRONMENT", "staging")
     monkeypatch.setenv("STAGING_DATABASE_URL", VALID_STAGING_DATABASE_URL)
-    monkeypatch.setenv("JWT_SECRET_KEY", "test-jwt-secret-key-not-for-production")
+    monkeypatch.setenv("JWT_SECRET_KEY", CI_ONLY_JWT_SECRET_KEY)
 
-    with pytest.raises(SystemExit) as exc_info:
-        load_settings(_env_file=None)
+    with pytest.raises(ValidationError) as exc_info:
+        _load_app_settings()
 
-    assert exc_info.value.code == 1
-    assert "CI test value" in caplog.text
+    assert "CI test value" in str(exc_info.value)
+
+
+def test_load_app_settings_with_ci_jwt_in_test_should_succeed(monkeypatch):
+    _clear_settings_env(monkeypatch)
+    monkeypatch.setenv("APP_ENVIRONMENT", "test")
+    monkeypatch.setenv("TEST_DATABASE_URL", VALID_TEST_DATABASE_URL)
+    monkeypatch.setenv("JWT_SECRET_KEY", CI_ONLY_JWT_SECRET_KEY)
+
+    loaded = _load_app_settings()
+
+    assert loaded.auth.jwt_secret_key == CI_ONLY_JWT_SECRET_KEY
 
 
 def test_settings_jwt_secret_key_has_no_default():
-    assert Settings.model_fields["jwt_secret_key"].is_required()
+    assert AuthSettings.model_fields["jwt_secret_key"].is_required()
 
 
 def test_settings_short_jwt_secret_key_should_raise(monkeypatch):
     _clear_settings_env(monkeypatch)
-    monkeypatch.setenv("APP_ENVIRONMENT", "dev")
-    monkeypatch.setenv("DEV_DATABASE_URL", VALID_DEV_DATABASE_URL)
     monkeypatch.setenv("JWT_SECRET_KEY", "too-short-to-be-valid")
 
     with pytest.raises(ValidationError) as exc_info:
-        Settings(_env_file=None)
+        AuthSettings()  # type: ignore[call-arg]
 
     assert "jwt_secret_key" in str(exc_info.value)
+
+
+def test_core_settings_defaults_to_dev_and_warning(monkeypatch):
+    _clear_settings_env(monkeypatch)
+
+    core = CoreSettings(_env_file=None)  # type: ignore[call-arg]
+
+    assert core.app_environment == Environment.DEV
+    assert core.log_level == LogLevel.WARNING
 
 
 def test_env_example_should_document_every_required_variable():
@@ -270,7 +276,6 @@ def test_env_example_should_document_every_required_variable():
 def test_env_example_should_not_contain_real_secret_values():
     contents = ENV_EXAMPLE_PATH.read_text(encoding="utf-8")
     assert "USER:PASSWORD" in contents
-    assert "@HOST:" in contents
     assert "change-me-must-be-at-least-32-characters" in contents
     assert "root:root" not in contents
 
@@ -313,23 +318,76 @@ def test_gitignore_should_keep_env_example_unignored():
     assert "!.env.example" in contents
 
 
-def test_settings_secret_fields_are_marked_sensitive():
-    from wyrmwood_coffee.logging import sensitive_field_names
-    from wyrmwood_coffee.settings import Settings
+def test_require_app_settings_with_valid_env_should_return_settings(monkeypatch):
+    _clear_settings_env(monkeypatch)
+    monkeypatch.setenv("APP_ENVIRONMENT", "dev")
+    monkeypatch.setenv("DEV_DATABASE_URL", VALID_DEV_DATABASE_URL)
+    monkeypatch.setenv("JWT_SECRET_KEY", VALID_JWT_SECRET_KEY)
 
-    for field_name in (
-        "jwt_secret_key",
-        "dev_database_url",
-        "test_database_url",
-        "staging_database_url",
-    ):
-        field = Settings.model_fields[field_name]
-        assert Sensitive in field.metadata, f"{field_name} missing Sensitive marker"
+    loaded = require_app_settings()
+
+    assert loaded.database.url == VALID_DEV_DATABASE_URL
+    assert loaded.auth.jwt_secret_key == VALID_JWT_SECRET_KEY
+
+
+def test_require_app_settings_with_placeholder_dev_database_url_should_exit(
+    monkeypatch, caplog
+):
+    # Values are set explicitly (rather than left unset) so they take
+    # precedence over any real values in a developer's local .env file.
+    _clear_settings_env(monkeypatch)
+    monkeypatch.setenv("APP_ENVIRONMENT", "dev")
+    monkeypatch.setenv(
+        "DEV_DATABASE_URL",
+        "postgresql+psycopg://USER:PASSWORD@localhost:5432/wyrmwood_coffee",
+    )
+    monkeypatch.setenv("JWT_SECRET_KEY", VALID_JWT_SECRET_KEY)
+
+    with pytest.raises(SystemExit) as exc_info:
+        require_app_settings()
+
+    assert exc_info.value.code == 1
+    assert "DEV_DATABASE_URL" in caplog.text
+
+
+def test_require_app_settings_with_placeholder_staging_database_url_should_exit(
+    monkeypatch, caplog
+):
+    _clear_settings_env(monkeypatch)
+    monkeypatch.setenv("APP_ENVIRONMENT", "staging")
+    monkeypatch.setenv(
+        "STAGING_DATABASE_URL",
+        "postgresql+psycopg://USER:PASSWORD@HOST:5432/wyrmwood_coffee",
+    )
+    monkeypatch.setenv("JWT_SECRET_KEY", VALID_JWT_SECRET_KEY)
+
+    with pytest.raises(SystemExit) as exc_info:
+        require_app_settings()
+
+    assert exc_info.value.code == 1
+    assert "STAGING_DATABASE_URL" in caplog.text
+
+
+def test_require_app_settings_with_placeholder_jwt_secret_key_should_exit(
+    monkeypatch, caplog
+):
+    # Values are set explicitly (rather than left unset) so they take
+    # precedence over any real values in a developer's local .env file.
+    _clear_settings_env(monkeypatch)
+    monkeypatch.setenv("APP_ENVIRONMENT", "dev")
+    monkeypatch.setenv("DEV_DATABASE_URL", VALID_DEV_DATABASE_URL)
+    monkeypatch.setenv("JWT_SECRET_KEY", "change-me-must-be-at-least-32-characters")
+
+    with pytest.raises(SystemExit) as exc_info:
+        require_app_settings()
+
+    assert exc_info.value.code == 1
+    assert "JWT_SECRET_KEY" in caplog.text
+
+
+def test_settings_secret_fields_are_marked_sensitive():
+    assert Sensitive in AuthSettings.model_fields["jwt_secret_key"].metadata
+    assert Sensitive in DatabaseSettings.model_fields["url"].metadata
 
     names = sensitive_field_names()
-    assert {
-        "jwt_secret_key",
-        "dev_database_url",
-        "test_database_url",
-        "staging_database_url",
-    }.issubset(names)
+    assert {"jwt_secret_key", "url"}.issubset(names)
