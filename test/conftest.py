@@ -3,6 +3,7 @@ import os
 import subprocess
 from datetime import date
 from decimal import Decimal
+from types import SimpleNamespace
 from typing import cast
 
 import pytest
@@ -12,6 +13,7 @@ from sqlalchemy.engine import make_url
 from sqlalchemy.orm import sessionmaker
 
 from wyrmwood_coffee.database import Base, get_db
+from wyrmwood_coffee.dependencies import get_current_employee
 from wyrmwood_coffee.main import app
 from wyrmwood_coffee.models.employee import Employee
 from wyrmwood_coffee.models.ingredient import Ingredient
@@ -95,11 +97,22 @@ def db_session(db_engine):
     connection.close()
 
 
+def _fake_employee(*, role: str, employee_id: int = 1):
+    """Stand-in for get_current_employee in tests (avoids seeding auth users)."""
+    return SimpleNamespace(id=employee_id, role=role, active=True)
+
+
+def _override_current_employee(role: str):
+    app.dependency_overrides[get_current_employee] = lambda: _fake_employee(role=role)
+
+
 @pytest.fixture()
 def client(db_session):
+    """Authenticated as manager by default so mutating route tests pass."""
     app.dependency_overrides[get_db] = lambda: db_session
+    _override_current_employee("manager")
     yield TestClient(app)
-    del app.dependency_overrides[get_db]
+    app.dependency_overrides.clear()
 
 
 @pytest.fixture

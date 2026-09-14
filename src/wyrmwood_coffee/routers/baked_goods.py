@@ -1,8 +1,8 @@
 import logging
 
-from fastapi import APIRouter, status
+from fastapi import APIRouter, Depends, status
 
-from wyrmwood_coffee.dependencies import DbSession
+from wyrmwood_coffee.dependencies import DbSession, require_manager
 from wyrmwood_coffee.logging import ResourceLogger
 from wyrmwood_coffee.models.baked_goods import BakedGood, BakedGoodCreate, BakedGoodRead
 
@@ -16,8 +16,11 @@ router = APIRouter()
     response_model=BakedGoodRead,
     response_description="The newly created baked good",
     responses={
-        422: {"description": "The provided BakedGoodCreate is malformed or invalid."}
+        401: {"description": "Could not validate credentials."},
+        403: {"description": "Insufficient permissions."},
+        422: {"description": "The provided BakedGoodCreate is malformed or invalid."},
     },
+    dependencies=[Depends(require_manager)],
 )
 def create_baked_good(session: DbSession, payload: BakedGoodCreate) -> BakedGoodRead:
     """
