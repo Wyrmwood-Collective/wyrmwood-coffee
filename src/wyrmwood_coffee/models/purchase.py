@@ -36,6 +36,7 @@ class PurchaseItem(Base):
     id: Mapped[int] = mapped_column(primary_key=True)
     purchase_id: Mapped[int] = mapped_column(ForeignKey("purchases.id"))
 
+    item_type: Mapped[str]
     name: Mapped[str]
     quantity: Mapped[int] = mapped_column(Integer, default=1)
     unit_price: Mapped[Decimal] = mapped_column(Numeric(10, 2))
@@ -58,6 +59,7 @@ class PurchaseItemCreateNested(BaseModel):
 class PurchaseItemRead(BaseModel):
     id: int
     purchase_id: int
+    item_type: str
     name: str
     quantity: int
     unit_price: Decimal

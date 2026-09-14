@@ -1,8 +1,8 @@
 import logging
 
-from fastapi import APIRouter, status
+from fastapi import APIRouter, Depends, status
 
-from wyrmwood_coffee.dependencies import DbSession
+from wyrmwood_coffee.dependencies import DbSession, require_auth
 from wyrmwood_coffee.logging import ResourceLogger
 from wyrmwood_coffee.models.purchase import Purchase, PurchaseCreate, PurchaseRead
 from wyrmwood_coffee.services.purchases import process_purchase
@@ -18,6 +18,8 @@ router = APIRouter(tags=["purchases"])
     response_model=PurchaseRead,
     response_description="The newly created purchase",
     responses={
+        401: {"description": "Could not validate credentials."},
+        403: {"description": "Insufficient permissions."},
         404: {
             "description": "The customer was not found, or the promotion was not found."
         },
@@ -29,6 +31,7 @@ router = APIRouter(tags=["purchases"])
             )
         },
     },
+    dependencies=[Depends(require_auth)],
 )
 def create_purchase(session: DbSession, payload: PurchaseCreate) -> PurchaseRead:
     """

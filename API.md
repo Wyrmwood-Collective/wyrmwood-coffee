@@ -4,36 +4,38 @@
 
 ### Summary
 
+Mutating routes require a Bearer JWT from `POST /auth/login`. `Manager` means role `manager` or `admin`. `Employee` means any authenticated role.
+
 | Method | Path | Requires Auth | Description |
 | --- | --- | --- | --- |
 | `POST` | `/auth/login` | No | [Login](#post-authlogin) |
-| `POST` | `/auth/logout` | No | [Logout](#post-authlogout) |
-| `POST` | `/baked-goods` | No | [Create Baked Good](#post-baked-goods) |
+| `POST` | `/auth/logout` | Employee | [Logout](#post-authlogout) |
+| `POST` | `/baked-goods` | Manager | [Create Baked Good](#post-baked-goods) |
 | `GET` | `/customers` | No | [List Customers](#get-customers) |
 | `GET` | `/customers/{id}` | No | [Get Customer](#get-customersid) |
-| `POST` | `/customers` | No | [Create Customer](#post-customers) |
-| `POST` | `/drinks` | No | [Create Drink](#post-drinks) |
+| `POST` | `/customers` | Employee | [Create Customer](#post-customers) |
+| `POST` | `/drinks` | Manager | [Create Drink](#post-drinks) |
 | `GET` | `/employees` | No | [List Employees](#get-employees) |
 | `GET` | `/employees/{id}` | No | [Get Employee](#get-employeesid) |
-| `POST` | `/employees` | No | [Create Employee](#post-employees) |
-| `PUT` | `/employees/{id}` | No | [Update Employee](#put-employeesid) |
-| `DELETE` | `/employees/{id}` | No | [Delete Employee](#delete-employeesid) |
+| `POST` | `/employees` | Manager | [Create Employee](#post-employees) |
+| `PUT` | `/employees/{id}` | Manager | [Update Employee](#put-employeesid) |
+| `DELETE` | `/employees/{id}` | Manager | [Delete Employee](#delete-employeesid) |
 | `GET` | `/health` | No | [Welcome Message](#get-health) |
 | `GET` | `/ingredients` | No | [List Ingredients](#get-ingredients) |
 | `GET` | `/ingredients/{id}` | No | [Get Ingredient](#get-ingredientsid) |
-| `POST` | `/ingredients` | No | [Create Ingredient](#post-ingredients) |
-| `PUT` | `/ingredients/{id}` | No | [Update Ingredient](#put-ingredientsid) |
-| `DELETE` | `/ingredients/{id}` | Employee | [Delete Ingredient](#delete-ingredientsid) |
+| `POST` | `/ingredients` | Manager | [Create Ingredient](#post-ingredients) |
+| `PUT` | `/ingredients/{id}` | Manager | [Update Ingredient](#put-ingredientsid) |
+| `DELETE` | `/ingredients/{id}` | Manager | [Delete Ingredient](#delete-ingredientsid) |
 | `GET` | `/promotions` | No | [List Promotions](#get-promotions) |
 | `GET` | `/promotions/{id}` | No | [Get Promotion](#get-promotionsid) |
-| `POST` | `/promotions` | No | [Create Promotion](#post-promotions) |
-| `PUT` | `/promotions/{id}` | No | [Update Promotion](#put-promotionsid) |
-| `DELETE` | `/promotions/{id}` | No | [Delete Promotion](#delete-promotionsid) |
-| `POST` | `/purchases` | No | [Create Purchase](#post-purchases) |
+| `POST` | `/promotions` | Manager | [Create Promotion](#post-promotions) |
+| `PUT` | `/promotions/{id}` | Manager | [Update Promotion](#put-promotionsid) |
+| `DELETE` | `/promotions/{id}` | Manager | [Delete Promotion](#delete-promotionsid) |
+| `POST` | `/purchases` | Employee | [Create Purchase](#post-purchases) |
 | `GET` | `/vendors` | No | [List Vendors](#get-vendors) |
-| `POST` | `/vendors` | No | [Create Vendor](#post-vendors) |
-| `PUT` | `/vendors/{id}` | No | [Update Vendor](#put-vendorsid) |
-| `DELETE` | `/vendors/{id}` | No | [Delete Vendor](#delete-vendorsid) |
+| `POST` | `/vendors` | Manager | [Create Vendor](#post-vendors) |
+| `PUT` | `/vendors/{id}` | Manager | [Update Vendor](#put-vendorsid) |
+| `DELETE` | `/vendors/{id}` | Manager | [Delete Vendor](#delete-vendorsid) |
 
 ### `POST` /auth/login
 
@@ -93,6 +95,8 @@ Create a new baked good.
 | Status | Description | Body |
 | --- | --- | --- |
 | `201` | The newly created baked good | `application/json` [`BakedGoodRead`](#bakedgoodread) |
+| `401` | Could not validate credentials. | `application/json` `{ "detail": string }` |
+| `403` | Insufficient permissions. | `application/json` `{ "detail": string }` |
 | `422` | The provided BakedGoodCreate is malformed or invalid. | `application/json` [`HTTPValidationError`](#httpvalidationerror) |
 
 [Back to Summary](#summary)
@@ -156,6 +160,7 @@ Both email and phone must be unique.
 | Status | Description | Body |
 | --- | --- | --- |
 | `201` | The newly created customer. | `application/json` [`CustomerRead`](#customerread) |
+| `401` | Could not validate credentials. | `application/json` `{ "detail": string }` |
 | `409` | A customer with the given email or phone already exists. | `application/json` `{ "detail": string }` |
 | `422` | Missing or invalid values. | `application/json` [`HTTPValidationError`](#httpvalidationerror) |
 
@@ -178,6 +183,8 @@ Create a new drink recipe.
 | Status | Description | Body |
 | --- | --- | --- |
 | `201` | The newly created drink | `application/json` [`DrinkRead`](#drinkread) |
+| `401` | Could not validate credentials. | `application/json` `{ "detail": string }` |
+| `403` | Insufficient permissions. | `application/json` `{ "detail": string }` |
 | `404` | The ingredient was not found. | `application/json` `{ "detail": string }` |
 | `409` | A drink with that name already exists. | `application/json` `{ "detail": string }` |
 | `422` | The provided DrinkCreate is malformed or invalid. This includes: <ul><li>Invalid 'type'</li> <li>Invalid 'unit'</li><li>Duplicate 'ingredient_id' values</li><li>'sale_price' is less than 'production_cost'</li><li>Attempting to convert between incompatible unit categories</li></ul> | `application/json` [`HTTPValidationError`](#httpvalidationerror) |
@@ -247,6 +254,8 @@ Returns the created employee without the password field.
 | Status | Description | Body |
 | --- | --- | --- |
 | `201` | The newly created employee | `application/json` [`EmployeeRead`](#employeeread) |
+| `401` | Could not validate credentials. | `application/json` `{ "detail": string }` |
+| `403` | Insufficient permissions. | `application/json` `{ "detail": string }` |
 | `409` | An employee with that username already exists. | `application/json` `{ "detail": string }` |
 | `422` | The provided EmployeeCreate is malformed or invalid. | `application/json` [`HTTPValidationError`](#httpvalidationerror) |
 
@@ -270,6 +279,8 @@ Returns the updated employee without the password field.
 | Status | Description | Body |
 | --- | --- | --- |
 | `200` | The updated employee | `application/json` [`EmployeeRead`](#employeeread) |
+| `401` | Could not validate credentials. | `application/json` `{ "detail": string }` |
+| `403` | Insufficient permissions. | `application/json` `{ "detail": string }` |
 | `404` | The employee was not found. | `application/json` `{ "detail": string }` |
 | `409` | An employee with that username already exists. | `application/json` `{ "detail": string }` |
 | `422` | The provided EmployeeUpdate is malformed or invalid, or the provided path parameter is malformed or invalid. | `application/json` [`HTTPValidationError`](#httpvalidationerror) |
@@ -295,6 +306,8 @@ Deactivate an employee. This performs a soft delete by setting the employee's ac
 | Status | Description | Body |
 | --- | --- | --- |
 | `204` | The employee was deleted successfully. | None |
+| `401` | Could not validate credentials. | `application/json` `{ "detail": string }` |
+| `403` | Insufficient permissions. | `application/json` `{ "detail": string }` |
 | `404` | The employee was not found. | `application/json` `{ "detail": string }` |
 | `422` | The provided path parameter is malformed or invalid. | `application/json` [`HTTPValidationError`](#httpvalidationerror) |
 
@@ -373,6 +386,8 @@ Creates a new ingredient and links it to an existing vendor.
 | Status | Description | Body |
 | --- | --- | --- |
 | `201` | The newly created Ingredient | `application/json` [`IngredientRead`](#ingredientread) |
+| `401` | Could not validate credentials. | `application/json` `{ "detail": string }` |
+| `403` | Insufficient permissions. | `application/json` `{ "detail": string }` |
 | `404` | The vendor was not found. | `application/json` `{ "detail": string }` |
 | `409` | An ingredient with that name and vendor ID already exists. | `application/json` `{ "detail": string }` |
 | `422` | The provided IngredientCreate is malformed or invalid. | `application/json` [`HTTPValidationError`](#httpvalidationerror) |
@@ -402,6 +417,8 @@ Update an existing ingredient.
 | Status | Description | Body |
 | --- | --- | --- |
 | `200` | The updated ingredient | `application/json` [`IngredientRead`](#ingredientread) |
+| `401` | Could not validate credentials. | `application/json` `{ "detail": string }` |
+| `403` | Insufficient permissions. | `application/json` `{ "detail": string }` |
 | `404` | The ingredient was not found. | `application/json` `{ "detail": string }` |
 | `404` | The vendor was not found. | `application/json` `{ "detail": string }` |
 | `409` | An ingredient with that name and vendor ID already exists. | `application/json` `{ "detail": string }` |
@@ -429,6 +446,8 @@ Soft-deletes an existing ingredient.
 | Status | Description | Body |
 | --- | --- | --- |
 | `204` | The ingredient was deleted successfully. | No content |
+| `401` | Could not validate credentials. | `application/json` `{ "detail": string }` |
+| `403` | Insufficient permissions. | `application/json` `{ "detail": string }` |
 | `404` | The ingredient was not found. | `application/json` `{ "detail": string }` |
 | `422` | The provided path parameter is malformed or invalid. | `application/json` [`HTTPValidationError`](#httpvalidationerror) |
 
@@ -494,6 +513,8 @@ Returns the created promotion, including its generated ID.
 | Status | Description | Body |
 | --- | --- | --- |
 | `201` | The newly created promotion | `application/json` [`PromotionRead`](#promotionread) |
+| `401` | Could not validate credentials. | `application/json` `{ "detail": string }` |
+| `403` | Insufficient permissions. | `application/json` `{ "detail": string }` |
 | `409` | A Promotion with that promo code already exists. | `application/json` `{ "detail": string }` |
 | `422` | The provided PromotionCreate is malformed or invalid. | `application/json` [`HTTPValidationError`](#httpvalidationerror) |
 
@@ -519,6 +540,8 @@ Returns the updated promotion, including its generated ID.
 | Status | Description | Body |
 | --- | --- | --- |
 | `200` | The updated promotion | `application/json` [`PromotionRead`](#promotionread) |
+| `401` | Could not validate credentials. | `application/json` `{ "detail": string }` |
+| `403` | Insufficient permissions. | `application/json` `{ "detail": string }` |
 | `404` | The promotion was not found. | `application/json` `{ "detail": string }` |
 | `409` | A Promotion with that promo code already exists. | `application/json` `{ "detail": string }` |
 | `422` | The provided PromotionUpdate is malformed or invalid, or the provided path parameter is malformed or invalid. | `application/json` [`HTTPValidationError`](#httpvalidationerror) |
@@ -546,6 +569,8 @@ The promotion remains stored in the database for historical records, but it is n
 | Status | Description | Body |
 | --- | --- | --- |
 | `204` | The Promotion was deleted successfully. | No content |
+| `401` | Could not validate credentials. | `application/json` `{ "detail": string }` |
+| `403` | Insufficient permissions. | `application/json` `{ "detail": string }` |
 | `404` | The promotion was not found. | `application/json` `{ "detail": string }` |
 | `422` | The provided path parameter is malformed or invalid. | `application/json` [`HTTPValidationError`](#httpvalidationerror) |
 
@@ -568,6 +593,8 @@ Process a new purchase. Looks up item prices, applies active promotions, calcula
 | Status | Description | Body |
 | --- | --- | --- |
 | `201` | The newly created purchase | `application/json` [`PurchaseRead`](#purchaseread) |
+| `401` | Could not validate credentials. | `application/json` `{ "detail": string }` |
+| `403` | Insufficient permissions. | `application/json` `{ "detail": string }` |
 | `404` | The customer was not found, or the promotion was not found. | `application/json` `{ "detail": string }` |
 | `422` | The provided PurchaseCreate is malformed or invalid, an unknown item name was provided, or the promotion is inactive/expired. | `application/json` [`HTTPValidationError`](#httpvalidationerror) |
 
@@ -609,6 +636,8 @@ and each vendor contact.
 | Status | Description | Body |
 | --- | --- | --- |
 | `201` | The newly created vendor | `application/json` [`VendorRead`](#vendorread) |
+| `401` | Could not validate credentials. | `application/json` `{ "detail": string }` |
+| `403` | Insufficient permissions. | `application/json` `{ "detail": string }` |
 | `422` | Validation Error | `application/json` [`HTTPValidationError`](#httpvalidationerror) |
 
 [Back to Summary](#summary)
@@ -642,6 +671,8 @@ The list of contacts is processed in the following way:
 | Status | Description | Body |
 | --- | --- | --- |
 | `200` | The updated vendor | `application/json` [`VendorRead`](#vendorread) |
+| `401` | Could not validate credentials. | `application/json` `{ "detail": string }` |
+| `403` | Insufficient permissions. | `application/json` `{ "detail": string }` |
 | `404` | The Vendor was not found, or the VendorContact was not found. | `application/json` `{ "detail": string }` |
 | `422` | The provided VendorUpdate is malformed or invalid, or the provided path parameter is malformed or invalid, or the VendorContact belongs to another Vendor. | `application/json` [`HTTPValidationError`](#httpvalidationerror) |
 
@@ -666,6 +697,8 @@ Delete the vendor and its associated contacts.
 | Status | Description | Body |
 | --- | --- | --- |
 | `204` | The vendor was deleted successfully. | No content |
+| `401` | Could not validate credentials. | `application/json` `{ "detail": string }` |
+| `403` | Insufficient permissions. | `application/json` `{ "detail": string }` |
 | `404` | The vendor was not found. | `application/json` `{ "detail": string }` |
 | `409` | The vendor has associated ingredients. | `application/json` `{ "detail": string }` |
 | `422` | The provided path parameter is malformed or invalid. | `application/json` [`HTTPValidationError`](#httpvalidationerror) |
@@ -989,6 +1022,7 @@ Represents an item in a completed purchase.
 | `name` | string | yes | The name of the item purchased |
 | `quantity` | int | yes | The quantity purchased |
 | `unit_price` | decimal | yes | The locked-in price of the item at the time of sale |
+| `item_type` | string | yes | The type of item purchased (drink or baked_good) |
 
 ### PurchaseRead
 

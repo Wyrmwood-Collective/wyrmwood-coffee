@@ -1,11 +1,11 @@
 import logging
 
 import psycopg
-from fastapi import APIRouter, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError
 
-from wyrmwood_coffee.dependencies import DbSession
+from wyrmwood_coffee.dependencies import DbSession, require_auth
 from wyrmwood_coffee.logging import ResourceLogger
 from wyrmwood_coffee.models.customer import (
     Customer,
@@ -67,6 +67,7 @@ def get_customer(session: DbSession, id: CustomerId) -> CustomerRead:
     response_model=CustomerRead,
     response_description="The newly created customer",
     responses={
+        401: {"description": "Could not validate credentials."},
         status.HTTP_409_CONFLICT: {
             "description": "A customer with the given email or phone already exists"
         },
@@ -74,6 +75,7 @@ def get_customer(session: DbSession, id: CustomerId) -> CustomerRead:
             "description": "Missing or invalid values",
         },
     },
+    dependencies=[Depends(require_auth)],
 )
 def create_customer(session: DbSession, payload: CustomerCreate) -> CustomerRead:
     """

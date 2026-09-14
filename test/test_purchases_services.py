@@ -5,6 +5,7 @@ from decimal import Decimal
 import pytest
 from fastapi import HTTPException
 
+from wyrmwood_coffee.models.customer import Customer
 from wyrmwood_coffee.models.promotions import Promotion
 from wyrmwood_coffee.models.purchase import PurchaseCreate, PurchaseItemCreateNested
 from wyrmwood_coffee.services.purchases import (
@@ -20,17 +21,33 @@ from wyrmwood_coffee.services.purchases import (
 # ---------------------------------------------------------
 
 
-def test_calculate_taxes_and_total_happy():
-    """Happy Path: Verifies the 7% tax and total math logic."""
+@pytest.fixture
+def sample_customer(db_session):
+    """Creates a fake customer to test loyalty points."""
+    customer = Customer(
+        active=True,
+        first_name="Test",
+        last_name="Customer",
+        email="test.customer@example.com",
+        phone="555-555-5555",
+        loyalty_points=0,
+        loyalty_expires_at=datetime.now(UTC),
+    )
+    db_session.add(customer)
+    db_session.commit()
+    db_session.refresh(customer)
+    return customer
+
+
+def test_calculate_taxes_and_total_with_valid_amounts_should_return_calculated_totals():
     sub, tax, total = calculate_taxes_and_total(Decimal("100.00"), Decimal("20.00"))
 
-    assert sub == Decimal("80.00")  # 100 - 20
-    assert tax == Decimal("5.60")  # 80 * 0.07
-    assert total == Decimal("85.60")  # 80 + 5.60
+    assert sub == Decimal("80.00")
+    assert tax == Decimal("5.60")
+    assert total == Decimal("85.60")
 
 
-def test_calculate_taxes_and_total_sad_zero_subtotal():
-    """Sad Path: Verifies zero subtotal doesn't break math or taxes."""
+def test_calculate_taxes_and_total_with_zero_subtotal_should_return_zeros():
     sub, tax, total = calculate_taxes_and_total(Decimal("0.00"), Decimal("0.00"))
 
     assert sub == Decimal("0.00")
@@ -43,8 +60,7 @@ def test_calculate_taxes_and_total_sad_zero_subtotal():
 # ---------------------------------------------------------
 
 
-def test_calculate_loyalty_points_happy():
-    """Happy Path: Verifies points are rounded down and expiration is set correctly."""
+def test_calculate_loyalty_points_and_expiration_with_valid_should_return_points():
     points, expires_at = calculate_loyalty_points_and_expiration(Decimal("15.99"))
 
     assert points == 15
@@ -58,8 +74,7 @@ def test_calculate_loyalty_points_happy():
     assert expires_at == expected_date
 
 
-def test_calculate_loyalty_points_sad_zero_total():
-    """Sad Path: Verifies a total under $1.00 yields 0 points."""
+def test_calculate_loyalty_points_and_expiration_with_small_should_return_zero():
     points, _ = calculate_loyalty_points_and_expiration(Decimal("0.99"))
     assert points == 0
 
@@ -69,20 +84,20 @@ def test_calculate_loyalty_points_sad_zero_total():
 # ---------------------------------------------------------
 
 
-def test_get_prices_and_subtotal_happy(db_session, sample_baked_good):
-    """Happy Path: Verifies the database price lookup and subtotal calculation."""
+def test_get_prices_and_subtotal_with_valid_item_should_return_subtotal(
+    db_session, sample_baked_good
+):
     item = PurchaseItemCreateNested(name="Test Muffin", quantity=2)
 
     subtotal, items = get_prices_and_subtotal(db_session, [item])
 
-    assert subtotal == Decimal("10.00")  # 2 * 5.00
+    assert subtotal == Decimal("10.00")
     assert len(items) == 1
     assert items[0].name == "Test Muffin"
     assert items[0].unit_price == Decimal("5.00")
 
 
-def test_get_prices_and_subtotal_sad_invalid_item(db_session):
-    """Sad Path: Verifies buying a non-existent item throws a 422 error."""
+def test_get_prices_and_subtotal_with_invalid_item_should_return_422(db_session):
     item = PurchaseItemCreateNested(name="Nonexistent Item", quantity=1)
 
     with pytest.raises(HTTPException) as exc:
@@ -97,8 +112,7 @@ def test_get_prices_and_subtotal_sad_invalid_item(db_session):
 # ---------------------------------------------------------
 
 
-def test_calculate_discount_happy(db_session):
-    """Happy Path: Verifies a valid promotion calculates correctly."""
+def test_calculate_discount_with_valid_promo_should_return_discount(db_session):
     today = date.today()
     promo = Promotion(
         promo_code="TEST20",
@@ -114,8 +128,7 @@ def test_calculate_discount_happy(db_session):
     assert discount == Decimal("20.00")
 
 
-def test_calculate_discount_sad_not_found(db_session):
-    """Sad Path: Verifies a fake promo_id throws a 404 error."""
+def test_calculate_discount_with_invalid_promo_should_return_404(db_session):
     with pytest.raises(HTTPException) as exc:
         calculate_discount(db_session, 9999, Decimal("100.00"))
 
@@ -123,8 +136,7 @@ def test_calculate_discount_sad_not_found(db_session):
     assert "not found" in exc.value.detail
 
 
-def test_calculate_discount_sad_inactive(db_session):
-    """Sad Path: Verifies an inactive promotion throws a 422 error."""
+def test_calculate_discount_with_inactive_promo_should_return_422(db_session):
     today = date.today()
     promo = Promotion(
         promo_code="INACTIVE",
@@ -143,14 +155,13 @@ def test_calculate_discount_sad_inactive(db_session):
     assert "not active" in exc.value.detail
 
 
-def test_calculate_discount_sad_expired(db_session):
-    """Sad Path: Verifies an expired promotion throws a 422 error."""
+def test_calculate_discount_with_expired_promo_should_return_422(db_session):
     today = date.today()
     promo = Promotion(
         promo_code="EXPIRED",
         discount_percentage=20,
         start_date=today - timedelta(days=10),
-        end_date=today - timedelta(days=5),  # Ended 5 days ago!
+        end_date=today - timedelta(days=5),
         active=True,
     )
     db_session.add(promo)
@@ -168,8 +179,9 @@ def test_calculate_discount_sad_expired(db_session):
 # ---------------------------------------------------------
 
 
-def test_process_purchase_happy(db_session, sample_customer, sample_baked_good):
-    """Happy Path: Verifies all functions coordinate into a single transaction."""
+def test_process_purchase_with_valid_payload_should_return_purchase(
+    db_session, sample_customer, sample_baked_good
+):
     payload = PurchaseCreate(
         customer_id=sample_customer.id,
         items=[PurchaseItemCreateNested(name="Test Muffin", quantity=3)],
@@ -185,10 +197,52 @@ def test_process_purchase_happy(db_session, sample_customer, sample_baked_good):
     assert sample_customer.loyalty_points == 16
 
 
-def test_process_purchase_sad_customer_not_found(db_session, sample_baked_good):
-    """Sad Path: Verifies that passing a fake customer_id throws a 404."""
+def test_process_purchase_with_guest_customer_should_return_purchase(
+    db_session, sample_baked_good
+):
     payload = PurchaseCreate(
-        customer_id=9999,  # Fake customer ID
+        customer_id=None,
+        items=[PurchaseItemCreateNested(name=sample_baked_good.name, quantity=1)],
+    )
+
+    purchase = process_purchase(db_session, payload)
+
+    assert purchase.customer_id is None
+    assert purchase.total > 0
+
+
+def test_process_purchase_with_inactive_customer_should_return_purchase(
+    db_session, sample_baked_good
+):
+    inactive_customer = Customer(
+        active=False,
+        first_name="Inactive",
+        last_name="User",
+        email="inactive@example.com",
+        phone="555-555-5556",
+        loyalty_points=0,
+        loyalty_expires_at=datetime.now(UTC),
+    )
+    db_session.add(inactive_customer)
+    db_session.commit()
+    db_session.refresh(inactive_customer)
+
+    payload = PurchaseCreate(
+        customer_id=inactive_customer.id,
+        items=[PurchaseItemCreateNested(name=sample_baked_good.name, quantity=1)],
+    )
+
+    purchase = process_purchase(db_session, payload)
+
+    assert purchase.customer_id == inactive_customer.id
+    assert inactive_customer.loyalty_points == 0
+
+
+def test_process_purchase_with_invalid_customer_should_return_404(
+    db_session, sample_baked_good
+):
+    payload = PurchaseCreate(
+        customer_id=9999,
         items=[PurchaseItemCreateNested(name="Test Muffin", quantity=1)],
     )
 

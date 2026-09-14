@@ -1,10 +1,10 @@
 import logging
 
-from fastapi import APIRouter, HTTPException, Response, status
+from fastapi import APIRouter, Depends, HTTPException, Response, status
 from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError
 
-from wyrmwood_coffee.dependencies import DbSession
+from wyrmwood_coffee.dependencies import DbSession, require_manager
 from wyrmwood_coffee.logging import ResourceLogger
 from wyrmwood_coffee.models.promotions import (
     Promotion,
@@ -79,6 +79,8 @@ def get_promotion(
     response_model=PromotionRead,
     response_description="The newly created Promotion",
     responses={
+        401: {"description": "Could not validate credentials."},
+        403: {"description": "Insufficient permissions."},
         409: {
             "description": "A promotion with that promo code already exists.",
         },
@@ -86,6 +88,7 @@ def get_promotion(
             "description": "The provided PromotionCreate is malformed or invalid.",
         },
     },
+    dependencies=[Depends(require_manager)],
 )
 def create_promotion(session: DbSession, payload: PromotionCreate) -> PromotionRead:
     """
@@ -120,6 +123,8 @@ def create_promotion(session: DbSession, payload: PromotionCreate) -> PromotionR
     response_model=PromotionRead,
     response_description="The updated Promotion",
     responses={
+        401: {"description": "Could not validate credentials."},
+        403: {"description": "Insufficient permissions."},
         404: {
             "description": "The promotion was not found.",
         },
@@ -133,6 +138,7 @@ def create_promotion(session: DbSession, payload: PromotionCreate) -> PromotionR
             ),
         },
     },
+    dependencies=[Depends(require_manager)],
 )
 def update_promotion(
     session: DbSession,
@@ -179,6 +185,8 @@ def update_promotion(
     status_code=status.HTTP_204_NO_CONTENT,
     response_description="The Promotion was deleted successfully",
     responses={
+        401: {"description": "Could not validate credentials."},
+        403: {"description": "Insufficient permissions."},
         404: {
             "description": "The promotion was not found.",
         },
@@ -186,6 +194,7 @@ def update_promotion(
             "description": "The provided path parameter is malformed or invalid.",
         },
     },
+    dependencies=[Depends(require_manager)],
 )
 def delete_promotion(
     session: DbSession,

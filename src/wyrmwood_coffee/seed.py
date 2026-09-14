@@ -218,12 +218,19 @@ def _seed_promotions(session, entries: list[dict]) -> None:
 
 
 def _seed_purchases(session, entries: list[dict]) -> None:
+    # Pre-fetch all baked good names so we know which item_type to assign
+    baked_good_names = {bg.name for bg in session.query(BakedGood).all()}
+
     for entry in entries:
         items = []
         for item in entry["items"]:
+            # Dynamically determine the type based on the name!
+            item_type = "baked_good" if item["name"] in baked_good_names else "drink"
+
             items.append(
                 PurchaseItem(
                     name=item["name"],
+                    item_type=item_type,
                     quantity=item["quantity"],
                     unit_price=Decimal(item["unit_price"]),
                 )

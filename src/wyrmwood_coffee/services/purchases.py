@@ -39,8 +39,10 @@ def get_prices_and_subtotal(
     for item_in in payload_items:
         if item_in.name in bg_prices:
             unit_price = bg_prices[item_in.name]
+            item_type = "baked_good"
         elif item_in.name in drink_prices:
             unit_price = drink_prices[item_in.name]
+            item_type = "drink"
         else:
             raise HTTPException(
                 status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
@@ -50,7 +52,10 @@ def get_prices_and_subtotal(
         subtotal += unit_price * item_in.quantity
         purchase_items.append(
             PurchaseItem(
-                name=item_in.name, quantity=item_in.quantity, unit_price=unit_price
+                name=item_in.name,
+                item_type=item_type,
+                quantity=item_in.quantity,
+                unit_price=unit_price,
             )
         )
 
@@ -148,7 +153,7 @@ def process_purchase(session: Session, payload: PurchaseCreate) -> Purchase:
     session.add(purchase)
 
     # 6. Handle loyalty points using the customer we already fetched
-    if customer:
+    if customer and customer.active:
         points_earned, expires_at = calculate_loyalty_points_and_expiration(total)
         customer.loyalty_points += points_earned
         customer.loyalty_expires_at = expires_at
