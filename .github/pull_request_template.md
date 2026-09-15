@@ -11,5 +11,5 @@
 - [ ] I added docstrings where appropriate
 - [ ] I updated `API.md` with a description of my endpoints and schemas
 - [ ] I updated the card in Jira
-  
+
 [If you are unsure about anything, write a comment or question here!]

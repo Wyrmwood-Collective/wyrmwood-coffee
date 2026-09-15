@@ -17,7 +17,7 @@ This process is often referred to as "infrastructure as code".
 
 ### The State File
 
-Terraform must maintain a *state file* that describes the current set of provisioned resources and their current configurations.
+Terraform must maintain a _state file_ that describes the current set of provisioned resources and their current configurations.
 This state file needs to be shared among any team member who needs to update the deployment.
 However, the state file contains sensitive information (like database passwords), so it can't be checked into version control.
 One approach, the approach this application takes, is to store the state file in a manually provisioned object storage resource.

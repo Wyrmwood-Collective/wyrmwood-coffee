@@ -74,14 +74,9 @@
             },
             "url": {
               "raw": "localhost:8000/auth/login",
-              "host": [
-                "localhost"
-              ],
+              "host": ["localhost"],
               "port": "8000",
-              "path": [
-                "auth",
-                "login"
-              ]
+              "path": ["auth", "login"]
             },
             "description": "Set collection variables `username` and `password` (manager/admin for restricted routes). On 200, stores `access_token` for Bearer auth."
           },
@@ -94,14 +89,9 @@
             "header": [],
             "url": {
               "raw": "localhost:8000/auth/logout",
-              "host": [
-                "localhost"
-              ],
+              "host": ["localhost"],
               "port": "8000",
-              "path": [
-                "auth",
-                "logout"
-              ]
+              "path": ["auth", "logout"]
             }
           },
           "response": []
@@ -127,13 +117,9 @@
             },
             "url": {
               "raw": "localhost:8000/baked-goods",
-              "host": [
-                "localhost"
-              ],
+              "host": ["localhost"],
               "port": "8000",
-              "path": [
-                "baked-goods"
-              ]
+              "path": ["baked-goods"]
             }
           },
           "response": []
@@ -150,41 +136,33 @@
             "header": [],
             "url": {
               "raw": "localhost:8000/customers",
-              "host": [
-                "localhost"
-              ],
+              "host": ["localhost"],
               "port": "8000",
-              "path": [
-                "customers"
-              ]
+              "path": ["customers"]
             }
           },
           "response": []
-        }, {
+        },
+        {
           "name": "Get Customer Favorites",
           "request": {
             "method": "GET",
             "header": [],
             "url": {
               "raw": "localhost:8000/customers/favorites?phone=312-555-0134",
-            "host": [
-              "localhost"
-            ],
-            "port": "8000",
-            "path": [
-              "customers",
-              "favorites"
-            ],
-            "query": [
-              {
-                "key": "phone",
-                "value": "312-555-0134"
-              }
-            ]
-          }
+              "host": ["localhost"],
+              "port": "8000",
+              "path": ["customers", "favorites"],
+              "query": [
+                {
+                  "key": "phone",
+                  "value": "312-555-0134"
+                }
+              ]
+            }
+          },
+          "response": []
         },
-        "response": []
-      },
         {
           "name": "Get Customer",
           "request": {
@@ -192,14 +170,9 @@
             "header": [],
             "url": {
               "raw": "localhost:8000/customers/1",
-              "host": [
-                "localhost"
-              ],
+              "host": ["localhost"],
               "port": "8000",
-              "path": [
-                "customers",
-                "1"
-              ]
+              "path": ["customers", "1"]
             }
           },
           "response": []
@@ -210,9 +183,7 @@
             {
               "listen": "test",
               "script": {
-                "exec": [
-                  ""
-                ],
+                "exec": [""],
                 "type": "text/javascript",
                 "packages": {},
                 "requests": {}
@@ -221,9 +192,7 @@
             {
               "listen": "prerequest",
               "script": {
-                "exec": [
-                  ""
-                ],
+                "exec": [""],
                 "type": "text/javascript",
                 "packages": {},
                 "requests": {}
@@ -244,13 +213,9 @@
             },
             "url": {
               "raw": "localhost:8000/customers",
-              "host": [
-                "localhost"
-              ],
+              "host": ["localhost"],
               "port": "8000",
-              "path": [
-                "customers"
-              ]
+              "path": ["customers"]
             }
           },
           "response": []
@@ -276,13 +241,9 @@
             },
             "url": {
               "raw": "localhost:8000/drinks",
-              "host": [
-                "localhost"
-              ],
+              "host": ["localhost"],
               "port": "8000",
-              "path": [
-                "drinks"
-              ]
+              "path": ["drinks"]
             }
           },
           "response": []
@@ -299,13 +260,9 @@
             "header": [],
             "url": {
               "raw": "localhost:8000/employees",
-              "host": [
-                "localhost"
-              ],
+              "host": ["localhost"],
               "port": "8000",
-              "path": [
-                "employees"
-              ]
+              "path": ["employees"]
             }
           },
           "response": []
@@ -317,14 +274,9 @@
             "header": [],
             "url": {
               "raw": "localhost:8000/employees/1",
-              "host": [
-                "localhost"
-              ],
+              "host": ["localhost"],
               "port": "8000",
-              "path": [
-                "employees",
-                "1"
-              ]
+              "path": ["employees", "1"]
             }
           },
           "response": []
@@ -345,13 +297,9 @@
             },
             "url": {
               "raw": "localhost:8000/employees",
-              "host": [
-                "localhost"
-              ],
+              "host": ["localhost"],
               "port": "8000",
-              "path": [
-                "employees"
-              ]
+              "path": ["employees"]
             }
           },
           "response": []
@@ -377,14 +325,9 @@
             },
             "url": {
               "raw": "localhost:8000/employees/1",
-              "host": [
-                "localhost"
-              ],
+              "host": ["localhost"],
               "port": "8000",
-              "path": [
-                "employees",
-                "1"
-              ]
+              "path": ["employees", "1"]
             }
           },
           "response": []
@@ -396,14 +339,9 @@
             "header": [],
             "url": {
               "raw": "localhost:8000/employees/1",
-              "host": [
-                "localhost"
-              ],
+              "host": ["localhost"],
               "port": "8000",
-              "path": [
-                "employees",
-                "1"
-              ]
+              "path": ["employees", "1"]
             }
           },
           "response": []
@@ -420,13 +358,9 @@
             "header": [],
             "url": {
               "raw": "localhost:8000/health",
-              "host": [
-                "localhost"
-              ],
+              "host": ["localhost"],
               "port": "8000",
-              "path": [
-                "health"
-              ]
+              "path": ["health"]
             }
           },
           "response": []
@@ -438,13 +372,9 @@
             "header": [],
             "url": {
               "raw": "localhost:8000/ready",
-              "host": [
-                "localhost"
-              ],
+              "host": ["localhost"],
               "port": "8000",
-              "path": [
-                "ready"
-              ]
+              "path": ["ready"]
             }
           },
           "response": []
@@ -461,13 +391,9 @@
             "header": [],
             "url": {
               "raw": "localhost:8000/ingredients",
-              "host": [
-                "localhost"
-              ],
+              "host": ["localhost"],
               "port": "8000",
-              "path": [
-                "ingredients"
-              ]
+              "path": ["ingredients"]
             }
           },
           "response": []
@@ -479,14 +405,9 @@
             "header": [],
             "url": {
               "raw": "localhost:8000/ingredients/1",
-              "host": [
-                "localhost"
-              ],
+              "host": ["localhost"],
               "port": "8000",
-              "path": [
-                "ingredients",
-                "1"
-              ]
+              "path": ["ingredients", "1"]
             }
           },
           "response": []
@@ -507,13 +428,9 @@
             },
             "url": {
               "raw": "localhost:8000/ingredients",
-              "host": [
-                "localhost"
-              ],
+              "host": ["localhost"],
               "port": "8000",
-              "path": [
-                "ingredients"
-              ]
+              "path": ["ingredients"]
             }
           },
           "response": []
@@ -539,14 +456,9 @@
             },
             "url": {
               "raw": "localhost:8000/ingredients/1",
-              "host": [
-                "localhost"
-              ],
+              "host": ["localhost"],
               "port": "8000",
-              "path": [
-                "ingredients",
-                "1"
-              ]
+              "path": ["ingredients", "1"]
             }
           },
           "response": []
@@ -558,14 +470,9 @@
             "header": [],
             "url": {
               "raw": "localhost:8000/ingredients/1",
-              "host": [
-                "localhost"
-              ],
+              "host": ["localhost"],
               "port": "8000",
-              "path": [
-                "ingredients",
-                "1"
-              ]
+              "path": ["ingredients", "1"]
             }
           },
           "response": []
@@ -582,13 +489,9 @@
             "header": [],
             "url": {
               "raw": "localhost:8000/promotions",
-              "host": [
-                "localhost"
-              ],
+              "host": ["localhost"],
               "port": "8000",
-              "path": [
-                "promotions"
-              ]
+              "path": ["promotions"]
             }
           },
           "response": []
@@ -600,14 +503,9 @@
             "header": [],
             "url": {
               "raw": "localhost:8000/promotions/1",
-              "host": [
-                "localhost"
-              ],
+              "host": ["localhost"],
               "port": "8000",
-              "path": [
-                "promotions",
-                "1"
-              ]
+              "path": ["promotions", "1"]
             }
           },
           "response": []
@@ -628,13 +526,9 @@
             },
             "url": {
               "raw": "localhost:8000/promotions",
-              "host": [
-                "localhost"
-              ],
+              "host": ["localhost"],
               "port": "8000",
-              "path": [
-                "promotions"
-              ]
+              "path": ["promotions"]
             }
           },
           "response": []
@@ -655,14 +549,9 @@
             },
             "url": {
               "raw": "localhost:8000/promotions/1",
-              "host": [
-                "localhost"
-              ],
+              "host": ["localhost"],
               "port": "8000",
-              "path": [
-                "promotions",
-                "1"
-              ]
+              "path": ["promotions", "1"]
             }
           },
           "response": []
@@ -674,14 +563,9 @@
             "header": [],
             "url": {
               "raw": "localhost:8000/promotions/1",
-              "host": [
-                "localhost"
-              ],
+              "host": ["localhost"],
               "port": "8000",
-              "path": [
-                "promotions",
-                "1"
-              ]
+              "path": ["promotions", "1"]
             }
           },
           "response": []
@@ -698,13 +582,9 @@
             "header": [],
             "url": {
               "raw": "localhost:8000/vendors",
-              "host": [
-                "localhost"
-              ],
+              "host": ["localhost"],
               "port": "8000",
-              "path": [
-                "vendors"
-              ]
+              "path": ["vendors"]
             }
           },
           "response": []
@@ -725,13 +605,9 @@
             },
             "url": {
               "raw": "localhost:8000/vendors",
-              "host": [
-                "localhost"
-              ],
+              "host": ["localhost"],
               "port": "8000",
-              "path": [
-                "vendors"
-              ]
+              "path": ["vendors"]
             }
           },
           "response": []
@@ -752,14 +628,9 @@
             },
             "url": {
               "raw": "localhost:8000/vendors/1",
-              "host": [
-                "localhost"
-              ],
+              "host": ["localhost"],
               "port": "8000",
-              "path": [
-                "vendors",
-                "1"
-              ]
+              "path": ["vendors", "1"]
             }
           },
           "response": []
@@ -771,14 +642,9 @@
             "header": [],
             "url": {
               "raw": "localhost:8000/vendors/1",
-              "host": [
-                "localhost"
-              ],
+              "host": ["localhost"],
               "port": "8000",
-              "path": [
-                "vendors",
-                "1"
-              ]
+              "path": ["vendors", "1"]
             }
           },
           "response": []
@@ -809,13 +675,9 @@
             },
             "url": {
               "raw": "localhost:8000/purchases",
-              "host": [
-                "localhost"
-              ],
+              "host": ["localhost"],
               "port": "8000",
-              "path": [
-                "purchases"
-              ]
+              "path": ["purchases"]
             }
           },
           "response": []

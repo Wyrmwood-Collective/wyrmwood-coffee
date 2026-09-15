@@ -80,12 +80,12 @@ Roles come from the JWT issued by `POST /auth/login` (`employee`, `manager`,
 The backend enforces roles on mutating routes. Unauthorized callers get **401**
 (missing/invalid token) or **403** (wrong role); failed role checks are logged.
 
-| Domain | employee | manager / admin |
-| --- | --- | --- |
-| Vendors, ingredients, drinks, baked goods, promotions (POST/PUT/DELETE) | No | Yes |
-| Employees (POST/PUT/DELETE) | No | Yes |
-| Customers (POST) | Yes | Yes |
-| Reads (GET) and login | Yes* | Yes* |
+| Domain                                                                  | employee | manager / admin |
+| ----------------------------------------------------------------------- | -------- | --------------- |
+| Vendors, ingredients, drinks, baked goods, promotions (POST/PUT/DELETE) | No       | Yes             |
+| Employees (POST/PUT/DELETE)                                             | No       | Yes             |
+| Customers (POST)                                                        | Yes      | Yes             |
+| Reads (GET) and login                                                   | Yes*     | Yes*            |
 
 \* GETs are currently open (no JWT required). Prefer adding auth when you add
 new write endpoints.
@@ -105,35 +105,35 @@ The UI also reads `role` from the JWT to hide routes and actions. That is a
 convenience layer — the API is the real gate. The UI matrix below may be
 stricter than the API in places (for example hourly-rate visibility).
 
-| Action | Employee | Manager | Admin |
-| --- | --- | --- | --- |
-| View own profile | Yes | Yes | Yes |
-| List team roster | No | Yes | Yes |
-| View any employee detail | No | Yes | Yes |
-| See hourly rates in roster | No | No | Yes |
-| Create / update / delete employee | No | No | Yes |
+| Action                            | Employee | Manager | Admin |
+| --------------------------------- | -------- | ------- | ----- |
+| View own profile                  | Yes      | Yes     | Yes   |
+| List team roster                  | No       | Yes     | Yes   |
+| View any employee detail          | No       | Yes     | Yes   |
+| See hourly rates in roster        | No       | No      | Yes   |
+| Create / update / delete employee | No       | No      | Yes   |
 
 ### Routes
 
-| Route | Who can open it | Purpose |
-| --- | --- | --- |
-| `/` | Everyone (logged out) | Login |
-| `/dashboard` | All logged-in roles | Own profile |
-| `/employees` | Manager, admin | Team roster |
-| `/signup` | Admin only | Create employee |
+| Route        | Who can open it       | Purpose         |
+| ------------ | --------------------- | --------------- |
+| `/`          | Everyone (logged out) | Login           |
+| `/dashboard` | All logged-in roles   | Own profile     |
+| `/employees` | Manager, admin        | Team roster     |
+| `/signup`    | Admin only            | Create employee |
 
 If you navigate to a route you are not allowed to use, you are redirected to
 the dashboard (or to login, if you're not authenticated).
 
 ### API Calls Used
 
-| View | Endpoint | Notes |
-| --- | --- | --- |
-| Login | `POST /auth/login` | Form-encoded `username` + `password` |
-| Create | `POST /employees` | Manager/admin JWT required |
-| Roster | `GET /employees` | List all employees |
-| Profile / detail | `GET /employees/{id}` | Single employee |
-| Delete | `DELETE /employees/{id}` | Manager/admin JWT required |
+| View             | Endpoint                 | Notes                                |
+| ---------------- | ------------------------ | ------------------------------------ |
+| Login            | `POST /auth/login`       | Form-encoded `username` + `password` |
+| Create           | `POST /employees`        | Manager/admin JWT required           |
+| Roster           | `GET /employees`         | List all employees                   |
+| Profile / detail | `GET /employees/{id}`    | Single employee                      |
+| Delete           | `DELETE /employees/{id}` | Manager/admin JWT required           |
 
 ### Editing tips
 

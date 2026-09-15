@@ -1,13 +1,13 @@
 # Configuration and secrets (start here if you are new to `.env` files)
 
-**The one rule:** git may contain the *names* of our settings. It must never contain
-the *values* of passwords, database logins, or signing keys.
+**The one rule:** git may contain the _names_ of our settings. It must never contain
+the _values_ of passwords, database logins, or signing keys.
 
-| File or place | Goes in git? | Has real passwords? | What it is |
-| --- | --- | --- | --- |
-| `.env.example` | Yes | No — fake placeholders only | A cheat sheet of every setting the app needs |
-| `.env.local` | No | Yes — your machine only | Your personal copy, filled in with real local values |
-| The computer that runs the app (your laptop, GitHub Actions, or staging) | Nothing to commit | Yes, but they live *outside* git | Environment variables the operating system hands to Python |
+| File or place                                                            | Goes in git?      | Has real passwords?              | What it is                                                 |
+| ------------------------------------------------------------------------ | ----------------- | -------------------------------- | ---------------------------------------------------------- |
+| `.env.example`                                                           | Yes               | No — fake placeholders only      | A cheat sheet of every setting the app needs               |
+| `.env.local`                                                             | No                | Yes — your machine only          | Your personal copy, filled in with real local values       |
+| The computer that runs the app (your laptop, GitHub Actions, or staging) | Nothing to commit | Yes, but they live _outside_ git | Environment variables the operating system hands to Python |
 
 If a teammate asks “which one is safe to commit?”, the answer is **only
 `.env.example`**.
@@ -18,7 +18,7 @@ If a teammate asks “which one is safe to commit?”, the answer is **only
 
 Python does not have to hard-code a database password in a `.py` file. At
 startup it can ask the operating system: “what is `DEV_DATABASE_URL`?” That
-answer is an **environment variable** — a named value that lives *around* the
+answer is an **environment variable** — a named value that lives _around_ the
 program, not inside it.
 
 That is useful because:
@@ -34,9 +34,9 @@ Typing `set DEV_DATABASE_URL=...` in a terminal every time is annoying. A
 [Pydantic Settings](https://docs.pydantic.dev/latest/concepts/pydantic_settings/)
 reads that file and treats those lines as environment variables.
 
-We use two files with the same *shape* and different *jobs*:
+We use two files with the same _shape_ and different _jobs_:
 
-1. **`.env.example`** — checked into git on purpose. It shows *which* names
+1. **`.env.example`** — checked into git on purpose. It shows _which_ names
    exist. The values are obviously fake (`USER:PASSWORD`,
    `change-me-must-be-at-least-32-characters`) so nobody copies a real secret
    into GitHub.
@@ -65,7 +65,7 @@ Anyone with repo access (or a leaked clone) could still read it.
    (On macOS/Linux: `cp .env.example .env.local`.)
 
 2. In `.env.local`, replace `USER` and `PASSWORD` in `DEV_DATABASE_URL` and
-   `TEST_DATABASE_URL` with the Postgres username and password on *your*
+   `TEST_DATABASE_URL` with the Postgres username and password on _your_
    machine. You do not need a real `STAGING_DATABASE_URL` locally unless you
    are testing against staging.
 
@@ -90,11 +90,11 @@ Anyone with repo access (or a leaked clone) could still read it.
 
 `APP_ENVIRONMENT` picks which database URL the app uses:
 
-| `APP_ENVIRONMENT` | Database setting used | Typical use |
-| --- | --- | --- |
-| `dev` | `DEV_DATABASE_URL` | Your laptop. Local Postgres on `localhost`. |
-| `test` | `TEST_DATABASE_URL` | `pytest` and GitHub Actions. Disposable test database. |
-| `staging` | `STAGING_DATABASE_URL` | The deployed API. Real hosted Postgres, not localhost. |
+| `APP_ENVIRONMENT` | Database setting used  | Typical use                                            |
+| ----------------- | ---------------------- | ------------------------------------------------------ |
+| `dev`             | `DEV_DATABASE_URL`     | Your laptop. Local Postgres on `localhost`.            |
+| `test`            | `TEST_DATABASE_URL`    | `pytest` and GitHub Actions. Disposable test database. |
+| `staging`         | `STAGING_DATABASE_URL` | The deployed API. Real hosted Postgres, not localhost. |
 
 On your laptop, keep `APP_ENVIRONMENT=dev` and fill in `DEV_DATABASE_URL`.
 
@@ -120,15 +120,15 @@ default. `JWT_ALGORITHM` and `JWT_EXPIRATION_MINUTES` appear in
 `STAGING_DATABASE_URL` don't appear in `.env.example` at all
 (`STAGING_DATABASE_URL` is only ever set on the deployed host).
 
-| Name | Secret? | Required in `.env.example`? | Why it exists | If the real value leaked |
-| --- | --- | --- | --- | --- |
-| `DEV_DATABASE_URL` | Yes | Yes | Local Postgres on your laptop when `APP_ENVIRONMENT=dev`. | Someone could read or change data on your local database. Rotate the password if you reuse it elsewhere. |
-| `TEST_DATABASE_URL` | Yes | Yes | Postgres for pytest / CI when `APP_ENVIRONMENT=test`. | Usually only test data. Still rotate if you reused the password elsewhere. Never reuse the staging password here. |
-| `JWT_SECRET_KEY` | Yes | Yes | Private string used to sign login tokens. | Attacker could mint tokens and pretend to be any employee until the key is rotated. Everyone must log in again after rotation. |
-| `STAGING_DATABASE_URL` | Yes | No — set on the host, never in git | Hosted Postgres when `APP_ENVIRONMENT=staging`. | Attacker could read or change staging data (customers, employees, vendors, etc.). Rotate the database password and treat staging data as possibly accessed. |
-| `APP_ENVIRONMENT` | No | No (defaults to `dev`) | Switches between `dev`, `test`, and `staging`. | Not a password. Wrong values make the app connect to the wrong database. |
-| `JWT_ALGORITHM` | No | No (defaults to `HS256`) | Signing method. Leave unless the team changes it. | Not a secret. |
-| `JWT_EXPIRATION_MINUTES` | No | No (defaults to `30`) | How long login tokens stay valid. | Not a secret. |
+| Name                     | Secret? | Required in `.env.example`?        | Why it exists                                             | If the real value leaked                                                                                                                                    |
+| ------------------------ | ------- | ---------------------------------- | --------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `DEV_DATABASE_URL`       | Yes     | Yes                                | Local Postgres on your laptop when `APP_ENVIRONMENT=dev`. | Someone could read or change data on your local database. Rotate the password if you reuse it elsewhere.                                                    |
+| `TEST_DATABASE_URL`      | Yes     | Yes                                | Postgres for pytest / CI when `APP_ENVIRONMENT=test`.     | Usually only test data. Still rotate if you reused the password elsewhere. Never reuse the staging password here.                                           |
+| `JWT_SECRET_KEY`         | Yes     | Yes                                | Private string used to sign login tokens.                 | Attacker could mint tokens and pretend to be any employee until the key is rotated. Everyone must log in again after rotation.                              |
+| `STAGING_DATABASE_URL`   | Yes     | No — set on the host, never in git | Hosted Postgres when `APP_ENVIRONMENT=staging`.           | Attacker could read or change staging data (customers, employees, vendors, etc.). Rotate the database password and treat staging data as possibly accessed. |
+| `APP_ENVIRONMENT`        | No      | No (defaults to `dev`)             | Switches between `dev`, `test`, and `staging`.            | Not a password. Wrong values make the app connect to the wrong database.                                                                                    |
+| `JWT_ALGORITHM`          | No      | No (defaults to `HS256`)           | Signing method. Leave unless the team changes it.         | Not a secret.                                                                                                                                               |
+| `JWT_EXPIRATION_MINUTES` | No      | No (defaults to `30`)              | How long login tokens stay valid.                         | Not a secret.                                                                                                                                               |
 
 ---
 
@@ -160,6 +160,6 @@ tracked.
 Rewriting history would make every teammate re-clone for no benefit. **Do not
 rewrite history for WC-51.**
 
-If someone *does* commit a real secret later: change that password/key the
+If someone _does_ commit a real secret later: change that password/key the
 same day (the leak is already in git). History cleanup is a separate, painful
 follow-up — it does not undo the leak by itself.

@@ -52,17 +52,18 @@ CI sets `APP_ENVIRONMENT=test` in `.github/workflows/ci.yml`. Do not commit
 real connection strings in git.
 
 New to this pattern? Read `docs/configuration.md`.
+
 ### Database Migrations
 
 Database schema changes must be managed through Alembic migrations.
 
 A migration is required when a change modifies the database schema, including:
 
-* Creating or removing a table
-* Adding or removing a column
-* Changing a column's data type or nullability
-* Adding or modifying a foreign key
-* Adding or modifying an index or database constraint
+- Creating or removing a table
+- Adding or removing a column
+- Changing a column's data type or nullability
+- Adding or modifying a foreign key
+- Adding or modifying an index or database constraint
 
 After modifying a SQLAlchemy model, generate the corresponding migration with:
 
@@ -81,7 +82,6 @@ CI validates that the Alembic migration history can be applied successfully and 
 Staging migrations are applied automatically on each deployment: the Azure Web App's startup script (`infra/startup.sh`) runs `alembic upgrade head` before starting the application server.
 
 Developers should not manually run staging migrations as part of the normal deployment workflow.
-
 
 ## Branching
 

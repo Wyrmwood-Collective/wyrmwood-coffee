@@ -1,7 +1,7 @@
 name: Verify Style Guidelines
 on:
   pull_request:
-    branches: ['sprint/**']
+    branches: ["sprint/**"]
     types: [opened, synchronize, reopened]
 permissions:
   contents: read
