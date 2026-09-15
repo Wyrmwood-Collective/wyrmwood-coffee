@@ -4,12 +4,12 @@ from datetime import UTC, datetime, timedelta
 from pathlib import Path
 
 # Edge case strings to test UI truncation and special character encoding
+# (NUL bytes like \x00 are excluded because PostgreSQL text fields reject them)
 EDGE_CASE_STRINGS = [
     "Extra Shot " * 50,  # Extremely long string for UI truncation
     "Café au Lait ☕✨ (Glitch Test: 𠜎𠜱𠝹𠱓)",  # Emojis and surrogate pairs
     "<script>alert('xss')</script> Muffin",  # XSS attempt injection
     "   Blank Space Latte   \n\t",  # Weird whitespace
-    "Null\x00Byte Pastry",  # Null byte encoding test
 ]
 
 
@@ -19,16 +19,27 @@ def generate_mock_purchases():
     with data_file.open("r", encoding="utf-8") as f:
         data = json.load(f)
 
-    # Figure out what valid data we have to work with
-    num_customers = len(data.get("customers", []))
-    num_promos = len(data.get("promotions", []))
+    # Extract actual valid IDs from sample_data.json to avoid Foreign Key violations
+    raw_customers = data.get("customers", [])
+    customer_ids = [
+        c["id"] if isinstance(c, dict) and "id" in c else idx
+        for idx, c in enumerate(raw_customers, start=1)
+    ]
+
+    raw_promos = data.get("promotions", [])
+    promo_ids = [
+        p["id"] if isinstance(p, dict) and "id" in p else idx
+        for idx, p in enumerate(raw_promos, start=1)
+    ]
 
     # Extract item names and fake prices for our mock data
     items_pool = []
     for drink in data.get("drinks", []):
-        # Drinks lack a hardcoded JSON price, so we fake one
         mock_price = round(random.uniform(3.50, 7.50), 2)
         items_pool.append({"name": drink["name"], "price": mock_price})
+
+    if not items_pool:
+        items_pool = [{"name": "Classic Espresso", "price": 4.50}]
 
     generated_purchases = []
     now = datetime.now(UTC)
@@ -41,9 +52,13 @@ def generate_mock_purchases():
 
         # 2. Missing/Null Fields: 20% chance of guest checkout, 80% chance of no promo
         customer_id = (
-            random.randint(1, num_customers) if random.random() > 0.2 else None
+            random.choice(customer_ids)
+            if customer_ids and random.random() > 0.2
+            else None
         )
-        promo_id = random.randint(1, num_promos) if random.random() > 0.8 else None
+        promo_id = (
+            random.choice(promo_ids) if promo_ids and random.random() > 0.8 else None
+        )
 
         # Generate 1 to 4 items per purchase
         purchase_items = []
@@ -59,7 +74,11 @@ def generate_mock_purchases():
                 item_name = random.choice(EDGE_CASE_STRINGS)
 
             purchase_items.append(
-                {"name": item_name, "quantity": qty, "unit_price": base_item["price"]}
+                {
+                    "name": item_name,
+                    "quantity": qty,
+                    "unit_price": base_item["price"],
+                }
             )
             subtotal += base_item["price"] * qty
 

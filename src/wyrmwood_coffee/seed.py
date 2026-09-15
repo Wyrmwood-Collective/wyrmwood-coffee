@@ -130,7 +130,6 @@ def _seed_drinks(session, entries: list[dict], ingredient_ids: dict[str, int]) -
             amount = Decimal(di["amount"])
             ingredient = session.get(Ingredient, ingredient_ids[di["ingredient_key"]])
 
-            # THE FIX: Calculate the cost per unit first!
             unit_cost = ingredient.purchasing_cost / ingredient.unit_amount
             production_cost += (amount * unit_cost).quantize(Decimal("0.01"))
 
@@ -169,19 +168,23 @@ def _seed_baked_goods(session, entries: list[dict]) -> None:
         )
 
 
-def _seed_customers(session, entries: list[dict]) -> None:
-    for entry in entries:
-        session.add(
-            Customer(
-                active=entry.get("active", True),
-                first_name=entry["first_name"],
-                last_name=entry["last_name"],
-                email=entry.get("email"),
-                phone=entry.get("phone"),
-                loyalty_points=entry.get("loyalty_points", 0),
-                loyalty_expires_at=datetime.fromisoformat(entry["loyalty_expires_at"]),
-            )
+def _seed_customers(session, entries: list[dict]) -> dict[int, int]:
+    customer_ids = {}
+    for idx, entry in enumerate(entries, start=1):
+        customer = Customer(
+            active=entry.get("active", True),
+            first_name=entry["first_name"],
+            last_name=entry["last_name"],
+            email=entry.get("email"),
+            phone=entry.get("phone"),
+            loyalty_points=entry.get("loyalty_points", 0),
+            loyalty_expires_at=datetime.fromisoformat(entry["loyalty_expires_at"]),
         )
+        session.add(customer)
+        session.flush()
+        json_id = entry.get("id", idx)
+        customer_ids[json_id] = customer.id
+    return customer_ids
 
 
 def _seed_employees(session, entries: list[dict]) -> None:
@@ -204,22 +207,30 @@ def _seed_employees(session, entries: list[dict]) -> None:
         )
 
 
-def _seed_promotions(session, entries: list[dict]) -> None:
-    for entry in entries:
-        session.add(
-            Promotion(
-                active=entry.get("active", True),
-                deleted=entry.get("deleted", False),
-                promo_code=entry["promo_code"],
-                discount_percentage=Decimal(entry["discount_percentage"]),
-                start_date=date.fromisoformat(entry["start_date"]),
-                end_date=date.fromisoformat(entry["end_date"]),
-            )
+def _seed_promotions(session, entries: list[dict]) -> dict[int, int]:
+    promo_ids = {}
+    for idx, entry in enumerate(entries, start=1):
+        promo = Promotion(
+            active=entry.get("active", True),
+            deleted=entry.get("deleted", False),
+            promo_code=entry["promo_code"],
+            discount_percentage=Decimal(entry["discount_percentage"]),
+            start_date=date.fromisoformat(entry["start_date"]),
+            end_date=date.fromisoformat(entry["end_date"]),
         )
+        session.add(promo)
+        session.flush()
+        json_id = entry.get("id", idx)
+        promo_ids[json_id] = promo.id
+    return promo_ids
 
 
-def _seed_purchases(session, entries: list[dict]) -> None:
-    # Pre-fetch all baked good names so we know which item_type to assign
+def _seed_purchases(
+    session,
+    entries: list[dict],
+    customer_ids: dict[int, int],
+    promo_ids: dict[int, int],
+) -> None:
     baked_good_names = {bg.name for bg in session.query(BakedGood).all()}
 
     for entry in entries:
@@ -232,11 +243,10 @@ def _seed_purchases(session, entries: list[dict]) -> None:
                     name=item["name"],
                     item_type=item_type,
                     quantity=item["quantity"],
-                    unit_price=Decimal(item["unit_price"]),
+                    unit_price=Decimal(str(item["unit_price"])),
                 )
             )
 
-        # Handle historical dates for filtering tests
         created_at_str = entry.get("created_at")
         created_at = (
             datetime.fromisoformat(created_at_str)
@@ -244,29 +254,30 @@ def _seed_purchases(session, entries: list[dict]) -> None:
             else datetime.now(UTC)
         )
 
+        raw_customer_id = entry.get("customer_id")
+        actual_customer_id = (
+            customer_ids.get(raw_customer_id) if raw_customer_id is not None else None
+        )
+
+        raw_promo_id = entry.get("promo_id")
+        actual_promo_id = (
+            promo_ids.get(raw_promo_id) if raw_promo_id is not None else None
+        )
+
         session.add(
             Purchase(
-                customer_id=entry.get("customer_id"),
-                promo_id=entry.get("promo_id"),
+                customer_id=actual_customer_id,
+                promo_id=actual_promo_id,
                 subtotal=Decimal(str(entry["subtotal"])),
                 tax=Decimal(str(entry["tax"])),
                 total=Decimal(str(entry["total"])),
-                created_at=created_at,  # <-- Added historical date support!
+                created_at=created_at,
                 items=items,
             )
         )
 
 
 def _ensure_staging_seed_allowed(confirm_staging_seed: bool) -> None:
-    """Only the seed-staging GitHub Actions workflow may seed staging.
-
-    Requires both an explicit --confirm-staging-seed flag (so seeding staging
-    is never a side effect of a plain `uv run seed`) and GITHUB_ACTIONS=true,
-    which GitHub sets automatically on every workflow run and a developer's
-    machine will not have set. Neither signal alone is enough: the flag can
-    be copy-pasted into a local run, and the env var could in principle leak
-    into a shell.
-    """
     if script_settings().core.app_environment != Environment.STAGING:
         return
 
@@ -308,12 +319,12 @@ def seed(overwrite: bool = False, confirm_staging_seed: bool = False) -> None:
         ingredient_ids = _seed_ingredients(session, data["ingredients"], vendor_ids)
         _seed_drinks(session, data["drinks"], ingredient_ids)
         _seed_baked_goods(session, data["baked_goods"])
-        _seed_customers(session, data["customers"])
+        customer_ids = _seed_customers(session, data["customers"])
         _seed_employees(session, data["employees"])
-        _seed_promotions(session, data["promotions"])
+        promo_ids = _seed_promotions(session, data["promotions"])
 
         if "purchases" in data:
-            _seed_purchases(session, data["purchases"])
+            _seed_purchases(session, data["purchases"], customer_ids, promo_ids)
 
         session.commit()
         logger.info("Sample data seeded successfully.")
