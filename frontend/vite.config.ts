@@ -30,6 +30,7 @@ export default defineConfig({
       "/drinks": "http://127.0.0.1:8000",
       "/baked-goods": "http://127.0.0.1:8000",
       "/promotions": "http://127.0.0.1:8000",
+      "/reports": "http://127.0.0.1:8000",
     },
   },
 });
