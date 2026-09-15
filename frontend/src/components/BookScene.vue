@@ -52,6 +52,7 @@ const sections = computed(() => {
   items.push({ to: "/employees", label: "Employees", colour: "#64C4A4" });
   items.push({ to: "/ingredients", label: "Ingredients", colour: "#64A4C4" });
   items.push({ to: "/promotions", label: "Promotions", colour: "#6464C4" });
+  items.push({ to: "/vendors", label: "Vendors", colour: "#A464C4" });
   items.push({ to: "/dashboard", label: "Purchases", colour: "#C464A4" });
   return items;
 });
