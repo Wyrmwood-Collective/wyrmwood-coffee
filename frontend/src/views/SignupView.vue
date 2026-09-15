@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref } from "vue";
 import { useRouter } from "vue-router";
-import { apiCreateEmployee } from "@/api/employees";
+import { client } from "@/api/client";
 import AppChrome from "@/components/AppChrome.vue";
 import FormMessage from "@/components/FormMessage.vue";
 import type { EmployeeRole } from "@/types/employee";
@@ -126,17 +126,23 @@ async function handleSubmit() {
 
   submitting.value = true;
   try {
-    await apiCreateEmployee({
-      first_name: trimmedFirstName,
-      last_name: trimmedLastName,
-      username: trimmedUsername,
-      password: password.value,
-      role: role.value,
-      hourly_rate: trimmedHourlyRate,
-      hire_date: hireDate.value,
-      ...(termDate.value ? { term_date: termDate.value } : {}),
-      active: active.value,
+    const response = await client.POST("/employees", {
+      body: {
+        first_name: trimmedFirstName,
+        last_name: trimmedLastName,
+        username: trimmedUsername,
+        password: password.value,
+        role: role.value,
+        hourly_rate: trimmedHourlyRate,
+        hire_date: hireDate.value,
+        ...(termDate.value ? { term_date: termDate.value } : {}),
+        active: active.value,
+      },
     });
+
+    if (!response.data) {
+      throw new Error("Could not create employee.");
+    }
 
     successMessage.value = "Employee created successfully.";
     resetForm();

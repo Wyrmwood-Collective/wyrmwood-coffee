@@ -43,15 +43,16 @@ function inkOn(hex: string): string {
 }
 
 const sections = computed(() => {
-  const items = [
-    { to: "/dashboard", label: "My Profile", colour: "#7c8b6f" },
-    { to: "/customer-favorites", label: "Customer Favorites", colour: "#8a6f5a" },
-    { to: "/orders", label: "Order History", colour: "#8a6a4e" },
-  ];
+  const items = [{ to: "/dashboard", label: "Dashboard", colour: "#C46464" }];
+  items.push({ to: "/customer-favorites", label: "Customer Favorites", colour: "#8a6f5a" });
+  items.push({ to: "/orders", label: "Order History", colour: "#8a6a4e" });
+  items.push({ to: "/dashboard", label: "Baked Goods", colour: "#C4A464" });
   items.push({ to: "/customers", label: "Customers", colour: "#A4C464" });
+  items.push({ to: "/dashboard", label: "Drinks", colour: "#64C464" });
   items.push({ to: "/employees", label: "Employees", colour: "#64C4A4" });
   items.push({ to: "/ingredients", label: "Ingredients", colour: "#64A4C4" });
   items.push({ to: "/promotions", label: "Promotions", colour: "#6464C4" });
+  items.push({ to: "/dashboard", label: "Purchases", colour: "#C464A4" });
   return items;
 });
 

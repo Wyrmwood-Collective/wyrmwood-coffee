@@ -1,28 +1,8 @@
-export type EmployeeRole = "employee" | "manager" | "admin";
+import type { components } from "@/types/api";
 
-export interface EmployeeRead {
-  id: number;
-  active: boolean;
-  first_name: string;
-  last_name: string;
-  role: EmployeeRole;
-  hourly_rate: string;
-  hire_date: string;
-  term_date: string | null;
-  username: string;
-}
-
-export interface EmployeeCreateInput {
-  first_name: string;
-  last_name: string;
-  username: string;
-  password: string;
-  role: EmployeeRole;
-  hourly_rate: string;
-  hire_date: string;
-  term_date?: string;
-  active: boolean;
-}
+export type EmployeeRole = components["schemas"]["EmployeeRole"];
+export type EmployeeRead = components["schemas"]["EmployeeRead"];
+export type EmployeeCreateInput = components["schemas"]["EmployeeCreate"];
 
 export interface Session {
   token: string;

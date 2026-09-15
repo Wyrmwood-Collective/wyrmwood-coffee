@@ -63,7 +63,6 @@ main.login-page {
     }
 
     .btn {
-      background: #1f6b4a;
       background: #7a2e3a;
     }
 
