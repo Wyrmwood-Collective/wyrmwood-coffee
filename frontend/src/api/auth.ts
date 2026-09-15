@@ -1,26 +1,38 @@
-import { apiFetch } from "./client";
+import type { components } from "@/types/api";
+import { client } from "@/api/client";
 
-interface TokenResponse {
-  access_token: string;
-  token_type: string;
-}
+type Token = components["schemas"]["Token"];
 
-export async function apiLogin(username: string, password: string): Promise<TokenResponse> {
-  const body = new URLSearchParams();
-  body.set("username", username);
-  body.set("password", password);
-
-  return apiFetch<TokenResponse>(
-    "/auth/login",
-    {
-      method: "POST",
-      headers: { "Content-Type": "application/x-www-form-urlencoded" },
-      body,
+export async function apiLogin(username: string, password: string): Promise<Token> {
+  const response = await client.POST("/auth/login", {
+    body: {
+      username,
+      password,
+      scope: "",
     },
-    { contentType: null },
-  );
+    bodySerializer(body) {
+      const params = new URLSearchParams();
+      for (const [key, value] of Object.entries(body)) {
+        if (value !== undefined) params.set(key, String(value));
+      }
+      return params.toString();
+    },
+    headers: {
+      "Content-Type": "application/x-www-form-urlencoded",
+    },
+  });
+
+  if (!response.data) {
+    const detail =
+      typeof response.error === "object" && response.error !== null && "detail" in response.error
+        ? String((response.error as { detail?: unknown }).detail)
+        : "Login failed";
+    throw new Error(detail);
+  }
+
+  return response.data;
 }
 
 export async function apiLogout(): Promise<void> {
-  return apiFetch<void>("/auth/logout", { method: "POST" });
+  fetch("localhost:8000/auth/logout", { method: "POST" });
 }
