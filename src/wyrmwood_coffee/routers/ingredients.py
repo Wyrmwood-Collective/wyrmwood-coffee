@@ -2,6 +2,7 @@ import logging
 from typing import Annotated
 
 from fastapi import APIRouter, Depends, HTTPException, Path, status
+from psycopg.errors import UniqueViolation
 from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError
 
@@ -108,6 +109,9 @@ def create_ingredient(session: DbSession, payload: IngredientCreate) -> Ingredie
         allergens=payload.allergens,
         vendor_id=payload.vendor_id,
         active=payload.active,
+        quantity_on_hand=payload.quantity_on_hand,
+        reorder_threshold=payload.reorder_threshold,
+        reorder_quantity=payload.reorder_quantity,
     )
 
     session.add(ingredient)
@@ -117,11 +121,14 @@ def create_ingredient(session: DbSession, payload: IngredientCreate) -> Ingredie
         ingredient_logger.log_resource_created(ingredient.id)
     except IntegrityError as err:
         session.rollback()
-        ingredient_logger.log_attrs_not_unique([Ingredient.name, Ingredient.vendor_id])
-        raise HTTPException(
-            status_code=status.HTTP_409_CONFLICT,
-            detail="An ingredient with that name and vendor ID already exists.",
-        ) from err
+        if isinstance(err.orig, UniqueViolation):
+            ingredient_logger.log_attrs_not_unique(
+                [Ingredient.name, Ingredient.vendor_id]
+            )
+            raise HTTPException(
+                status_code=status.HTTP_409_CONFLICT,
+                detail="An ingredient with that name and vendor ID already exists.",
+            ) from err
     session.refresh(ingredient)
 
     return IngredientRead.model_validate(ingredient)

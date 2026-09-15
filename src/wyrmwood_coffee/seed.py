@@ -25,6 +25,7 @@ from wyrmwood_coffee.models import (
     Drink,
     Employee,
     Ingredient,
+    InventoryTransaction,
     Promotion,
     Purchase,
     PurchaseItem,
@@ -32,6 +33,7 @@ from wyrmwood_coffee.models import (
     VendorContact,
 )
 from wyrmwood_coffee.models.drink import DrinkIngredient
+from wyrmwood_coffee.models.inventory import InventoryChangeType
 from wyrmwood_coffee.security import hash_password
 from wyrmwood_coffee.settings import Environment, script_settings
 
@@ -115,6 +117,9 @@ def _seed_ingredients(
             unit_of_measure=entry["unit_of_measure"],
             allergens=entry.get("allergens", []),
             vendor_id=vendor_ids[entry["vendor_key"]],
+            quantity_on_hand=Decimal(entry["quantity_on_hand"]),
+            reorder_threshold=Decimal(entry["reorder_threshold"]),
+            reorder_quantity=Decimal(entry["reorder_quantity"]),
         )
         session.add(ingredient)
         session.flush()
@@ -154,18 +159,24 @@ def _seed_drinks(session, entries: list[dict], ingredient_ids: dict[str, int]) -
         )
 
 
-def _seed_baked_goods(session, entries: list[dict]) -> None:
+def _seed_baked_goods(session, entries: list[dict]) -> dict[str, int]:
+    baked_good_ids = {}
     for entry in entries:
-        session.add(
-            BakedGood(
-                active=entry.get("active", True),
-                name=entry["name"],
-                description=entry["description"],
-                purchase_cost=Decimal(entry["purchase_cost"]),
-                retail_price=Decimal(entry["retail_price"]),
-                allergens=entry.get("allergens", []),
-            )
+        baked_good = BakedGood(
+            active=entry.get("active", True),
+            name=entry["name"],
+            description=entry["description"],
+            purchase_cost=Decimal(entry["purchase_cost"]),
+            retail_price=Decimal(entry["retail_price"]),
+            allergens=entry.get("allergens", []),
+            quantity_on_hand=entry["quantity_on_hand"],
+            reorder_threshold=entry["reorder_threshold"],
+            reorder_quantity=entry["reorder_quantity"],
         )
+        session.add(baked_good)
+        session.flush()
+        baked_good_ids[entry["name"]] = baked_good.id
+    return baked_good_ids
 
 
 def _seed_customers(session, entries: list[dict]) -> dict[int, int]:
@@ -224,6 +235,34 @@ def _seed_promotions(session, entries: list[dict]) -> dict[int, int]:
         promo_ids[json_id] = promo.id
     return promo_ids
 
+
+def _seed_inventory_transactions(
+    session,
+    entries: list[dict],
+    ingredient_ids: dict[str, int],
+    baked_good_ids: dict[str, int],
+) -> None:
+    for entry in entries:
+        if "ingredient_key" in entry:
+            item_kwargs = {"ingredient_id": ingredient_ids[entry["ingredient_key"]]}
+        elif "baked_good_name" in entry:
+            item_kwargs = {"baked_good_id": baked_good_ids[entry["baked_good_name"]]}
+        else:
+            raise ValueError(
+                "inventory_transaction entry must have either "
+                "'ingredient_key' or 'baked_good_name': "
+                f"{entry}"
+            )
+
+        session.add(
+            InventoryTransaction(
+                change_type=InventoryChangeType(entry["change_type"]),
+                quantity_delta=Decimal(entry["quantity_delta"]),
+                reference_id=entry.get("reference_id"),
+                created_at=datetime.fromisoformat(entry["created_at"]),
+                **item_kwargs,
+            )
+        )
 
 def _seed_purchases(
     session,
@@ -317,11 +356,21 @@ def seed(overwrite: bool = False, confirm_staging_seed: bool = False) -> None:
 
         vendor_ids = _seed_vendors(session, data["vendors"])
         ingredient_ids = _seed_ingredients(session, data["ingredients"], vendor_ids)
+        baked_good_ids = _seed_baked_goods(session, data["baked_goods"])
         _seed_drinks(session, data["drinks"], ingredient_ids)
+<<<<<<< HEAD
         _seed_baked_goods(session, data["baked_goods"])
         customer_ids = _seed_customers(session, data["customers"])
         _seed_employees(session, data["employees"])
         promo_ids = _seed_promotions(session, data["promotions"])
+=======
+        _seed_customers(session, data["customers"])
+        _seed_employees(session, data["employees"])
+        _seed_inventory_transactions(
+            session, data["inventory_transactions"], ingredient_ids, baked_good_ids
+        )
+        _seed_promotions(session, data["promotions"])
+>>>>>>> cacdacd (Add reporting endpoints, inventory repository, and report service)
 
         if "purchases" in data:
             _seed_purchases(session, data["purchases"], customer_ids, promo_ids)

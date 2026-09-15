@@ -22,6 +22,7 @@ from wyrmwood_coffee.routers import (
     employees,
     ingredients,
     purchases,
+    reports,
     vendors,
 )
 from wyrmwood_coffee.routers.promotions import router as promotions_router
@@ -40,8 +41,9 @@ app.include_router(drinks.router, prefix="/drinks", tags=["Drinks"])
 app.include_router(employees.router)
 app.include_router(ingredients.router)
 app.include_router(promotions_router)
-app.include_router(vendors.router, prefix="/vendors", tags=["Vendors"])
 app.include_router(purchases.router)
+app.include_router(reports.router, prefix="/reports", tags=["Reports"])
+app.include_router(vendors.router, prefix="/vendors", tags=["Vendors"])
 
 
 class SPAStaticFiles(StaticFiles):
