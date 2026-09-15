@@ -1,36 +1,12 @@
 {
   "info": {
-    "_postman_id": "9aaf1b3d-61c4-44fd-9140-f218476b394d",
+    "_postman_id": "705c653e-c9d5-4419-871f-c16a6406e4e9",
     "name": "Wyrmwood Coffee",
+    "description": "Run Auth > Login first (manager/admin for restricted writes). Login saves `access_token` for Bearer auth on other requests. Seed manager example: username `mgr.patricia` (see `data/sample_data.json`).",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
     "_exporter_id": "56711512",
-    "_collection_link": "https://go.postman.co/collection/56711512-9aaf1b3d-61c4-44fd-9140-f218476b394d?source=collection_link",
-    "description": "Run Auth > Login first (manager/admin for restricted writes). Login saves `access_token` for Bearer auth on other requests. Seed manager example: username `mgr.patricia` (see `data/sample_data.json`)."
+    "_collection_link": "https://go.postman.co/collection/56711512-705c653e-c9d5-4419-871f-c16a6406e4e9?source=collection_link"
   },
-  "auth": {
-    "type": "bearer",
-    "bearer": [
-      {
-        "key": "token",
-        "value": "{{access_token}}",
-        "type": "string"
-      }
-    ]
-  },
-  "variable": [
-    {
-      "key": "access_token",
-      "value": ""
-    },
-    {
-      "key": "username",
-      "value": "mgr.patricia"
-    },
-    {
-      "key": "password",
-      "value": ""
-    }
-  ],
   "item": [
     {
       "name": "Auth",
@@ -47,7 +23,9 @@
                   "    pm.collectionVariables.set('access_token', jsonData.access_token);",
                   "}"
                 ],
-                "type": "text/javascript"
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
               }
             }
           ],
@@ -74,9 +52,14 @@
             },
             "url": {
               "raw": "localhost:8000/auth/login",
-              "host": ["localhost"],
+              "host": [
+                "localhost"
+              ],
               "port": "8000",
-              "path": ["auth", "login"]
+              "path": [
+                "auth",
+                "login"
+              ]
             },
             "description": "Set collection variables `username` and `password` (manager/admin for restricted routes). On 200, stores `access_token` for Bearer auth."
           },
@@ -89,9 +72,14 @@
             "header": [],
             "url": {
               "raw": "localhost:8000/auth/logout",
-              "host": ["localhost"],
+              "host": [
+                "localhost"
+              ],
               "port": "8000",
-              "path": ["auth", "logout"]
+              "path": [
+                "auth",
+                "logout"
+              ]
             }
           },
           "response": []
@@ -108,7 +96,7 @@
             "header": [],
             "body": {
               "mode": "raw",
-              "raw": "{\r\n    \"name\": \"Chocolate Croissant\",\r\n    \"description\": \"A flaky croissant filled with rich chocolate.\",\r\n    \"purchase_cost\": \"1.50\",\r\n    \"retail_price\": \"3.25\",\r\n    \"allergens\": [\"gluten\", \"dairy\"]\r\n}",
+              "raw": "{\r\n    \"name\": \"Chocolate Croissant\",\r\n    \"description\": \"A flaky croissant filled with rich chocolate.\",\r\n    \"purchase_cost\": \"1.50\",\r\n    \"retail_price\": \"3.25\",\r\n    \"allergens\": [\"gluten\", \"dairy\"],\r\n    \"quantity_on_hand\": 14,\r\n    \"reorder_threshold\": 8,\r\n    \"reorder_quantity\": 16\r\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -117,9 +105,13 @@
             },
             "url": {
               "raw": "localhost:8000/baked-goods",
-              "host": ["localhost"],
+              "host": [
+                "localhost"
+              ],
               "port": "8000",
-              "path": ["baked-goods"]
+              "path": [
+                "baked-goods"
+              ]
             }
           },
           "response": []
@@ -136,9 +128,13 @@
             "header": [],
             "url": {
               "raw": "localhost:8000/customers",
-              "host": ["localhost"],
+              "host": [
+                "localhost"
+              ],
               "port": "8000",
-              "path": ["customers"]
+              "path": [
+                "customers"
+              ]
             }
           },
           "response": []
@@ -150,9 +146,14 @@
             "header": [],
             "url": {
               "raw": "localhost:8000/customers/favorites?phone=312-555-0134",
-              "host": ["localhost"],
+              "host": [
+                "localhost"
+              ],
               "port": "8000",
-              "path": ["customers", "favorites"],
+              "path": [
+                "customers",
+                "favorites"
+              ],
               "query": [
                 {
                   "key": "phone",
@@ -170,9 +171,14 @@
             "header": [],
             "url": {
               "raw": "localhost:8000/customers/1",
-              "host": ["localhost"],
+              "host": [
+                "localhost"
+              ],
               "port": "8000",
-              "path": ["customers", "1"]
+              "path": [
+                "customers",
+                "1"
+              ]
             }
           },
           "response": []
@@ -183,7 +189,9 @@
             {
               "listen": "test",
               "script": {
-                "exec": [""],
+                "exec": [
+                  ""
+                ],
                 "type": "text/javascript",
                 "packages": {},
                 "requests": {}
@@ -192,7 +200,9 @@
             {
               "listen": "prerequest",
               "script": {
-                "exec": [""],
+                "exec": [
+                  ""
+                ],
                 "type": "text/javascript",
                 "packages": {},
                 "requests": {}
@@ -213,9 +223,13 @@
             },
             "url": {
               "raw": "localhost:8000/customers",
-              "host": ["localhost"],
+              "host": [
+                "localhost"
+              ],
               "port": "8000",
-              "path": ["customers"]
+              "path": [
+                "customers"
+              ]
             }
           },
           "response": []
@@ -241,9 +255,13 @@
             },
             "url": {
               "raw": "localhost:8000/drinks",
-              "host": ["localhost"],
+              "host": [
+                "localhost"
+              ],
               "port": "8000",
-              "path": ["drinks"]
+              "path": [
+                "drinks"
+              ]
             }
           },
           "response": []
@@ -260,9 +278,13 @@
             "header": [],
             "url": {
               "raw": "localhost:8000/employees",
-              "host": ["localhost"],
+              "host": [
+                "localhost"
+              ],
               "port": "8000",
-              "path": ["employees"]
+              "path": [
+                "employees"
+              ]
             }
           },
           "response": []
@@ -274,9 +296,14 @@
             "header": [],
             "url": {
               "raw": "localhost:8000/employees/1",
-              "host": ["localhost"],
+              "host": [
+                "localhost"
+              ],
               "port": "8000",
-              "path": ["employees", "1"]
+              "path": [
+                "employees",
+                "1"
+              ]
             }
           },
           "response": []
@@ -297,9 +324,13 @@
             },
             "url": {
               "raw": "localhost:8000/employees",
-              "host": ["localhost"],
+              "host": [
+                "localhost"
+              ],
               "port": "8000",
-              "path": ["employees"]
+              "path": [
+                "employees"
+              ]
             }
           },
           "response": []
@@ -325,9 +356,14 @@
             },
             "url": {
               "raw": "localhost:8000/employees/1",
-              "host": ["localhost"],
+              "host": [
+                "localhost"
+              ],
               "port": "8000",
-              "path": ["employees", "1"]
+              "path": [
+                "employees",
+                "1"
+              ]
             }
           },
           "response": []
@@ -339,9 +375,14 @@
             "header": [],
             "url": {
               "raw": "localhost:8000/employees/1",
-              "host": ["localhost"],
+              "host": [
+                "localhost"
+              ],
               "port": "8000",
-              "path": ["employees", "1"]
+              "path": [
+                "employees",
+                "1"
+              ]
             }
           },
           "response": []
@@ -358,9 +399,13 @@
             "header": [],
             "url": {
               "raw": "localhost:8000/health",
-              "host": ["localhost"],
+              "host": [
+                "localhost"
+              ],
               "port": "8000",
-              "path": ["health"]
+              "path": [
+                "health"
+              ]
             }
           },
           "response": []
@@ -372,9 +417,13 @@
             "header": [],
             "url": {
               "raw": "localhost:8000/ready",
-              "host": ["localhost"],
+              "host": [
+                "localhost"
+              ],
               "port": "8000",
-              "path": ["ready"]
+              "path": [
+                "ready"
+              ]
             }
           },
           "response": []
@@ -391,9 +440,13 @@
             "header": [],
             "url": {
               "raw": "localhost:8000/ingredients",
-              "host": ["localhost"],
+              "host": [
+                "localhost"
+              ],
               "port": "8000",
-              "path": ["ingredients"]
+              "path": [
+                "ingredients"
+              ]
             }
           },
           "response": []
@@ -405,9 +458,14 @@
             "header": [],
             "url": {
               "raw": "localhost:8000/ingredients/1",
-              "host": ["localhost"],
+              "host": [
+                "localhost"
+              ],
               "port": "8000",
-              "path": ["ingredients", "1"]
+              "path": [
+                "ingredients",
+                "1"
+              ]
             }
           },
           "response": []
@@ -419,7 +477,7 @@
             "header": [],
             "body": {
               "mode": "raw",
-              "raw": "{\r\n    \"name\": \"Dragon Coffee Beans\",\r\n    \"purchasing_cost\": 3.5,\r\n    \"unit_amount\":3 ,\r\n    \"unit_of_measure\": \"g\",\r\n    \"allergens\": [\"beans\"],\r\n    \"vendor_id\": 1,\r\n    \"active\": true\r\n}",
+              "raw": "{\r\n    \"name\": \"Dragon Coffee Beans\",\r\n    \"purchasing_cost\": 3.5,\r\n    \"unit_amount\":3 ,\r\n    \"unit_of_measure\": \"g\",\r\n    \"allergens\": [\"beans\"],\r\n    \"vendor_id\": 1,\r\n    \"active\": true,\r\n    \"quantity_on_hand\": \"12.00\",\r\n    \"reorder_threshold\": \"10.00\",\r\n    \"reorder_quantity\": \"15.00\"\r\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -428,9 +486,13 @@
             },
             "url": {
               "raw": "localhost:8000/ingredients",
-              "host": ["localhost"],
+              "host": [
+                "localhost"
+              ],
               "port": "8000",
-              "path": ["ingredients"]
+              "path": [
+                "ingredients"
+              ]
             }
           },
           "response": []
@@ -447,7 +509,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n    \"name\": \"Updated Espresso Beans\",\n    \"purchasing_cost\": 4.50,\n    \"unit_amount\": 1000.00,\n    \"unit_of_measure\": \"mL\",\n    \"vendor_id\": 1,\n    \"allergens\": [],\n    \"active\": false\n}",
+              "raw": "{\n    \"name\": \"Updated Espresso Beans\",\n    \"purchasing_cost\": 4.50,\n    \"unit_amount\": 1000.00,\n    \"unit_of_measure\": \"mL\",\n    \"vendor_id\": 1,\n    \"allergens\": [],\n    \"active\": false,\n    \"quantity_on_hand\": \"25.00\",\n    \"reorder_threshold\": \"15.00\",\n    \"reorder_quantity\": \"20.00\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -456,9 +518,14 @@
             },
             "url": {
               "raw": "localhost:8000/ingredients/1",
-              "host": ["localhost"],
+              "host": [
+                "localhost"
+              ],
               "port": "8000",
-              "path": ["ingredients", "1"]
+              "path": [
+                "ingredients",
+                "1"
+              ]
             }
           },
           "response": []
@@ -470,9 +537,14 @@
             "header": [],
             "url": {
               "raw": "localhost:8000/ingredients/1",
-              "host": ["localhost"],
+              "host": [
+                "localhost"
+              ],
               "port": "8000",
-              "path": ["ingredients", "1"]
+              "path": [
+                "ingredients",
+                "1"
+              ]
             }
           },
           "response": []
@@ -489,9 +561,13 @@
             "header": [],
             "url": {
               "raw": "localhost:8000/promotions",
-              "host": ["localhost"],
+              "host": [
+                "localhost"
+              ],
               "port": "8000",
-              "path": ["promotions"]
+              "path": [
+                "promotions"
+              ]
             }
           },
           "response": []
@@ -503,9 +579,14 @@
             "header": [],
             "url": {
               "raw": "localhost:8000/promotions/1",
-              "host": ["localhost"],
+              "host": [
+                "localhost"
+              ],
               "port": "8000",
-              "path": ["promotions", "1"]
+              "path": [
+                "promotions",
+                "1"
+              ]
             }
           },
           "response": []
@@ -526,9 +607,13 @@
             },
             "url": {
               "raw": "localhost:8000/promotions",
-              "host": ["localhost"],
+              "host": [
+                "localhost"
+              ],
               "port": "8000",
-              "path": ["promotions"]
+              "path": [
+                "promotions"
+              ]
             }
           },
           "response": []
@@ -549,9 +634,14 @@
             },
             "url": {
               "raw": "localhost:8000/promotions/1",
-              "host": ["localhost"],
+              "host": [
+                "localhost"
+              ],
               "port": "8000",
-              "path": ["promotions", "1"]
+              "path": [
+                "promotions",
+                "1"
+              ]
             }
           },
           "response": []
@@ -563,88 +653,14 @@
             "header": [],
             "url": {
               "raw": "localhost:8000/promotions/1",
-              "host": ["localhost"],
+              "host": [
+                "localhost"
+              ],
               "port": "8000",
-              "path": ["promotions", "1"]
-            }
-          },
-          "response": []
-        }
-      ]
-    },
-    {
-      "name": "Vendors",
-      "item": [
-        {
-          "name": "List Vendors",
-          "request": {
-            "method": "GET",
-            "header": [],
-            "url": {
-              "raw": "localhost:8000/vendors",
-              "host": ["localhost"],
-              "port": "8000",
-              "path": ["vendors"]
-            }
-          },
-          "response": []
-        },
-        {
-          "name": "Create Vendor",
-          "request": {
-            "method": "POST",
-            "header": [],
-            "body": {
-              "mode": "raw",
-              "raw": "{\r\n    \"name\": \"Cornerstone Wholesale\",\r\n    \"contacts\": [\r\n        {\r\n            \"name\": \"Burton Daniels\",\r\n            \"role\": \"Account Manager\",\r\n            \"email\": \"burton@cornerstonewholesale.com\",\r\n            \"phone\": \"517-555-1277\"\r\n        }\r\n    ]\r\n}",
-              "options": {
-                "raw": {
-                  "language": "json"
-                }
-              }
-            },
-            "url": {
-              "raw": "localhost:8000/vendors",
-              "host": ["localhost"],
-              "port": "8000",
-              "path": ["vendors"]
-            }
-          },
-          "response": []
-        },
-        {
-          "name": "Update Vendor",
-          "request": {
-            "method": "PUT",
-            "header": [],
-            "body": {
-              "mode": "raw",
-              "raw": "{\r\n    \"name\": \"Cornerstone Wholesale\",\r\n    \"active\": true,\r\n    \"contacts\": [\r\n        {\r\n            \"id\": 1,\r\n            \"name\": \"Burton Daniels\",\r\n            \"role\": \"Regional Manager\",\r\n            \"email\": \"burton@cornerstonewholesale.com\",\r\n            \"phone\": \"517-555-1277\"\r\n        }\r\n    ]\r\n}",
-              "options": {
-                "raw": {
-                  "language": "json"
-                }
-              }
-            },
-            "url": {
-              "raw": "localhost:8000/vendors/1",
-              "host": ["localhost"],
-              "port": "8000",
-              "path": ["vendors", "1"]
-            }
-          },
-          "response": []
-        },
-        {
-          "name": "Delete Vendor",
-          "request": {
-            "method": "DELETE",
-            "header": [],
-            "url": {
-              "raw": "localhost:8000/vendors/1",
-              "host": ["localhost"],
-              "port": "8000",
-              "path": ["vendors", "1"]
+              "path": [
+                "promotions",
+                "1"
+              ]
             }
           },
           "response": []
@@ -675,14 +691,192 @@
             },
             "url": {
               "raw": "localhost:8000/purchases",
-              "host": ["localhost"],
+              "host": [
+                "localhost"
+              ],
               "port": "8000",
-              "path": ["purchases"]
+              "path": [
+                "purchases"
+              ]
             }
           },
           "response": []
         }
       ]
+    },
+    {
+      "name": "Reports",
+      "item": [
+        {
+          "name": "Get Low Stock Report",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "localhost:8000/reports/low-stock",
+              "host": [
+                "localhost"
+              ],
+              "port": "8000",
+              "path": [
+                "reports",
+                "low-stock"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Usage Report",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "localhost:8000/reports/usage?start_date=2026-09-08&end_date=2026-09-14",
+              "host": [
+                "localhost"
+              ],
+              "port": "8000",
+              "path": [
+                "reports",
+                "usage"
+              ],
+              "query": [
+                {
+                  "key": "start_date",
+                  "value": "2026-09-08"
+                },
+                {
+                  "key": "end_date",
+                  "value": "2026-09-14"
+                }
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Vendors",
+      "item": [
+        {
+          "name": "List Vendors",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "localhost:8000/vendors",
+              "host": [
+                "localhost"
+              ],
+              "port": "8000",
+              "path": [
+                "vendors"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Create Vendor",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"name\": \"Cornerstone Wholesale\",\r\n    \"contacts\": [\r\n        {\r\n            \"name\": \"Burton Daniels\",\r\n            \"role\": \"Account Manager\",\r\n            \"email\": \"burton@cornerstonewholesale.com\",\r\n            \"phone\": \"517-555-1277\"\r\n        }\r\n    ]\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "localhost:8000/vendors",
+              "host": [
+                "localhost"
+              ],
+              "port": "8000",
+              "path": [
+                "vendors"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update Vendor",
+          "request": {
+            "method": "PUT",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"name\": \"Cornerstone Wholesale\",\r\n    \"active\": true,\r\n    \"contacts\": [\r\n        {\r\n            \"id\": 1,\r\n            \"name\": \"Burton Daniels\",\r\n            \"role\": \"Regional Manager\",\r\n            \"email\": \"burton@cornerstonewholesale.com\",\r\n            \"phone\": \"517-555-1277\"\r\n        }\r\n    ]\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "localhost:8000/vendors/1",
+              "host": [
+                "localhost"
+              ],
+              "port": "8000",
+              "path": [
+                "vendors",
+                "1"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Vendor",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "localhost:8000/vendors/1",
+              "host": [
+                "localhost"
+              ],
+              "port": "8000",
+              "path": [
+                "vendors",
+                "1"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    }
+  ],
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{access_token}}",
+        "type": "string"
+      }
+    ]
+  },
+  "variable": [
+    {
+      "key": "access_token",
+      "value": ""
+    },
+    {
+      "key": "username",
+      "value": "mgr.patricia"
+    },
+    {
+      "key": "password",
+      "value": ""
     }
   ]
 }

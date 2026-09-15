@@ -6,38 +6,40 @@
 
 Mutating routes require a Bearer JWT from `POST /auth/login`. `Manager` means role `manager` or `admin`. `Employee` means any authenticated role.
 
-| Method   | Path                   | Requires Auth | Description                                       |
-| -------- | ---------------------- | ------------- | ------------------------------------------------- |
-| `POST`   | `/auth/login`          | No            | [Login](#post-authlogin)                          |
-| `POST`   | `/auth/logout`         | Employee      | [Logout](#post-authlogout)                        |
-| `POST`   | `/baked-goods`         | Manager       | [Create Baked Good](#post-baked-goods)            |
-| `GET`    | `/customers`           | No            | [List Customers](#get-customers)                  |
-| `GET`    | `/customers/favorites` | No            | [Get Customer Favorites](#get-customersfavorites) |
-| `GET`    | `/customers/{id}`      | No            | [Get Customer](#get-customersid)                  |
-| `POST`   | `/customers`           | Employee      | [Create Customer](#post-customers)                |
-| `POST`   | `/drinks`              | Manager       | [Create Drink](#post-drinks)                      |
-| `GET`    | `/employees`           | No            | [List Employees](#get-employees)                  |
-| `GET`    | `/employees/{id}`      | No            | [Get Employee](#get-employeesid)                  |
-| `POST`   | `/employees`           | Manager       | [Create Employee](#post-employees)                |
-| `PUT`    | `/employees/{id}`      | Manager       | [Update Employee](#put-employeesid)               |
-| `DELETE` | `/employees/{id}`      | Manager       | [Delete Employee](#delete-employeesid)            |
-| `GET`    | `/health`              | No            | [API Health Check](#get-health)                   |
-| `GET`    | `/ingredients`         | No            | [List Ingredients](#get-ingredients)              |
-| `GET`    | `/ingredients/{id}`    | No            | [Get Ingredient](#get-ingredientsid)              |
-| `POST`   | `/ingredients`         | Manager       | [Create Ingredient](#post-ingredients)            |
-| `PUT`    | `/ingredients/{id}`    | Manager       | [Update Ingredient](#put-ingredientsid)           |
-| `DELETE` | `/ingredients/{id}`    | Manager       | [Delete Ingredient](#delete-ingredientsid)        |
-| `GET`    | `/promotions`          | No            | [List Promotions](#get-promotions)                |
-| `GET`    | `/promotions/{id}`     | No            | [Get Promotion](#get-promotionsid)                |
-| `POST`   | `/promotions`          | Manager       | [Create Promotion](#post-promotions)              |
-| `PUT`    | `/promotions/{id}`     | Manager       | [Update Promotion](#put-promotionsid)             |
-| `DELETE` | `/promotions/{id}`     | Manager       | [Delete Promotion](#delete-promotionsid)          |
-| `POST`   | `/purchases`           | Employee      | [Create Purchase](#post-purchases)                |
-| `GET`    | `/ready`               | No            | [Database Health Check](#get-ready)               |
-| `GET`    | `/vendors`             | No            | [List Vendors](#get-vendors)                      |
-| `POST`   | `/vendors`             | Manager       | [Create Vendor](#post-vendors)                    |
-| `PUT`    | `/vendors/{id}`        | Manager       | [Update Vendor](#put-vendorsid)                   |
-| `DELETE` | `/vendors/{id}`        | Manager       | [Delete Vendor](#delete-vendorsid)                |
+| Method | Path | Requires Auth | Description |
+| --- | --- | --- | --- |
+| `POST` | `/auth/login` | No | [Login](#post-authlogin) |
+| `POST` | `/auth/logout` | Employee | [Logout](#post-authlogout) |
+| `POST` | `/baked-goods` | Manager | [Create Baked Good](#post-baked-goods) |
+| `GET` | `/customers` | No | [List Customers](#get-customers) |
+| `GET` | `/customers/favorites` | No | [Get Customer Favorites](#get-customersfavorites) |
+| `GET` | `/customers/{id}` | No | [Get Customer](#get-customersid) |
+| `POST` | `/customers` | Employee | [Create Customer](#post-customers) |
+| `POST` | `/drinks` | Manager | [Create Drink](#post-drinks) |
+| `GET` | `/employees` | No | [List Employees](#get-employees) |
+| `GET` | `/employees/{id}` | No | [Get Employee](#get-employeesid) |
+| `POST` | `/employees` | Manager | [Create Employee](#post-employees) |
+| `PUT` | `/employees/{id}` | Manager | [Update Employee](#put-employeesid) |
+| `DELETE` | `/employees/{id}` | Manager | [Delete Employee](#delete-employeesid) |
+| `GET` | `/health` | No | [API Health Check](#get-health) |
+| `GET` | `/ingredients` | No | [List Ingredients](#get-ingredients) |
+| `GET` | `/ingredients/{id}` | No | [Get Ingredient](#get-ingredientsid) |
+| `POST` | `/ingredients` | Manager | [Create Ingredient](#post-ingredients) |
+| `PUT` | `/ingredients/{id}` | Manager | [Update Ingredient](#put-ingredientsid) |
+| `DELETE` | `/ingredients/{id}` | Manager | [Delete Ingredient](#delete-ingredientsid) |
+| `GET` | `/promotions` | No | [List Promotions](#get-promotions) |
+| `GET` | `/promotions/{id}` | No | [Get Promotion](#get-promotionsid) |
+| `POST` | `/promotions` | Manager | [Create Promotion](#post-promotions) |
+| `PUT` | `/promotions/{id}` | Manager | [Update Promotion](#put-promotionsid) |
+| `DELETE` | `/promotions/{id}` | Manager | [Delete Promotion](#delete-promotionsid) |
+| `POST` | `/purchases` | Employee | [Create Purchase](#post-purchases) |
+| `GET` | `/ready` | No | [Database Health Check](#get-ready) |
+| `GET` | `/reports/low-stock` | Manager | [Get Low Stock Report](#get-reportslow-stock) |
+| `GET` | `/reports/usage` | Manager | [Get Usage Report](#get-reportsusage) |
+| `GET` | `/vendors` | No | [List Vendors](#get-vendors) |
+| `POST` | `/vendors` | Manager | [Create Vendor](#post-vendors) |
+| `PUT` | `/vendors/{id}` | Manager | [Update Vendor](#put-vendorsid) |
+| `DELETE` | `/vendors/{id}` | Manager | [Delete Vendor](#delete-vendorsid) |
 
 ### `POST` /auth/login
 
@@ -53,11 +55,11 @@ Accepts standard OAuth2 form data (username, password).
 
 **Responses**
 
-| Status | Description                                 | Body                                                             |
-| ------ | ------------------------------------------- | ---------------------------------------------------------------- |
-| `200`  | The generated JWT access token              | `application/json` [`Token`](#token)                             |
-| `401`  | Incorrect username or password.             | `application/json` `{ "detail": string }`                        |
-| `422`  | The provided Login is malformed or invalid. | `application/json` [`HTTPValidationError`](#httpvalidationerror) |
+| Status | Description | Body |
+| --- | --- | --- |
+| `200` | The generated JWT access token | `application/json` [`Token`](#token) |
+| `401` | Incorrect username or password. | `application/json` `{ "detail": string }` |
+| `422` | The provided Login is malformed or invalid. | `application/json` [`HTTPValidationError`](#httpvalidationerror) |
 
 [Back to Summary](#summary)
 
@@ -73,10 +75,10 @@ Adds the token's `jti` to the blacklist so it can no longer be used, even though
 
 **Responses**
 
-| Status | Description                                 | Body                                      |
-| ------ | ------------------------------------------- | ----------------------------------------- |
-| `204`  | The user logged out successfully.           | None                                      |
-| `401`  | Missing, invalid, or already-expired token. | `application/json` `{ "detail": string }` |
+| Status | Description | Body |
+| --- | --- | --- |
+| `204` | The user logged out successfully. | None |
+| `401` | Missing, invalid, or already-expired token. | `application/json` `{ "detail": string }` |
 
 [Back to Summary](#summary)
 
@@ -94,12 +96,12 @@ Create a new baked good.
 
 **Responses**
 
-| Status | Description                                           | Body                                                             |
-| ------ | ----------------------------------------------------- | ---------------------------------------------------------------- |
-| `201`  | The newly created baked good                          | `application/json` [`BakedGoodRead`](#bakedgoodread)             |
-| `401`  | Could not validate credentials.                       | `application/json` `{ "detail": string }`                        |
-| `403`  | Insufficient permissions.                             | `application/json` `{ "detail": string }`                        |
-| `422`  | The provided BakedGoodCreate is malformed or invalid. | `application/json` [`HTTPValidationError`](#httpvalidationerror) |
+| Status | Description | Body |
+| --- | --- | --- |
+| `201` | The newly created baked good | `application/json` [`BakedGoodRead`](#bakedgoodread) |
+| `401` | Could not validate credentials. | `application/json` `{ "detail": string }` |
+| `403` | Insufficient permissions. | `application/json` `{ "detail": string }` |
+| `422` | The provided BakedGoodCreate is malformed or invalid. | `application/json` [`HTTPValidationError`](#httpvalidationerror) |
 
 [Back to Summary](#summary)
 
@@ -113,9 +115,9 @@ Returns a list of all customer records in the system.
 
 **Responses**
 
-| Status | Description                                                              | Body                                                          |
-| ------ | ------------------------------------------------------------------------ | ------------------------------------------------------------- |
-| `200`  | The list of all customers in the system, or an empty list if none exist. | `application/json` `array of` [`CustomerRead`](#customerread) |
+| Status | Description | Body |
+| --- | --- | --- |
+| `200` | The list of all customers in the system, or an empty list if none exist. | `application/json` `array of` [`CustomerRead`](#customerread) |
 
 [Back to Summary](#summary)
 
@@ -131,17 +133,17 @@ Guest purchases are not included. An item is considered a favorite when the tota
 
 **Query parameters**
 
-| Name    | Type   | Required | Notes                                                               |
-| ------- | ------ | -------- | ------------------------------------------------------------------- |
-| `phone` | string | yes      | The customer's phone number; must match pattern `\d{3}-\d{3}-\d{4}` |
+| Name | Type | Required | Notes |
+| --- | --- | --- | --- |
+| `phone` | string | yes | The customer's phone number; must match pattern `\d{3}-\d{3}-\d{4}` |
 
 **Responses**
 
-| Status | Description                                           | Body                                                               |
-| ------ | ----------------------------------------------------- | ------------------------------------------------------------------ |
-| `200`  | The customer's favorite drink and baked good          | `application/json` [`CustomerFavoriteRead`](#customerfavoriteread) |
-| `404`  | The customer was not found.                           | `application/json` `{ "detail": string }`                          |
-| `422`  | The provided query parameter is malformed or invalid. | `application/json` [`HTTPValidationError`](#httpvalidationerror)   |
+| Status | Description | Body |
+| --- | --- | --- |
+| `200` | The customer's favorite drink and baked good | `application/json` [`CustomerFavoriteRead`](#customerfavoriteread) |
+| `404` | The customer was not found. | `application/json` `{ "detail": string }` |
+| `422` | The provided query parameter is malformed or invalid. | `application/json` [`HTTPValidationError`](#httpvalidationerror) |
 
 [Back to Summary](#summary)
 
@@ -155,17 +157,17 @@ Retrieve a single customer by ID.
 
 **Path parameters**
 
-| Name | Type | Required | Notes                                                                                   |
-| ---- | ---- | -------- | --------------------------------------------------------------------------------------- |
-| `id` | int  | yes      | The unique identifier of the customer; must be a positive integer at most 2,147,483,647 |
+| Name | Type | Required | Notes |
+| --- | --- | --- | --- |
+| `id` | int | yes | The unique identifier of the customer; must be a positive integer at most 2,147,483,647 |
 
 **Responses**
 
-| Status | Description                                          | Body                                                             |
-| ------ | ---------------------------------------------------- | ---------------------------------------------------------------- |
-| `200`  | The requested customer                               | `application/json` [`CustomerRead`](#customerread)               |
-| `404`  | The customer was not found.                          | `application/json` `{ "detail": string }`                        |
-| `422`  | The provided path parameter is malformed or invalid. | `application/json` [`HTTPValidationError`](#httpvalidationerror) |
+| Status | Description | Body |
+| --- | --- | --- |
+| `200` | The requested customer | `application/json` [`CustomerRead`](#customerread) |
+| `404` | The customer was not found. | `application/json` `{ "detail": string }` |
+| `422` | The provided path parameter is malformed or invalid. | `application/json` [`HTTPValidationError`](#httpvalidationerror) |
 
 [Back to Summary](#summary)
 
@@ -185,12 +187,12 @@ Both email and phone must be unique.
 
 **Responses**
 
-| Status | Description                                              | Body                                                             |
-| ------ | -------------------------------------------------------- | ---------------------------------------------------------------- |
-| `201`  | The newly created customer.                              | `application/json` [`CustomerRead`](#customerread)               |
-| `401`  | Could not validate credentials.                          | `application/json` `{ "detail": string }`                        |
-| `409`  | A customer with the given email or phone already exists. | `application/json` `{ "detail": string }`                        |
-| `422`  | Missing or invalid values.                               | `application/json` [`HTTPValidationError`](#httpvalidationerror) |
+| Status | Description | Body |
+| --- | --- | --- |
+| `201` | The newly created customer. | `application/json` [`CustomerRead`](#customerread) |
+| `401` | Could not validate credentials. | `application/json` `{ "detail": string }` |
+| `409` | A customer with the given email or phone already exists. | `application/json` `{ "detail": string }` |
+| `422` | Missing or invalid values. | `application/json` [`HTTPValidationError`](#httpvalidationerror) |
 
 [Back to Summary](#summary)
 
@@ -208,14 +210,14 @@ Create a new drink recipe.
 
 **Responses**
 
-| Status | Description                                                                                                                                                                                                                                                                               | Body                                                             |
-| ------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------- |
-| `201`  | The newly created drink                                                                                                                                                                                                                                                                   | `application/json` [`DrinkRead`](#drinkread)                     |
-| `401`  | Could not validate credentials.                                                                                                                                                                                                                                                           | `application/json` `{ "detail": string }`                        |
-| `403`  | Insufficient permissions.                                                                                                                                                                                                                                                                 | `application/json` `{ "detail": string }`                        |
-| `404`  | The ingredient was not found.                                                                                                                                                                                                                                                             | `application/json` `{ "detail": string }`                        |
-| `409`  | A drink with that name already exists.                                                                                                                                                                                                                                                    | `application/json` `{ "detail": string }`                        |
-| `422`  | The provided DrinkCreate is malformed or invalid. This includes: <ul><li>Invalid 'type'</li> <li>Invalid 'unit'</li><li>Duplicate 'ingredient_id' values</li><li>'sale_price' is less than 'production_cost'</li><li>Attempting to convert between incompatible unit categories</li></ul> | `application/json` [`HTTPValidationError`](#httpvalidationerror) |
+| Status | Description | Body |
+| --- | --- | --- |
+| `201` | The newly created drink | `application/json` [`DrinkRead`](#drinkread) |
+| `401` | Could not validate credentials. | `application/json` `{ "detail": string }` |
+| `403` | Insufficient permissions. | `application/json` `{ "detail": string }` |
+| `404` | The ingredient was not found. | `application/json` `{ "detail": string }` |
+| `409` | A drink with that name already exists. | `application/json` `{ "detail": string }` |
+| `422` | The provided DrinkCreate is malformed or invalid. This includes: <ul><li>Invalid 'type'</li> <li>Invalid 'unit'</li><li>Duplicate 'ingredient_id' values</li><li>'sale_price' is less than 'production_cost'</li><li>Attempting to convert between incompatible unit categories</li></ul> | `application/json` [`HTTPValidationError`](#httpvalidationerror) |
 
 [Back to Summary](#summary)
 
@@ -231,9 +233,9 @@ Returns each employee without the password field.
 
 **Responses**
 
-| Status | Description                                                | Body                                                          |
-| ------ | ---------------------------------------------------------- | ------------------------------------------------------------- |
-| `200`  | The list of all employees, or an empty list if none exist. | `application/json` `array of` [`EmployeeRead`](#employeeread) |
+| Status | Description | Body |
+| --- | --- | --- |
+| `200` | The list of all employees, or an empty list if none exist. | `application/json` `array of` [`EmployeeRead`](#employeeread) |
 
 [Back to Summary](#summary)
 
@@ -249,17 +251,17 @@ Returns the employee without the password field.
 
 **Path parameters**
 
-| Name | Type | Required | Notes                                                                                   |
-| ---- | ---- | -------- | --------------------------------------------------------------------------------------- |
-| `id` | int  | yes      | The unique identifier of the employee; must be a positive integer at most 2,147,483,647 |
+| Name | Type | Required | Notes |
+| --- | --- | --- | --- |
+| `id` | int | yes | The unique identifier of the employee; must be a positive integer at most 2,147,483,647 |
 
 **Responses**
 
-| Status | Description                                          | Body                                                             |
-| ------ | ---------------------------------------------------- | ---------------------------------------------------------------- |
-| `200`  | The requested employee                               | `application/json` [`EmployeeRead`](#employeeread)               |
-| `404`  | The employee was not found.                          | `application/json` `{ "detail": string }`                        |
-| `422`  | The provided path parameter is malformed or invalid. | `application/json` [`HTTPValidationError`](#httpvalidationerror) |
+| Status | Description | Body |
+| --- | --- | --- |
+| `200` | The requested employee | `application/json` [`EmployeeRead`](#employeeread) |
+| `404` | The employee was not found. | `application/json` `{ "detail": string }` |
+| `422` | The provided path parameter is malformed or invalid. | `application/json` [`HTTPValidationError`](#httpvalidationerror) |
 
 [Back to Summary](#summary)
 
@@ -279,13 +281,13 @@ Returns the created employee without the password field.
 
 **Responses**
 
-| Status | Description                                          | Body                                                             |
-| ------ | ---------------------------------------------------- | ---------------------------------------------------------------- |
-| `201`  | The newly created employee                           | `application/json` [`EmployeeRead`](#employeeread)               |
-| `401`  | Could not validate credentials.                      | `application/json` `{ "detail": string }`                        |
-| `403`  | Insufficient permissions.                            | `application/json` `{ "detail": string }`                        |
-| `409`  | An employee with that username already exists.       | `application/json` `{ "detail": string }`                        |
-| `422`  | The provided EmployeeCreate is malformed or invalid. | `application/json` [`HTTPValidationError`](#httpvalidationerror) |
+| Status | Description | Body |
+| --- | --- | --- |
+| `201` | The newly created employee | `application/json` [`EmployeeRead`](#employeeread) |
+| `401` | Could not validate credentials. | `application/json` `{ "detail": string }` |
+| `403` | Insufficient permissions. | `application/json` `{ "detail": string }` |
+| `409` | An employee with that username already exists. | `application/json` `{ "detail": string }` |
+| `422` | The provided EmployeeCreate is malformed or invalid. | `application/json` [`HTTPValidationError`](#httpvalidationerror) |
 
 [Back to Summary](#summary)
 
@@ -296,6 +298,7 @@ Returns the created employee without the password field.
 **Update Employee**
 
 Update an existing employee's profile information. The password cannot be updated through this endpoint. If a password is provided in the request body, it will be silently ignored.
+
 Returns the updated employee without the password field.
 
 **Request body** (required)
@@ -304,14 +307,14 @@ Returns the updated employee without the password field.
 
 **Responses**
 
-| Status | Description                                                                                                  | Body                                                             |
-| ------ | ------------------------------------------------------------------------------------------------------------ | ---------------------------------------------------------------- |
-| `200`  | The updated employee                                                                                         | `application/json` [`EmployeeRead`](#employeeread)               |
-| `401`  | Could not validate credentials.                                                                              | `application/json` `{ "detail": string }`                        |
-| `403`  | Insufficient permissions.                                                                                    | `application/json` `{ "detail": string }`                        |
-| `404`  | The employee was not found.                                                                                  | `application/json` `{ "detail": string }`                        |
-| `409`  | An employee with that username already exists.                                                               | `application/json` `{ "detail": string }`                        |
-| `422`  | The provided EmployeeUpdate is malformed or invalid, or the provided path parameter is malformed or invalid. | `application/json` [`HTTPValidationError`](#httpvalidationerror) |
+| Status | Description | Body |
+| --- | --- | --- |
+| `200` | The updated employee | `application/json` [`EmployeeRead`](#employeeread) |
+| `401` | Could not validate credentials. | `application/json` `{ "detail": string }` |
+| `403` | Insufficient permissions. | `application/json` `{ "detail": string }` |
+| `404` | The employee was not found. | `application/json` `{ "detail": string }` |
+| `409` | An employee with that username already exists. | `application/json` `{ "detail": string }` |
+| `422` | The provided EmployeeUpdate is malformed or invalid, or the provided path parameter is malformed or invalid. | `application/json` [`HTTPValidationError`](#httpvalidationerror) |
 
 [Back to Summary](#summary)
 
@@ -325,19 +328,19 @@ Deactivate an employee. This performs a soft delete by setting the employee's ac
 
 **Path parameters**
 
-| Name | Type | Required | Notes                            |
-| ---- | ---- | -------- | -------------------------------- |
-| `id` | int  | yes      | The ID of the employee to delete |
+| Name | Type | Required | Notes |
+| --- | --- | --- | --- |
+| `id` | int | yes | The ID of the employee to delete |
 
 **Responses**
 
-| Status | Description                                          | Body                                                             |
-| ------ | ---------------------------------------------------- | ---------------------------------------------------------------- |
-| `204`  | The employee was deleted successfully.               | None                                                             |
-| `401`  | Could not validate credentials.                      | `application/json` `{ "detail": string }`                        |
-| `403`  | Insufficient permissions.                            | `application/json` `{ "detail": string }`                        |
-| `404`  | The employee was not found.                          | `application/json` `{ "detail": string }`                        |
-| `422`  | The provided path parameter is malformed or invalid. | `application/json` [`HTTPValidationError`](#httpvalidationerror) |
+| Status | Description | Body |
+| --- | --- | --- |
+| `204` | The employee was deleted successfully. | None |
+| `401` | Could not validate credentials. | `application/json` `{ "detail": string }` |
+| `403` | Insufficient permissions. | `application/json` `{ "detail": string }` |
+| `404` | The employee was not found. | `application/json` `{ "detail": string }` |
+| `422` | The provided path parameter is malformed or invalid. | `application/json` [`HTTPValidationError`](#httpvalidationerror) |
 
 [Back to Summary](#summary)
 
@@ -351,9 +354,9 @@ Checks that the API process itself is running and reachable. Does not check the 
 
 **Responses**
 
-| Status | Description                       | Body                                       |
-| ------ | --------------------------------- | ------------------------------------------ |
-| `200`  | The API is running and reachable. | `application/json` `{ "message": string }` |
+| Status | Description | Body |
+| --- | --- | --- |
+| `200` | The API is running and reachable. | `application/json` `{ "message": string }` |
 
 [Back to Summary](#summary)
 
@@ -367,9 +370,9 @@ Returns a list of all ingredient records in the system.
 
 **Responses**
 
-| Status | Description                                                                | Body                                                              |
-| ------ | -------------------------------------------------------------------------- | ----------------------------------------------------------------- |
-| `200`  | The list of all ingredients in the system, or an empty list if none exist. | `application/json` `array of` [`IngredientRead`](#ingredientread) |
+| Status | Description | Body |
+| --- | --- | --- |
+| `200` | The list of all ingredients in the system, or an empty list if none exist. | `application/json` `array of` [`IngredientRead`](#ingredientread) |
 
 [Back to Summary](#summary)
 
@@ -383,17 +386,17 @@ Retrieve a single ingredient by ID.
 
 **Path parameters**
 
-| Name | Type | Required | Notes                                   |
-| ---- | ---- | -------- | --------------------------------------- |
-| `id` | int  | yes      | The unique identifier of the ingredient |
+| Name | Type | Required | Notes |
+| --- | --- | --- | --- |
+| `id` | int | yes | The unique identifier of the ingredient |
 
 **Responses**
 
-| Status | Description                                          | Body                                                             |
-| ------ | ---------------------------------------------------- | ---------------------------------------------------------------- |
-| `200`  | The requested ingredient                             | `application/json` [`IngredientRead`](#ingredientread)           |
-| `404`  | The ingredient was not found.                        | `application/json` `{ "detail": string }`                        |
-| `422`  | The provided path parameter is malformed or invalid. | `application/json` [`HTTPValidationError`](#httpvalidationerror) |
+| Status | Description | Body |
+| --- | --- | --- |
+| `200` | The requested ingredient | `application/json` [`IngredientRead`](#ingredientread) |
+| `404` | The ingredient was not found. | `application/json` `{ "detail": string }` |
+| `422` | The provided path parameter is malformed or invalid. | `application/json` [`HTTPValidationError`](#httpvalidationerror) |
 
 [Back to Summary](#summary)
 
@@ -411,14 +414,14 @@ Creates a new ingredient and links it to an existing vendor.
 
 **Responses**
 
-| Status | Description                                                | Body                                                             |
-| ------ | ---------------------------------------------------------- | ---------------------------------------------------------------- |
-| `201`  | The newly created Ingredient                               | `application/json` [`IngredientRead`](#ingredientread)           |
-| `401`  | Could not validate credentials.                            | `application/json` `{ "detail": string }`                        |
-| `403`  | Insufficient permissions.                                  | `application/json` `{ "detail": string }`                        |
-| `404`  | The vendor was not found.                                  | `application/json` `{ "detail": string }`                        |
-| `409`  | An ingredient with that name and vendor ID already exists. | `application/json` `{ "detail": string }`                        |
-| `422`  | The provided IngredientCreate is malformed or invalid.     | `application/json` [`HTTPValidationError`](#httpvalidationerror) |
+| Status | Description | Body |
+| --- | --- | --- |
+| `201` | The newly created Ingredient | `application/json` [`IngredientRead`](#ingredientread) |
+| `401` | Could not validate credentials. | `application/json` `{ "detail": string }` |
+| `403` | Insufficient permissions. | `application/json` `{ "detail": string }` |
+| `404` | The vendor was not found. | `application/json` `{ "detail": string }` |
+| `409` | An ingredient with that name and vendor ID already exists. | `application/json` `{ "detail": string }` |
+| `422` | The provided IngredientCreate is malformed or invalid. | `application/json` [`HTTPValidationError`](#httpvalidationerror) |
 
 [Back to Summary](#summary)
 
@@ -432,9 +435,9 @@ Update an existing ingredient.
 
 **Path parameters**
 
-| Name | Type | Required | Notes                              |
-| ---- | ---- | -------- | ---------------------------------- |
-| `id` | int  | yes      | The ID of the ingredient to update |
+| Name | Type | Required | Notes |
+| --- | --- | --- | --- |
+| `id` | int | yes | The ID of the ingredient to update |
 
 **Request body** (required)
 
@@ -442,16 +445,16 @@ Update an existing ingredient.
 
 **Responses**
 
-| Status | Description                                                | Body                                                             |
-| ------ | ---------------------------------------------------------- | ---------------------------------------------------------------- |
-| `200`  | The updated ingredient                                     | `application/json` [`IngredientRead`](#ingredientread)           |
-| `401`  | Could not validate credentials.                            | `application/json` `{ "detail": string }`                        |
-| `403`  | Insufficient permissions.                                  | `application/json` `{ "detail": string }`                        |
-| `404`  | The ingredient was not found.                              | `application/json` `{ "detail": string }`                        |
-| `404`  | The vendor was not found.                                  | `application/json` `{ "detail": string }`                        |
-| `409`  | An ingredient with that name and vendor ID already exists. | `application/json` `{ "detail": string }`                        |
-| `422`  | The provided path parameter is malformed or invalid.       | `application/json` [`HTTPValidationError`](#httpvalidationerror) |
-| `422`  | The provided IngredientUpdate is malformed or invalid.     | `application/json` [`HTTPValidationError`](#httpvalidationerror) |
+| Status | Description | Body |
+| --- | --- | --- |
+| `200` | The updated ingredient | `application/json` [`IngredientRead`](#ingredientread) |
+| `401` | Could not validate credentials. | `application/json` `{ "detail": string }` |
+| `403` | Insufficient permissions. | `application/json` `{ "detail": string }` |
+| `404` | The ingredient was not found. | `application/json` `{ "detail": string }` |
+| `404` | The vendor was not found. | `application/json` `{ "detail": string }` |
+| `409` | An ingredient with that name and vendor ID already exists. | `application/json` `{ "detail": string }` |
+| `422` | The provided path parameter is malformed or invalid. | `application/json` [`HTTPValidationError`](#httpvalidationerror) |
+| `422` | The provided IngredientUpdate is malformed or invalid. | `application/json` [`HTTPValidationError`](#httpvalidationerror) |
 
 [Back to Summary](#summary)
 
@@ -465,19 +468,19 @@ Soft-deletes an existing ingredient.
 
 **Path parameters**
 
-| Name | Type | Required | Notes                              |
-| ---- | ---- | -------- | ---------------------------------- |
-| `id` | int  | yes      | The ID of the ingredient to delete |
+| Name | Type | Required | Notes |
+| --- | --- | --- | --- |
+| `id` | int | yes | The ID of the ingredient to delete |
 
 **Responses**
 
-| Status | Description                                          | Body                                                             |
-| ------ | ---------------------------------------------------- | ---------------------------------------------------------------- |
-| `204`  | The ingredient was deleted successfully.             | No content                                                       |
-| `401`  | Could not validate credentials.                      | `application/json` `{ "detail": string }`                        |
-| `403`  | Insufficient permissions.                            | `application/json` `{ "detail": string }`                        |
-| `404`  | The ingredient was not found.                        | `application/json` `{ "detail": string }`                        |
-| `422`  | The provided path parameter is malformed or invalid. | `application/json` [`HTTPValidationError`](#httpvalidationerror) |
+| Status | Description | Body |
+| --- | --- | --- |
+| `204` | The ingredient was deleted successfully. | No content |
+| `401` | Could not validate credentials. | `application/json` `{ "detail": string }` |
+| `403` | Insufficient permissions. | `application/json` `{ "detail": string }` |
+| `404` | The ingredient was not found. | `application/json` `{ "detail": string }` |
+| `422` | The provided path parameter is malformed or invalid. | `application/json` [`HTTPValidationError`](#httpvalidationerror) |
 
 [Back to Summary](#summary)
 
@@ -491,9 +494,9 @@ Return all Promotions currently stored in the system.
 
 **Responses**
 
-| Status | Description            | Body                                                          |
-| ------ | ---------------------- | ------------------------------------------------------------- |
-| `200`  | The list of Promotions | `application/json` array of [`PromotionRead`](#promotionread) |
+| Status | Description | Body |
+| --- | --- | --- |
+| `200` | The list of Promotions | `application/json` `array of` [`PromotionRead`](#promotionread) |
 
 [Back to Summary](#summary)
 
@@ -507,17 +510,17 @@ Retrieve a single promotion by ID.
 
 **Path parameters**
 
-| Name | Type | Required | Notes                                  |
-| ---- | ---- | -------- | -------------------------------------- |
-| `id` | int  | yes      | The unique identifier of the promotion |
+| Name | Type | Required | Notes |
+| --- | --- | --- | --- |
+| `id` | int | yes | The unique identifier of the promotion |
 
 **Responses**
 
-| Status | Description                                          | Body                                                             |
-| ------ | ---------------------------------------------------- | ---------------------------------------------------------------- |
-| `200`  | The requested promotion                              | `application/json` [`PromotionRead`](#promotionread)             |
-| `404`  | The promotion was not found.                         | `application/json` `{ "detail": string }`                        |
-| `422`  | The provided path parameter is malformed or invalid. | `application/json` [`HTTPValidationError`](#httpvalidationerror) |
+| Status | Description | Body |
+| --- | --- | --- |
+| `200` | The requested promotion | `application/json` [`PromotionRead`](#promotionread) |
+| `404` | The promotion was not found. | `application/json` `{ "detail": string }` |
+| `422` | The provided path parameter is malformed or invalid. | `application/json` [`HTTPValidationError`](#httpvalidationerror) |
 
 [Back to Summary](#summary)
 
@@ -527,8 +530,7 @@ Retrieve a single promotion by ID.
 
 **Create Promotion**
 
-Create a new promotion with an active status, promo code, discount percentage,
-start date, and end date.
+Create a new promotion with an active status, promo code, discount percentage, start date, and end date.
 
 Returns the created promotion, including its generated ID.
 
@@ -538,13 +540,13 @@ Returns the created promotion, including its generated ID.
 
 **Responses**
 
-| Status | Description                                           | Body                                                             |
-| ------ | ----------------------------------------------------- | ---------------------------------------------------------------- |
-| `201`  | The newly created promotion                           | `application/json` [`PromotionRead`](#promotionread)             |
-| `401`  | Could not validate credentials.                       | `application/json` `{ "detail": string }`                        |
-| `403`  | Insufficient permissions.                             | `application/json` `{ "detail": string }`                        |
-| `409`  | A Promotion with that promo code already exists.      | `application/json` `{ "detail": string }`                        |
-| `422`  | The provided PromotionCreate is malformed or invalid. | `application/json` [`HTTPValidationError`](#httpvalidationerror) |
+| Status | Description | Body |
+| --- | --- | --- |
+| `201` | The newly created promotion | `application/json` [`PromotionRead`](#promotionread) |
+| `401` | Could not validate credentials. | `application/json` `{ "detail": string }` |
+| `403` | Insufficient permissions. | `application/json` `{ "detail": string }` |
+| `409` | A Promotion with that promo code already exists. | `application/json` `{ "detail": string }` |
+| `422` | The provided PromotionCreate is malformed or invalid. | `application/json` [`HTTPValidationError`](#httpvalidationerror) |
 
 [Back to Summary](#summary)
 
@@ -554,8 +556,7 @@ Returns the created promotion, including its generated ID.
 
 **Update Promotion**
 
-Update a existing promotion with an active status, promo code, discount percentage,
-start date, and/or end date.
+Update a existing promotion with an active status, promo code, discount percentage, start date, and/or end date.
 
 Returns the updated promotion, including its generated ID.
 
@@ -565,14 +566,14 @@ Returns the updated promotion, including its generated ID.
 
 **Responses**
 
-| Status | Description                                                                                                   | Body                                                             |
-| ------ | ------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------- |
-| `200`  | The updated promotion                                                                                         | `application/json` [`PromotionRead`](#promotionread)             |
-| `401`  | Could not validate credentials.                                                                               | `application/json` `{ "detail": string }`                        |
-| `403`  | Insufficient permissions.                                                                                     | `application/json` `{ "detail": string }`                        |
-| `404`  | The promotion was not found.                                                                                  | `application/json` `{ "detail": string }`                        |
-| `409`  | A Promotion with that promo code already exists.                                                              | `application/json` `{ "detail": string }`                        |
-| `422`  | The provided PromotionUpdate is malformed or invalid, or the provided path parameter is malformed or invalid. | `application/json` [`HTTPValidationError`](#httpvalidationerror) |
+| Status | Description | Body |
+| --- | --- | --- |
+| `200` | The updated promotion | `application/json` [`PromotionRead`](#promotionread) |
+| `401` | Could not validate credentials. | `application/json` `{ "detail": string }` |
+| `403` | Insufficient permissions. | `application/json` `{ "detail": string }` |
+| `404` | The promotion was not found. | `application/json` `{ "detail": string }` |
+| `409` | A Promotion with that promo code already exists. | `application/json` `{ "detail": string }` |
+| `422` | The provided PromotionUpdate is malformed or invalid, or the provided path parameter is malformed or invalid. | `application/json` [`HTTPValidationError`](#httpvalidationerror) |
 
 [Back to Summary](#summary)
 
@@ -588,19 +589,19 @@ The promotion remains stored in the database for historical records, but it is n
 
 **Path parameters**
 
-| Name | Type | Required | Notes                                                              |
-| ---- | ---- | -------- | ------------------------------------------------------------------ |
-| `id` | int  | yes      | The unique identifier of the promotion; must be a positive integer |
+| Name | Type | Required | Notes |
+| --- | --- | --- | --- |
+| `id` | int | yes | The unique identifier of the promotion; must be a positive integer |
 
 **Responses**
 
-| Status | Description                                          | Body                                                             |
-| ------ | ---------------------------------------------------- | ---------------------------------------------------------------- |
-| `204`  | The Promotion was deleted successfully.              | No content                                                       |
-| `401`  | Could not validate credentials.                      | `application/json` `{ "detail": string }`                        |
-| `403`  | Insufficient permissions.                            | `application/json` `{ "detail": string }`                        |
-| `404`  | The promotion was not found.                         | `application/json` `{ "detail": string }`                        |
-| `422`  | The provided path parameter is malformed or invalid. | `application/json` [`HTTPValidationError`](#httpvalidationerror) |
+| Status | Description | Body |
+| --- | --- | --- |
+| `204` | The Promotion was deleted successfully. | No content |
+| `401` | Could not validate credentials. | `application/json` `{ "detail": string }` |
+| `403` | Insufficient permissions. | `application/json` `{ "detail": string }` |
+| `404` | The promotion was not found. | `application/json` `{ "detail": string }` |
+| `422` | The provided path parameter is malformed or invalid. | `application/json` [`HTTPValidationError`](#httpvalidationerror) |
 
 [Back to Summary](#summary)
 
@@ -618,13 +619,13 @@ Process a new purchase. Looks up item prices, applies active promotions, calcula
 
 **Responses**
 
-| Status | Description                                                                                                                   | Body                                                             |
-| ------ | ----------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------- |
-| `201`  | The newly created purchase                                                                                                    | `application/json` [`PurchaseRead`](#purchaseread)               |
-| `401`  | Could not validate credentials.                                                                                               | `application/json` `{ "detail": string }`                        |
-| `403`  | Insufficient permissions.                                                                                                     | `application/json` `{ "detail": string }`                        |
-| `404`  | The customer was not found, or the promotion was not found.                                                                   | `application/json` `{ "detail": string }`                        |
-| `422`  | The provided PurchaseCreate is malformed or invalid, an unknown item name was provided, or the promotion is inactive/expired. | `application/json` [`HTTPValidationError`](#httpvalidationerror) |
+| Status | Description | Body |
+| --- | --- | --- |
+| `201` | The newly created purchase | `application/json` [`PurchaseRead`](#purchaseread) |
+| `401` | Could not validate credentials. | `application/json` `{ "detail": string }` |
+| `403` | Insufficient permissions. | `application/json` `{ "detail": string }` |
+| `404` | The customer was not found, or the promotion was not found. | `application/json` `{ "detail": string }` |
+| `422` | The provided PurchaseCreate is malformed or invalid, an unknown item name was provided, or the promotion is inactive/expired. | `application/json` [`HTTPValidationError`](#httpvalidationerror) |
 
 [Back to Summary](#summary)
 
@@ -638,10 +639,54 @@ Checks that the API can successfully reach the database. Used as a readiness che
 
 **Responses**
 
-| Status | Description                            | Body                                       |
-| ------ | -------------------------------------- | ------------------------------------------ |
-| `200`  | The database is running and reachable. | `application/json` `{ "message": string }` |
-| `500`  | The database server is not reachable.  | `application/json` `{ "detail": string }`  |
+| Status | Description | Body |
+| --- | --- | --- |
+| `200` | The database is running and reachable. | `application/json` `{ "message": string }` |
+| `500` | The database server is not reachable. | `application/json` `{ "detail": string }` |
+
+[Back to Summary](#summary)
+
+---
+
+### `GET` /reports/low-stock
+
+**Get Low Stock Report**
+
+Returns every active ingredient and active baked good currently at or below its reorder threshold.
+
+**Responses**
+
+| Status | Description | Body |
+| --- | --- | --- |
+| `200` | The list of ingredients and baked goods at or below their reorder threshold, or an empty list if none exist. | `application/json` `array of` [`LowStockItemReport`](#lowstockitemreport) |
+| `401` | Could not validate credentials. | `application/json` `{ "detail": string }` |
+| `403` | Insufficient permissions. | `application/json` `{ "detail": string }` |
+
+[Back to Summary](#summary)
+
+---
+
+### `GET` /reports/usage
+
+**Get Usage Report**
+
+Returns per-day usage totals for ingredients and baked goods sold within a given date range. Only `SALE` inventory transactions are counted; `RECEIVE`, `ADJUSTMENT`, and `WASTE` transactions are excluded.
+
+**Query parameters**
+
+| Name | Type | Required | Notes |
+| --- | --- | --- | --- |
+| `start_date` | date | yes | Inclusive start of the reporting window |
+| `end_date` | date | yes | Exclusive end of the reporting window |
+
+**Responses**
+
+| Status | Description | Body |
+| --- | --- | --- |
+| `200` | The list of daily usage totals, or an empty list if none exist for the given range. | `application/json` `array of` [`UsageReport`](#usagereport) |
+| `401` | Could not validate credentials. | `application/json` `{ "detail": string }` |
+| `403` | Insufficient permissions. | `application/json` `{ "detail": string }` |
+| `422` | The provided start_date or end_date is malformed or invalid. | `application/json` [`HTTPValidationError`](#httpvalidationerror) |
 
 [Back to Summary](#summary)
 
@@ -655,9 +700,9 @@ Retrieve a list of all vendors.
 
 **Responses**
 
-| Status | Description           | Body                                                      |
-| ------ | --------------------- | --------------------------------------------------------- |
-| `200`  | A list of all vendors | `application/json` `array of` [`VendorRead`](#vendorread) |
+| Status | Description | Body |
+| --- | --- | --- |
+| `200` | A list of all vendors | `application/json` `array of` [`VendorRead`](#vendorread) |
 
 [Back to Summary](#summary)
 
@@ -669,8 +714,7 @@ Retrieve a list of all vendors.
 
 Create a new vendor, along with its initial set of contacts.
 
-Returns the created vendor, including generated IDs for the vendor
-and each vendor contact.
+Returns the created vendor, including generated IDs for the vendor and each vendor contact.
 
 **Request body** (required)
 
@@ -678,12 +722,12 @@ and each vendor contact.
 
 **Responses**
 
-| Status | Description                     | Body                                                             |
-| ------ | ------------------------------- | ---------------------------------------------------------------- |
-| `201`  | The newly created vendor        | `application/json` [`VendorRead`](#vendorread)                   |
-| `401`  | Could not validate credentials. | `application/json` `{ "detail": string }`                        |
-| `403`  | Insufficient permissions.       | `application/json` `{ "detail": string }`                        |
-| `422`  | Validation Error                | `application/json` [`HTTPValidationError`](#httpvalidationerror) |
+| Status | Description | Body |
+| --- | --- | --- |
+| `201` | The newly created vendor | `application/json` [`VendorRead`](#vendorread) |
+| `401` | Could not validate credentials. | `application/json` `{ "detail": string }` |
+| `403` | Insufficient permissions. | `application/json` `{ "detail": string }` |
+| `422` | Validation Error | `application/json` [`HTTPValidationError`](#httpvalidationerror) |
 
 [Back to Summary](#summary)
 
@@ -699,14 +743,13 @@ The list of contacts is processed in the following way:
 
 - If the contact has an ID, the existing contact with that ID will be updated.
 - If the contact does not have an ID, a new contact will be created.
-- Any of the vendor's existing contacts without a corresponding contact in
-  the request will be deleted.
+- Any of the vendor's existing contacts without a corresponding contact in the request will be deleted.
 
 **Path parameters**
 
-| Name | Type | Required | Notes                               |
-| ---- | ---- | -------- | ----------------------------------- |
-| `id` | int  | yes      | The unique identifier of the vendor |
+| Name | Type | Required | Notes |
+| --- | --- | --- | --- |
+| `id` | int | yes | The unique identifier of the vendor |
 
 **Request body** (required)
 
@@ -714,13 +757,13 @@ The list of contacts is processed in the following way:
 
 **Responses**
 
-| Status | Description                                                                                                                                                | Body                                                             |
-| ------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------- |
-| `200`  | The updated vendor                                                                                                                                         | `application/json` [`VendorRead`](#vendorread)                   |
-| `401`  | Could not validate credentials.                                                                                                                            | `application/json` `{ "detail": string }`                        |
-| `403`  | Insufficient permissions.                                                                                                                                  | `application/json` `{ "detail": string }`                        |
-| `404`  | The Vendor was not found, or the VendorContact was not found.                                                                                              | `application/json` `{ "detail": string }`                        |
-| `422`  | The provided VendorUpdate is malformed or invalid, or the provided path parameter is malformed or invalid, or the VendorContact belongs to another Vendor. | `application/json` [`HTTPValidationError`](#httpvalidationerror) |
+| Status | Description | Body |
+| --- | --- | --- |
+| `200` | The updated vendor | `application/json` [`VendorRead`](#vendorread) |
+| `401` | Could not validate credentials. | `application/json` `{ "detail": string }` |
+| `403` | Insufficient permissions. | `application/json` `{ "detail": string }` |
+| `404` | The Vendor was not found, or the VendorContact was not found. | `application/json` `{ "detail": string }` |
+| `422` | The provided VendorUpdate is malformed or invalid, or the provided path parameter is malformed or invalid, or the VendorContact belongs to another Vendor. | `application/json` [`HTTPValidationError`](#httpvalidationerror) |
 
 [Back to Summary](#summary)
 
@@ -734,20 +777,20 @@ Delete the vendor and its associated contacts.
 
 **Path parameters**
 
-| Name | Type | Required | Notes                               |
-| ---- | ---- | -------- | ----------------------------------- |
-| `id` | int  | yes      | The unique identifier of the vendor |
+| Name | Type | Required | Notes |
+| --- | --- | --- | --- |
+| `id` | int | yes | The unique identifier of the vendor |
 
 **Responses**
 
-| Status | Description                                          | Body                                                             |
-| ------ | ---------------------------------------------------- | ---------------------------------------------------------------- |
-| `204`  | The vendor was deleted successfully.                 | No content                                                       |
-| `401`  | Could not validate credentials.                      | `application/json` `{ "detail": string }`                        |
-| `403`  | Insufficient permissions.                            | `application/json` `{ "detail": string }`                        |
-| `404`  | The vendor was not found.                            | `application/json` `{ "detail": string }`                        |
-| `409`  | The vendor has associated ingredients.               | `application/json` `{ "detail": string }`                        |
-| `422`  | The provided path parameter is malformed or invalid. | `application/json` [`HTTPValidationError`](#httpvalidationerror) |
+| Status | Description | Body |
+| --- | --- | --- |
+| `204` | The vendor was deleted successfully. | No content |
+| `401` | Could not validate credentials. | `application/json` `{ "detail": string }` |
+| `403` | Insufficient permissions. | `application/json` `{ "detail": string }` |
+| `404` | The vendor was not found. | `application/json` `{ "detail": string }` |
+| `409` | The vendor has associated ingredients. | `application/json` `{ "detail": string }` |
+| `422` | The provided path parameter is malformed or invalid. | `application/json` [`HTTPValidationError`](#httpvalidationerror) |
 
 [Back to Summary](#summary)
 
@@ -759,444 +802,482 @@ Delete the vendor and its associated contacts.
 
 Input schema for creating a new baked good. Does not include `id`, since this will be assigned on creation.
 
-| Field           | Type          | Required | Notes                                                                                                |
-| --------------- | ------------- | -------- | ---------------------------------------------------------------------------------------------------- |
-| `active`        | bool          | no       | Whether or not the baked good is active; defaults to `true`                                          |
-| `name`          | string        | yes      | The name of the baked good, min length `1`                                                           |
-| `description`   | string        | yes      | A description of the baked good, min length `1`                                                      |
-| `purchase_cost` | decimal       | yes      | The purchase cost, in dollars per baked good; must be `>= 0`, at most 10 digits and 2 decimal places |
-| `retail_price`  | decimal       | yes      | The retail price, in dollars per baked good; must be `>= 0`, at most 10 digits and 2 decimal places  |
-| `allergens`     | array[string] | yes      | A list of any allergens present in the baked good                                                    |
+| Field | Type | Required | Notes |
+| --- | --- | --- | --- |
+| `active` | bool | no | Whether or not the baked good is active; defaults to `true` |
+| `name` | string | yes | The name of the baked good, min length `1` |
+| `description` | string | yes | A description of the baked good, min length `1` |
+| `purchase_cost` | decimal | yes | The purchase cost, in dollars per baked good; must be `>= 0`, at most 10 digits and 2 decimal places |
+| `retail_price` | decimal | yes | The retail price, in dollars per baked good; must be `>= 0`, at most 10 digits and 2 decimal places |
+| `quantity_on_hand` | int | yes | The current stock level of the baked good; must be `>= 0` |
+| `reorder_threshold` | int | yes | The stock level at which a reorder should be triggered; must be `>= 0` |
+| `reorder_quantity` | int | yes | The amount to reorder when the threshold is reached; must be `>= 0` |
+| `allergens` | array[string] | yes | A list of any allergens present in the baked good |
 
 ### BakedGoodRead
 
 The baked good representation returned to an API client.
 
-| Field           | Type          | Required | Notes                                                       |
-| --------------- | ------------- | -------- | ----------------------------------------------------------- |
-| `id`            | int           | yes      | The unique identifier for this baked good                   |
-| `active`        | bool          | no       | Whether or not the baked good is active; defaults to `true` |
-| `name`          | string        | yes      | The name of the baked good                                  |
-| `description`   | string        | yes      | A description of the baked good                             |
-| `purchase_cost` | decimal       | yes      | The purchase cost, in dollars per baked good                |
-| `retail_price`  | decimal       | yes      | The retail price, in dollars per baked good                 |
-| `allergens`     | array[string] | yes      | A list of any allergens present in the baked good           |
+| Field | Type | Required | Notes |
+| --- | --- | --- | --- |
+| `id` | int | yes | The unique identifier for this baked good |
+| `active` | bool | no | Whether or not the baked good is active; defaults to `true` |
+| `name` | string | yes | The name of the baked good |
+| `description` | string | yes | A description of the baked good |
+| `purchase_cost` | decimal | yes | The purchase cost, in dollars per baked good |
+| `retail_price` | decimal | yes | The retail price, in dollars per baked good |
+| `quantity_on_hand` | int | yes | The current stock level of the baked good |
+| `reorder_threshold` | int | yes | The stock level at which a reorder should be triggered |
+| `reorder_quantity` | int | yes | The amount to reorder when the threshold is reached |
+| `allergens` | array[string] | yes | A list of any allergens present in the baked good |
 
 ### CustomerBase
 
 Base schema of a customer in the system. At least `email` or `phone` must be provided.
 
-| Field            | Type   | Required             | Notes                                                                                       |
-| ---------------- | ------ | -------------------- | ------------------------------------------------------------------------------------------- |
-| `active`         | bool   | no                   | Whether the customer is currently active; defaults to `true`                                |
-| `first_name`     | string | yes                  | The customer's first name, min length of `1`                                                |
-| `last_name`      | string | yes                  | The customer's last name, min length of `1`                                                 |
-| `email`          | string | yes, if `phone=None` | The customer's email; syntax must be a proper email address, and defaults to `None`         |
-| `phone`          | string | yes, if `email=None` | The customer's phone number; must match pattern `\d{3}-\d{3}-\d{4}`, and defaults to `None` |
-| `loyalty_points` | int    | no                   | The customer's loyalty points, defaults to `0`                                              |
+| Field | Type | Required | Notes |
+| --- | --- | --- | --- |
+| `active` | bool | no | Whether the customer is currently active; defaults to `true` |
+| `first_name` | string | yes | The customer's first name, min length of `1` |
+| `last_name` | string | yes | The customer's last name, min length of `1` |
+| `email` | string | yes, if `phone=None` | The customer's email; syntax must be a proper email address, and defaults to `None` |
+| `phone` | string | yes, if `email=None` | The customer's phone number; must match pattern `\d{3}-\d{3}-\d{4}`, and defaults to `None` |
+| `loyalty_points` | int | no | The customer's loyalty points, defaults to `0` |
 
 ### CustomerCreate
 
 Input schema for creating a new customer. At least `email` or `phone` must be provided. Does not include `id`, since this will be assigned on creation.
 
-| Field                | Type     | Required             | Notes                                                                                                |
-| -------------------- | -------- | -------------------- | ---------------------------------------------------------------------------------------------------- |
-| `active`             | bool     | no                   | Whether the customer is currently active; defaults to `true`                                         |
-| `first_name`         | string   | yes                  | The customer's first name, min length of `1`                                                         |
-| `last_name`          | string   | yes                  | The customer's last name, min length of `1`                                                          |
-| `email`              | string   | yes, if `phone=None` | The customer's email; syntax must be a proper email address, and defaults to `None`                  |
-| `phone`              | string   | yes, if `email=None` | The customer's phone number; must match pattern `\d{3}-\d{3}-\d{4}`, and defaults to `None`          |
-| `loyalty_points`     | int      | no                   | The customer's loyalty points, defaults to `0`                                                       |
-| `loyalty_expires_at` | datetime | no                   | The expiration date of the customer's loyalty points; set to one year after customer record creation |
+| Field | Type | Required | Notes |
+| --- | --- | --- | --- |
+| `active` | bool | no | Whether the customer is currently active; defaults to `true` |
+| `first_name` | string | yes | The customer's first name, min length of `1` |
+| `last_name` | string | yes | The customer's last name, min length of `1` |
+| `email` | string | yes, if `phone=None` | The customer's email; syntax must be a proper email address, and defaults to `None` |
+| `phone` | string | yes, if `email=None` | The customer's phone number; must match pattern `\d{3}-\d{3}-\d{4}`, and defaults to `None` |
+| `loyalty_points` | int | no | The customer's loyalty points, defaults to `0` |
+| `loyalty_expires_at` | datetime | no | The expiration date of the customer's loyalty points; set to one year after customer record creation |
 
 ### CustomerFavoriteItemRead
 
 Represents a customer's most purchased item within a category.
 
-| Field         | Type           | Required | Notes                                                                                              |
-| ------------- | -------------- | -------- | -------------------------------------------------------------------------------------------------- |
-| `name`        | string \| null | no       | The name of the customer's most purchased item; defaults to `None` when no purchase history exists |
-| `quantity`    | int            | no       | The total quantity of the item purchased; defaults to `0`                                          |
-| `is_favorite` | bool           | no       | Whether the item has reached the favorite threshold of 5 purchases; defaults to `false`            |
+| Field | Type | Required | Notes |
+| --- | --- | --- | --- |
+| `name` | string \| null | no | The name of the customer's most purchased item; defaults to `None` when no purchase history exists |
+| `quantity` | int | no | The total quantity of the item purchased; defaults to `0` |
+| `is_favorite` | bool | no | Whether the item has reached the favorite threshold of 5 purchases; defaults to `false` |
 
 ### CustomerFavoriteRead
 
 Represents a customer's favorite drink and baked good.
 
-| Field        | Type                                                    | Required | Notes                                             |
-| ------------ | ------------------------------------------------------- | -------- | ------------------------------------------------- |
-| `customer`   | [`CustomerRead`](#customerread)                         | yes      | The active customer associated with the favorites |
-| `drink`      | [`CustomerFavoriteItemRead`](#customerfavoriteitemread) | yes      | The customer's most purchased drink               |
-| `baked_good` | [`CustomerFavoriteItemRead`](#customerfavoriteitemread) | yes      | The customer's most purchased baked good          |
+| Field | Type | Required | Notes |
+| --- | --- | --- | --- |
+| `customer` | [`CustomerRead`](#customerread) | yes | The active customer associated with the favorites |
+| `drink` | [`CustomerFavoriteItemRead`](#customerfavoriteitemread) | yes | The customer's most purchased drink |
+| `baked_good` | [`CustomerFavoriteItemRead`](#customerfavoriteitemread) | yes | The customer's most purchased baked good |
 
 ### CustomerRead
 
 Represents a customer in the system.
 
-| Field                | Type     | Required             | Notes                                                                                                |
-| -------------------- | -------- | -------------------- | ---------------------------------------------------------------------------------------------------- |
-| `active`             | bool     | no                   | Whether the customer is currently active; defaults to `true`                                         |
-| `first_name`         | string   | yes                  | The customer's first name, min length of `1`                                                         |
-| `last_name`          | string   | yes                  | The customer's last name, min length of `1`                                                          |
-| `email`              | string   | yes, if `phone=None` | The customer's email; syntax must be a proper email address, and defaults to `None`                  |
-| `phone`              | string   | yes, if `email=None` | The customer's phone number; must match pattern `\d{3}-\d{3}-\d{4}`, and defaults to `None`          |
-| `loyalty_points`     | int      | no                   | The customer's loyalty points, defaults to `0`                                                       |
-| `id`                 | int      | yes                  | The unique identifier of the customer                                                                |
-| `loyalty_expires_at` | datetime | no                   | The expiration date of the customer's loyalty points; set to one year after customer record creation |
+| Field | Type | Required | Notes |
+| --- | --- | --- | --- |
+| `active` | bool | no | Whether the customer is currently active; defaults to `true` |
+| `first_name` | string | yes | The customer's first name, min length of `1` |
+| `last_name` | string | yes | The customer's last name, min length of `1` |
+| `email` | string | yes, if `phone=None` | The customer's email; syntax must be a proper email address, and defaults to `None` |
+| `phone` | string | yes, if `email=None` | The customer's phone number; must match pattern `\d{3}-\d{3}-\d{4}`, and defaults to `None` |
+| `loyalty_points` | int | no | The customer's loyalty points, defaults to `0` |
+| `id` | int | yes | The unique identifier of the customer |
+| `loyalty_expires_at` | datetime | no | The expiration date of the customer's loyalty points; set to one year after customer record creation |
 
 ### DrinkBase
 
 Base schema of a drink recipe in the system.
 
-| Field               | Type    | Required | Notes                                                                                       |
-| ------------------- | ------- | -------- | ------------------------------------------------------------------------------------------- |
-| `active`            | bool    | no       | Whether the drink recipe is currently active; defaults to `true`                            |
-| `name`              | string  | yes      | The drink's name, min length of `1`                                                         |
-| `description`       | string  | yes      | The drink's description, min length of `1`                                                  |
-| `type`              | string  | yes      | The type of drink. Must be one of: coffee, tea, soda, refresher, or other.                  |
-| `markup_percentage` | decimal | yes      | The markup percentage of the drink `+ 1`, which means it must be greater than or equal to 1 |
+| Field | Type | Required | Notes |
+| --- | --- | --- | --- |
+| `active` | bool | no | Whether the drink recipe is currently active; defaults to `true` |
+| `name` | string | yes | The drink's name, min length of `1` |
+| `description` | string | yes | The drink's description, min length of `1` |
+| `type` | string | yes | The type of drink. Must be one of: coffee, tea, soda, refresher, or other. |
+| `markup_percentage` | decimal | yes | The markup percentage of the drink `+ 1`, which means it must be greater than or equal to 1 |
 
 ### DrinkCreate
 
 Input schema for creating a new drink recipe. Does not include `id` since this will be assigned on creation.
 
-| Field               | Type                                                                 | Required | Notes                                                                                       |
-| ------------------- | -------------------------------------------------------------------- | -------- | ------------------------------------------------------------------------------------------- |
-| `active`            | bool                                                                 | no       | Whether the drink recipe is currently active; defaults to `true`                            |
-| `name`              | string                                                               | yes      | The drink's name, min length of `1`                                                         |
-| `description`       | string                                                               | yes      | The drink's description, min length of `1`                                                  |
-| `type`              | string                                                               | yes      | The type of drink. Must be one of: coffee, tea, soda, refresher, or other.                  |
-| `markup_percentage` | decimal                                                              | yes      | The markup percentage of the drink `+ 1`, which means it must be greater than or equal to 1 |
-| `ingredients`       | array[[`DrinkIngredientCreateNested`](#drinkingredientcreatenested)] | yes      | The ingredients required for the drink recipe                                               |
+| Field | Type | Required | Notes |
+| --- | --- | --- | --- |
+| `active` | bool | no | Whether the drink recipe is currently active; defaults to `true` |
+| `name` | string | yes | The drink's name, min length of `1` |
+| `description` | string | yes | The drink's description, min length of `1` |
+| `type` | string | yes | The type of drink. Must be one of: coffee, tea, soda, refresher, or other. |
+| `markup_percentage` | decimal | yes | The markup percentage of the drink `+ 1`, which means it must be greater than or equal to 1 |
+| `ingredients` | array[[`DrinkIngredientCreateNested`](#drinkingredientcreatenested)] | yes | The ingredients required for the drink recipe |
 
 ### DrinkIngredientBase
 
 Base schema of an ingredient for a unique drink in the system. The ingredient must exist in the system and their `id` specified.
 
-| Field           | Type    | Required | Notes                                                                                                                                                               |
-| --------------- | ------- | -------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `ingredient_id` | int     | yes      | The unique identifier of the ingredient                                                                                                                             |
-| `amount`        | decimal | yes      | The ingredient amount required for the drink recipe; must be a positive number                                                                                      |
-| `unit`          | string  | yes      | The ingredient's unit of measure for the drink recipe; must use the same unit category as the referenced ingredient's unit, see [Unit Categories](#unit-categories) |
+| Field | Type | Required | Notes |
+| --- | --- | --- | --- |
+| `ingredient_id` | int | yes | The unique identifier of the ingredient |
+| `amount` | decimal | yes | The ingredient amount required for the drink recipe; must be a positive number |
+| `unit` | string | yes | The ingredient's unit of measure for the drink recipe; must use the same unit category as the referenced ingredient's unit, see [Unit Categories](#unit-categories) |
 
 ### DrinkIngredientCreateNested
 
 Input schema for attaching an existing ingredient to a new drink recipe. `unit` must be one of: g, kg, oz, lb, fl oz, mL, L, gal, pumps, scoops, shots, dashes.
 
-| Field           | Type    | Required | Notes                                                                                                                                                               |
-| --------------- | ------- | -------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `ingredient_id` | int     | yes      | The unique identifier of the ingredient                                                                                                                             |
-| `amount`        | decimal | yes      | The ingredient amount required for the drink recipe; must be a positive number                                                                                      |
-| `unit`          | string  | yes      | The ingredient's unit of measure for the drink recipe; must use the same unit category as the referenced ingredient's unit, see [Unit Categories](#unit-categories) |
+| Field | Type | Required | Notes |
+| --- | --- | --- | --- |
+| `ingredient_id` | int | yes | The unique identifier of the ingredient |
+| `amount` | decimal | yes | The ingredient amount required for the drink recipe; must be a positive number |
+| `unit` | string | yes | The ingredient's unit of measure for the drink recipe; must use the same unit category as the referenced ingredient's unit, see [Unit Categories](#unit-categories) |
 
 ### DrinkIngredientRead
 
 Represents an ingredient for a unique drink recipe in the system.
 
-| Field           | Type    | Required | Notes                                                                                                                                                               |
-| --------------- | ------- | -------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `ingredient_id` | int     | yes      | The unique identifier of the ingredient                                                                                                                             |
-| `amount`        | decimal | yes      | The ingredient amount required for the drink recipe; must be a positive number                                                                                      |
-| `unit`          | string  | yes      | The ingredient's unit of measure for the drink recipe; must use the same unit category as the referenced ingredient's unit, see [Unit Categories](#unit-categories) |
+| Field | Type | Required | Notes |
+| --- | --- | --- | --- |
+| `ingredient_id` | int | yes | The unique identifier of the ingredient |
+| `amount` | decimal | yes | The ingredient amount required for the drink recipe; must be a positive number |
+| `unit` | string | yes | The ingredient's unit of measure for the drink recipe; must use the same unit category as the referenced ingredient's unit, see [Unit Categories](#unit-categories) |
 
 ### DrinkRead
 
 Represents a new drink recipe in the system. `production_cost` and `sale_price` are computed fields handled by `services/drinks`.
 
-| Field               | Type                                                 | Required | Notes                                                                                       |
-| ------------------- | ---------------------------------------------------- | -------- | ------------------------------------------------------------------------------------------- |
-| `active`            | bool                                                 | no       | Whether the drink recipe is currently active; defaults to `true`                            |
-| `name`              | string                                               | yes      | The drink's name, min length of `1`                                                         |
-| `description`       | string                                               | yes      | The drink's description, min length of `1`                                                  |
-| `type`              | string                                               | yes      | The type of drink. Must be one of: coffee, tea, soda, refresher, or other.                  |
-| `markup_percentage` | decimal                                              | yes      | The markup percentage of the drink `+ 1`, which means it must be greater than or equal to 1 |
-| `id`                | int                                                  | yes      | The unique identifier of the drink recipe                                                   |
-| `ingredients`       | array[[`DrinkIngredientRead`](#drinkingredientread)] | yes      | The ingredients specified in the drink recipe                                               |
-| `production_cost`   | decimal                                              | yes      | The purchasing cost sum of all ingredients in the drink recipe                              |
-| `sale_price`        | decimal                                              | yes      | The sale price of the drink computed as the `markup_percentage * production_cost`           |
+| Field | Type | Required | Notes |
+| --- | --- | --- | --- |
+| `active` | bool | no | Whether the drink recipe is currently active; defaults to `true` |
+| `name` | string | yes | The drink's name, min length of `1` |
+| `description` | string | yes | The drink's description, min length of `1` |
+| `type` | string | yes | The type of drink. Must be one of: coffee, tea, soda, refresher, or other. |
+| `markup_percentage` | decimal | yes | The markup percentage of the drink `+ 1`, which means it must be greater than or equal to 1 |
+| `id` | int | yes | The unique identifier of the drink recipe |
+| `ingredients` | array[[`DrinkIngredientRead`](#drinkingredientread)] | yes | The ingredients specified in the drink recipe |
+| `production_cost` | decimal | yes | The purchasing cost sum of all ingredients in the drink recipe |
+| `sale_price` | decimal | yes | The sale price of the drink computed as the `markup_percentage * production_cost` |
 
 ### EmployeeCreate
 
 Input schema for creating a new employee. Does not include `id`, since this will be assigned on creation. The password is hashed before it is stored.
 
-| Field         | Type         | Required | Notes                                                                                                                                   |
-| ------------- | ------------ | -------- | --------------------------------------------------------------------------------------------------------------------------------------- |
-| `active`      | bool         | no       | Whether the employee is currently active; defaults to `true`                                                                            |
-| `first_name`  | string       | yes      | The employee's first name, min length `1`                                                                                               |
-| `last_name`   | string       | yes      | The employee's last name, min length `1`                                                                                                |
-| `role`        | string       | yes      | The employee's role; one of `employee`, `manager`, `admin`                                                                              |
-| `hourly_rate` | decimal      | yes      | The employee's hourly rate in dollars, must be greater than `0`, at most 10 digits and 2 decimal places                                 |
-| `hire_date`   | date         | yes      | The date the employee was hired                                                                                                         |
-| `term_date`   | date \| null | no       | The date the employee was terminated, if applicable; defaults to `null`; must be later than `hire_date`                                 |
-| `username`    | string       | yes      | The employee's username for system access, min length `1`, must be unique                                                               |
-| `password`    | string       | yes      | The employee's password; min length `8`, must include a capital letter, a number, and a special character from !@#$%^&*()_+-=[]{};':"\\ | ,.<>/?`~ |
+| Field | Type | Required | Notes |
+| --- | --- | --- | --- |
+| `active` | bool | no | Whether the employee is currently active; defaults to `true` |
+| `first_name` | string | yes | The employee's first name, min length `1` |
+| `last_name` | string | yes | The employee's last name, min length `1` |
+| `role` | string | yes | The employee's role; one of `employee`, `manager`, `admin` |
+| `hourly_rate` | decimal | yes | The employee's hourly rate in dollars, must be greater than `0`, at most 10 digits and 2 decimal places |
+| `hire_date` | date | yes | The date the employee was hired |
+| `term_date` | date \| null | no | The date the employee was terminated, if applicable; defaults to `null`; must be later than `hire_date` |
+| `username` | string | yes | The employee's username for system access, min length `1`, must be unique |
+| `password` | string | yes | The employee's password; min length `8`, must include a capital letter, a number, and a special character from `!@#$%^&*()_+-=[]{};':"\|,.<>/?~` |
 
 ### EmployeeRead
 
 Represents an employee returned from the system. Does not include `password`.
 
-| Field         | Type         | Required | Notes                                                                               |
-| ------------- | ------------ | -------- | ----------------------------------------------------------------------------------- |
-| `id`          | int          | yes      | The unique identifier of the employee                                               |
-| `active`      | bool         | yes      | Whether the employee is currently active                                            |
-| `first_name`  | string       | yes      | The employee's first name                                                           |
-| `last_name`   | string       | yes      | The employee's last name                                                            |
-| `role`        | string       | yes      | The employee's role; one of `employee`, `manager`, `admin`                          |
-| `hourly_rate` | decimal      | yes      | The employee's hourly rate in dollars, at most 10 digits and 2 decimal places       |
-| `hire_date`   | date         | yes      | The date the employee was hired                                                     |
-| `term_date`   | date \| null | no       | The date the employee was terminated, if applicable; must be later than `hire_date` |
-| `username`    | string       | yes      | The employee's username for system access                                           |
+| Field | Type | Required | Notes |
+| --- | --- | --- | --- |
+| `id` | int | yes | The unique identifier of the employee |
+| `active` | bool | yes | Whether the employee is currently active |
+| `first_name` | string | yes | The employee's first name |
+| `last_name` | string | yes | The employee's last name |
+| `role` | string | yes | The employee's role; one of `employee`, `manager`, `admin` |
+| `hourly_rate` | decimal | yes | The employee's hourly rate in dollars, at most 10 digits and 2 decimal places |
+| `hire_date` | date | yes | The date the employee was hired |
+| `term_date` | date \| null | no | The date the employee was terminated, if applicable; must be later than `hire_date` |
+| `username` | string | yes | The employee's username for system access |
 
 ### EmployeeUpdate
 
 Input schema for updating an existing employee.
 
-| Field         | Type         | Required | Notes                                                |
-| ------------- | ------------ | -------- | ---------------------------------------------------- |
-| `active`      | bool         | yes      | Whether the employee is currently active.            |
-| `first_name`  | string       | yes      | The employee's first name.                           |
-| `last_name`   | string       | yes      | The employee's last name.                            |
-| `role`        | string       | yes      | The employee's role.                                 |
-| `hourly_rate` | decimal      | yes      | The employee's hourly rate.                          |
-| `hire_date`   | date         | yes      | The date the employee was hired.                     |
-| `term_date`   | date \| null | no       | The date the employee was terminated, if applicable. |
-| `username`    | string       | yes      | The employee's unique username.                      |
+| Field | Type | Required | Notes |
+| --- | --- | --- | --- |
+| `active` | bool | yes | Whether the employee is currently active. |
+| `first_name` | string | yes | The employee's first name. |
+| `last_name` | string | yes | The employee's last name. |
+| `role` | string | yes | The employee's role. |
+| `hourly_rate` | decimal | yes | The employee's hourly rate. |
+| `hire_date` | date | yes | The date the employee was hired. |
+| `term_date` | date \| null | no | The date the employee was terminated, if applicable. |
+| `username` | string | yes | The employee's unique username. |
 
 ### HTTPValidationError
 
-| Field    | Type                                         | Required | Notes |
-| -------- | -------------------------------------------- | -------- | ----- |
-| `detail` | array[[`ValidationError`](#validationerror)] | no       |       |
+| Field | Type | Required | Notes |
+| --- | --- | --- | --- |
+| `detail` | array[[`ValidationError`](#validationerror)] | no | |
 
 ### IngredientCreate
 
 Input schema for creating a new ingredient. Does not include `id`, since this will be assigned on creation.
 
-| Field             | Type          | Required | Notes                                                                                                                    |
-| ----------------- | ------------- | -------- | ------------------------------------------------------------------------------------------------------------------------ |
-| `active`          | bool          | no       | Whether or not the ingredient is active; defaults to `true`                                                              |
-| `name`            | string        | yes      | The name of the ingredient, min length `1`                                                                               |
-| `purchasing_cost` | decimal       | yes      | The cost to purchase this ingredient                                                                                     |
-| `unit_amount`     | decimal       | yes      | The amount per unit of measure; must be `> 0`                                                                            |
-| `unit_of_measure` | string        | yes      | The unit used to measure this ingredient. Must be one of: g, kg, oz, lb, fl oz, mL, L, gal, pumps, scoops, shots, dashes |
-| `vendor_id`       | int           | yes      | The ID of the vendor supplying this ingredient                                                                           |
-| `allergens`       | array[string] | no       | A list of allergens present in the ingredient                                                                            |
+| Field | Type | Required | Notes |
+| --- | --- | --- | --- |
+| `active` | bool | no | Whether or not the ingredient is active; defaults to `true` |
+| `name` | string | yes | The name of the ingredient, min length `1` |
+| `purchasing_cost` | decimal | yes | The cost to purchase this ingredient |
+| `unit_amount` | decimal | yes | The amount per unit of measure; must be `> 0` |
+| `unit_of_measure` | string | yes | The unit used to measure this ingredient. Must be one of: g, kg, oz, lb, fl oz, mL, L, gal, pumps, scoops, shots, dashes |
+| `vendor_id` | int | yes | The ID of the vendor supplying this ingredient |
+| `quantity_on_hand` | decimal | yes | The available amount of ingredient for use; must be `>= 0`, at most 10 digits and 2 decimal places |
+| `reorder_threshold` | decimal | yes | The exact ingredient stock level initiating a reorder alert; must be `> 0`, at most 10 digits and 2 decimal places |
+| `reorder_quantity` | decimal | yes | The total amount of ingredient for a batch order; must be `> 0`, at most 10 digits and 2 decimal places |
+| `allergens` | array[string] | no | A list of allergens present in the ingredient |
 
 ### IngredientRead
 
 The ingredient representation returned to an API client.
 
-| Field             | Type          | Required | Notes                                                                                                                    |
-| ----------------- | ------------- | -------- | ------------------------------------------------------------------------------------------------------------------------ |
-| `id`              | int           | yes      | The unique identifier for this ingredient                                                                                |
-| `active`          | bool          | yes      | Whether or not the ingredient is active                                                                                  |
-| `name`            | string        | yes      | The name of the ingredient                                                                                               |
-| `purchasing_cost` | decimal       | yes      | The cost to purchase this ingredient                                                                                     |
-| `unit_amount`     | decimal       | yes      | The amount per unit of measure                                                                                           |
-| `unit_of_measure` | string        | yes      | The unit used to measure this ingredient. Must be one of: g, kg, oz, lb, fl oz, mL, L, gal, pumps, scoops, shots, dashes |
-| `vendor_id`       | int           | yes      | The ID of the vendor supplying this ingredient                                                                           |
-| `allergens`       | array[string] | yes      | A list of allergens present in the ingredient                                                                            |
+| Field | Type | Required | Notes |
+| --- | --- | --- | --- |
+| `id` | int | yes | The unique identifier for this ingredient |
+| `active` | bool | yes | Whether or not the ingredient is active |
+| `name` | string | yes | The name of the ingredient |
+| `purchasing_cost` | decimal | yes | The cost to purchase this ingredient |
+| `unit_amount` | decimal | yes | The amount per unit of measure |
+| `unit_of_measure` | string | yes | The unit used to measure this ingredient. Must be one of: g, kg, oz, lb, fl oz, mL, L, gal, pumps, scoops, shots, dashes |
+| `vendor_id` | int | yes | The ID of the vendor supplying this ingredient |
+| `quantity_on_hand` | decimal | yes | The available amount of ingredient for use |
+| `reorder_threshold` | decimal | yes | The exact ingredient stock level initiating a reorder alert |
+| `reorder_quantity` | decimal | yes | The total amount of ingredient for a batch order |
+| `allergens` | array[string] | yes | A list of allergens present in the ingredient |
 
 ### IngredientUpdate
 
 Input schema for updating an existing ingredient.
 
-| Field             | Type          | Required | Notes                                                                                                                    |
-| ----------------- | ------------- | -------- | ------------------------------------------------------------------------------------------------------------------------ |
-| `active`          | bool          | no       | Whether or not the ingredient is active                                                                                  |
-| `name`            | string        | yes      | The name of the ingredient, min length `1`                                                                               |
-| `purchasing_cost` | decimal       | yes      | The cost to purchase this ingredient                                                                                     |
-| `unit_amount`     | decimal       | yes      | The amount per unit of measure; must be `> 0`                                                                            |
-| `unit_of_measure` | string        | yes      | The unit used to measure this ingredient. Must be one of: g, kg, oz, lb, fl oz, mL, L, gal, pumps, scoops, shots, dashes |
-| `vendor_id`       | int           | yes      | The ID of the vendor supplying this ingredient                                                                           |
-| `allergens`       | array[string] | no       | A list of allergens present in the ingredient                                                                            |
+| Field | Type | Required | Notes |
+| --- | --- | --- | --- |
+| `active` | bool | no | Whether or not the ingredient is active |
+| `name` | string | yes | The name of the ingredient, min length `1` |
+| `purchasing_cost` | decimal | yes | The cost to purchase this ingredient |
+| `unit_amount` | decimal | yes | The amount per unit of measure; must be `> 0` |
+| `unit_of_measure` | string | yes | The unit used to measure this ingredient. Must be one of: g, kg, oz, lb, fl oz, mL, L, gal, pumps, scoops, shots, dashes |
+| `vendor_id` | int | yes | The ID of the vendor supplying this ingredient |
+| `quantity_on_hand` | decimal | yes | The available amount of ingredient for use; must be `>= 0`, at most 10 digits and 2 decimal places |
+| `reorder_threshold` | decimal | yes | The exact ingredient stock level initiating a reorder alert; must be `> 0`, at most 10 digits and 2 decimal places |
+| `reorder_quantity` | decimal | yes | The total amount of ingredient for a batch order; must be `> 0`, at most 10 digits and 2 decimal places |
+| `allergens` | array[string] | no | A list of allergens present in the ingredient |
 
 ### Login
 
 Input schema for authenticating an employee. Submitted as OAuth2 form data.
 
-| Field      | Type   | Required | Notes                                     |
-| ---------- | ------ | -------- | ----------------------------------------- |
-| `username` | string | yes      | The employee's username for system access |
-| `password` | string | yes      | The employee's password for system access |
+| Field | Type | Required | Notes |
+| --- | --- | --- | --- |
+| `username` | string | yes | The employee's username for system access |
+| `password` | string | yes | The employee's password for system access |
+
+### LowStockItemReport
+
+Represents a single ingredient or baked good currently at or below its reorder threshold.
+
+| Field | Type | Required | Notes |
+| --- | --- | --- | --- |
+| `id` | int | yes | The unique identifier of the item |
+| `name` | string | yes | The name of the ingredient or baked good, min length `1` |
+| `item_type` | string | yes | The item category; one of `ingredient`, `baked_good` |
+| `quantity_on_hand` | decimal | yes | The current stock level of the item |
+| `reorder_threshold` | decimal | yes | The stock level at which a reorder should be triggered |
+| `reorder_quantity` | decimal | yes | The item amount for a reorder |
 
 ### PromotionCreate
 
-Input schema for creating a new promotion. Does not include `id`, since this
-will be assigned on creation.
+Input schema for creating a new promotion. Does not include `id`, since this will be assigned on creation.
 
-| Field                 | Type    | Required | Notes                                                                     |
-| --------------------- | ------- | -------- | ------------------------------------------------------------------------- |
-| `active`              | bool    | yes      | Whether or not the promotion is active                                    |
-| `promo_code`          | string  | yes      | Must contain uppercase letters only; spaces and underscores are permitted |
-| `discount_percentage` | decimal | yes      | Must be numeric and between `0` and `100`                                 |
-| `start_date`          | date    | yes      | Promotion start date; must use one of the supported date formats          |
-| `end_date`            | date    | yes      | Promotion end date; cannot occur before `start_date`                      |
+| Field | Type | Required | Notes |
+| --- | --- | --- | --- |
+| `active` | bool | yes | Whether or not the promotion is active |
+| `promo_code` | string | yes | Must contain uppercase letters only; spaces and underscores are permitted |
+| `discount_percentage` | decimal | yes | Must be numeric and between `0` and `100` |
+| `start_date` | date | yes | Promotion start date; must use one of the supported date formats |
+| `end_date` | date | yes | Promotion end date; cannot occur before `start_date` |
 
 ### PromotionRead
 
 Represents a promotion returned by the API.
 
-| Field                 | Type    | Required | Notes                                  |
-| --------------------- | ------- | -------- | -------------------------------------- |
-| `id`                  | int     | yes      | The promotion's unique identifier      |
-| `active`              | bool    | yes      | Whether or not the promotion is active |
-| `promo_code`          | string  | yes      | The promotion code                     |
-| `discount_percentage` | decimal | yes      | The percentage discount                |
-| `start_date`          | date    | yes      | The promotion start date               |
-| `end_date`            | date    | yes      | The promotion end date                 |
+| Field | Type | Required | Notes |
+| --- | --- | --- | --- |
+| `id` | int | yes | The promotion's unique identifier |
+| `active` | bool | yes | Whether or not the promotion is active |
+| `promo_code` | string | yes | The promotion code |
+| `discount_percentage` | decimal | yes | The percentage discount |
+| `start_date` | date | yes | The promotion start date |
+| `end_date` | date | yes | The promotion end date |
 
 ### PromotionUpdate
 
 Input schema for updating an existing promotion.
 
-| Field                 | Type    | Required | Notes                                                                     |
-| --------------------- | ------- | -------- | ------------------------------------------------------------------------- |
-| `active`              | bool    | yes      | Whether or not the promotion is active                                    |
-| `promo_code`          | string  | yes      | Must contain uppercase letters only; spaces and underscores are permitted |
-| `discount_percentage` | decimal | yes      | Must be numeric and between `0` and `100`                                 |
-| `start_date`          | date    | yes      | Promotion start date; must use one of the supported date formats          |
-| `end_date`            | date    | yes      | Promotion end date; cannot occur before `start_date`                      |
+| Field | Type | Required | Notes |
+| --- | --- | --- | --- |
+| `active` | bool | yes | Whether or not the promotion is active |
+| `promo_code` | string | yes | Must contain uppercase letters only; spaces and underscores are permitted |
+| `discount_percentage` | decimal | yes | Must be numeric and between `0` and `100` |
+| `start_date` | date | yes | Promotion start date; must use one of the supported date formats |
+| `end_date` | date | yes | Promotion end date; cannot occur before `start_date` |
 
 ### PurchaseCreate
 
 Input schema for processing a new purchase.
 
-| Field         | Type                                                           | Required | Notes                                                   |
-| ------------- | -------------------------------------------------------------- | -------- | ------------------------------------------------------- |
-| `customer_id` | int \| null                                                    | no       | The ID of the customer making the purchase              |
-| `promo_id`    | int \| null                                                    | no       | The ID of a promotion to apply to the subtotal          |
-| `items`       | array[[`PurchaseItemCreateNested`](#purchaseitemcreatenested)] | yes      | The items being purchased; must contain at least 1 item |
+| Field | Type | Required | Notes |
+| --- | --- | --- | --- |
+| `customer_id` | int \| null | no | The ID of the customer making the purchase |
+| `promo_id` | int \| null | no | The ID of a promotion to apply to the subtotal |
+| `items` | array[[`PurchaseItemCreateNested`](#purchaseitemcreatenested)] | yes | The items being purchased; must contain at least 1 item |
 
 ### PurchaseItemCreateNested
 
 Input schema for an item nested inside a [`PurchaseCreate`](#purchasecreate) payload.
 
-| Field      | Type   | Required | Notes                                                               |
-| ---------- | ------ | -------- | ------------------------------------------------------------------- |
-| `name`     | string | yes      | The name of the drink or baked good being purchased                 |
-| `quantity` | int    | no       | The quantity being purchased; defaults to 1, must be greater than 0 |
+| Field | Type | Required | Notes |
+| --- | --- | --- | --- |
+| `name` | string | yes | The name of the drink or baked good being purchased |
+| `quantity` | int | no | The quantity being purchased; defaults to 1, must be greater than 0 |
 
 ### PurchaseItemRead
 
 Represents an item in a completed purchase.
 
-| Field         | Type    | Required | Notes                                               |
-| ------------- | ------- | -------- | --------------------------------------------------- |
-| `id`          | int     | yes      | The unique identifier of the purchase item record   |
-| `purchase_id` | int     | yes      | The ID of the parent purchase                       |
-| `name`        | string  | yes      | The name of the item purchased                      |
-| `quantity`    | int     | yes      | The quantity purchased                              |
-| `unit_price`  | decimal | yes      | The locked-in price of the item at the time of sale |
-| `item_type`   | string  | yes      | The type of item purchased (drink or baked_good)    |
+| Field | Type | Required | Notes |
+| --- | --- | --- | --- |
+| `id` | int | yes | The unique identifier of the purchase item record |
+| `purchase_id` | int | yes | The ID of the parent purchase |
+| `name` | string | yes | The name of the item purchased |
+| `quantity` | int | yes | The quantity purchased |
+| `unit_price` | decimal | yes | The locked-in price of the item at the time of sale |
+| `item_type` | string | yes | The type of item purchased (drink or baked_good) |
 
 ### PurchaseRead
 
 Represents a completed purchase transaction.
 
-| Field         | Type                                           | Required | Notes                                             |
-| ------------- | ---------------------------------------------- | -------- | ------------------------------------------------- |
-| `id`          | int                                            | yes      | The unique identifier of the purchase             |
-| `customer_id` | int \| null                                    | yes      | The ID of the customer, if provided               |
-| `promo_id`    | int \| null                                    | yes      | The ID of the promotion, if provided              |
-| `subtotal`    | decimal                                        | yes      | The sum of all items minus the promotion discount |
-| `tax`         | decimal                                        | yes      | The calculated tax (7% of the subtotal)           |
-| `total`       | decimal                                        | yes      | The final total charged (subtotal + tax)          |
-| `created_at`  | datetime                                       | yes      | The timestamp the purchase was recorded           |
-| `items`       | array[[`PurchaseItemRead`](#purchaseitemread)] | yes      | The items included in the purchase                |
+| Field | Type | Required | Notes |
+| --- | --- | --- | --- |
+| `id` | int | yes | The unique identifier of the purchase |
+| `customer_id` | int \| null | yes | The ID of the customer, if provided |
+| `promo_id` | int \| null | yes | The ID of the promotion, if provided |
+| `subtotal` | decimal | yes | The sum of all items minus the promotion discount |
+| `tax` | decimal | yes | The calculated tax (7% of the subtotal) |
+| `total` | decimal | yes | The final total charged (subtotal + tax) |
+| `created_at` | datetime | yes | The timestamp the purchase was recorded |
+| `items` | array[[`PurchaseItemRead`](#purchaseitemread)] | yes | The items included in the purchase |
 
 ### Token
 
 Token schema returned from the system.
 
-| Field          | Type   | Required | Notes                                               |
-| -------------- | ------ | -------- | --------------------------------------------------- |
-| `access_token` | string | yes      | The JWT access token for the authenticated employee |
-| `token_type`   | string | yes      | The type of the access token                        |
+| Field | Type | Required | Notes |
+| --- | --- | --- | --- |
+| `access_token` | string | yes | The JWT access token for the authenticated employee |
+| `token_type` | string | yes | The type of the access token |
 
 ### Unit Categories
 
 Categories for valid units of measurement.
 
-| Category | Units                                |
-| -------- | ------------------------------------ |
-| MASS     | `g`, `kg`, `oz`, `lb`                |
-| VOLUME   | `mL`, `fl oz`, `L`, `gal`            |
-| OTHER    | `pumps`, `scoops`, `shots`, `dashes` |
+| Category | Units |
+| --- | --- |
+| MASS | `g`, `kg`, `oz`, `lb` |
+| VOLUME | `mL`, `fl oz`, `L`, `gal` |
+| OTHER | `pumps`, `scoops`, `shots`, `dashes` |
+
+### UsageReport
+
+Represents the total quantity of an ingredient or baked good sold on a single day.
+
+| Field | Type | Required | Notes |
+| --- | --- | --- | --- |
+| `date` | date | yes | The usage date of the item |
+| `item_id` | int | yes | The unique identifier of the used item |
+| `item_type` | string | yes | The type of the reported used item; one of `ingredient`, `baked_good` |
+| `usage_total` | decimal | yes | The aggregate sum of the item used on the date |
 
 ### ValidationError
 
-| Field   | Type                 | Required | Notes |
-| ------- | -------------------- | -------- | ----- |
-| `loc`   | array[string \| int] | yes      |       |
-| `msg`   | string               | yes      |       |
-| `type`  | string               | yes      |       |
-| `input` | any                  | no       |       |
-| `ctx`   | object               | no       |       |
+| Field | Type | Required | Notes |
+| --- | --- | --- | --- |
+| `loc` | array[string \| int] | yes | |
+| `msg` | string | yes | |
+| `type` | string | yes | |
+| `input` | any | no | |
+| `ctx` | object | no | |
 
 ### VendorContactCreateNested
 
 Input schema for a contact nested inside a [`VendorCreate`](#vendorcreate) payload. Does not include `id` or `vendor_id`, since these are assigned on creation.
 
-| Field   | Type   | Required | Notes                                                              |
-| ------- | ------ | -------- | ------------------------------------------------------------------ |
-| `name`  | string | yes      | The vendor contact's name, min length `1`                          |
-| `role`  | string | yes      | The vendor contact's role, min length `1`                          |
-| `email` | string | yes      | The vendor contact's email, must match pattern `.+@.+`             |
-| `phone` | string | yes      | The vendor contact's phone, must match pattern `\d{3}-\d{3}-\d{4}` |
+| Field | Type | Required | Notes |
+| --- | --- | --- | --- |
+| `name` | string | yes | The vendor contact's name, min length `1` |
+| `role` | string | yes | The vendor contact's role, min length `1` |
+| `email` | string | yes | The vendor contact's email, must match pattern `.+@.+` |
+| `phone` | string | yes | The vendor contact's phone, must match pattern `\d{3}-\d{3}-\d{4}` |
 
 ### VendorContactRead
 
 Represents a contact belonging to a vendor.
 
-| Field       | Type   | Required | Notes                                  |
-| ----------- | ------ | -------- | -------------------------------------- |
-| `id`        | int    | yes      | The vendor contact's unique identifier |
-| `name`      | string | yes      | The vendor contact's name              |
-| `role`      | string | yes      | The vendor contact's role              |
-| `email`     | string | yes      | The vendor contact's email             |
-| `phone`     | string | yes      | The vendor contact's phone             |
-| `vendor_id` | int    | yes      | The ID of this contact's vendor        |
+| Field | Type | Required | Notes |
+| --- | --- | --- | --- |
+| `id` | int | yes | The vendor contact's unique identifier |
+| `name` | string | yes | The vendor contact's name |
+| `role` | string | yes | The vendor contact's role |
+| `email` | string | yes | The vendor contact's email |
+| `phone` | string | yes | The vendor contact's phone |
+| `vendor_id` | int | yes | The ID of this contact's vendor |
 
 ### VendorContactUpdateNested
 
 Input schema for a contact nested inside a [`VendorUpdate`](#vendorupdate) payload. If `id` is provided, the existing contact with that ID is updated; if omitted, a new contact is created. Does not include `vendor_id`.
 
-| Field   | Type        | Required | Notes                                                              |
-| ------- | ----------- | -------- | ------------------------------------------------------------------ |
-| `id`    | int \| null | no       | The vendor contact's unique identifier; defaults to `null`         |
-| `name`  | string      | yes      | The vendor contact's name, min length `1`                          |
-| `role`  | string      | yes      | The vendor contact's role, min length `1`                          |
-| `email` | string      | yes      | The vendor contact's email, must match pattern `.+@.+`             |
-| `phone` | string      | yes      | The vendor contact's phone, must match pattern `\d{3}-\d{3}-\d{4}` |
+| Field | Type | Required | Notes |
+| --- | --- | --- | --- |
+| `id` | int \| null | no | The vendor contact's unique identifier; defaults to `null` |
+| `name` | string | yes | The vendor contact's name, min length `1` |
+| `role` | string | yes | The vendor contact's role, min length `1` |
+| `email` | string | yes | The vendor contact's email, must match pattern `.+@.+` |
+| `phone` | string | yes | The vendor contact's phone, must match pattern `\d{3}-\d{3}-\d{4}` |
 
 ### VendorCreate
 
 Input schema for creating a new vendor. Does not include `id`, since this will be assigned on creation.
 
-| Field      | Type                                                             | Required | Notes                                                                                     |
-| ---------- | ---------------------------------------------------------------- | -------- | ----------------------------------------------------------------------------------------- |
-| `active`   | bool                                                             | no       | Whether or not the vendor is active, defaults to `true`                                   |
-| `name`     | string                                                           | yes      | The name of the vendor, min length `1`                                                    |
-| `contacts` | array[[`VendorContactCreateNested`](#vendorcontactcreatenested)] | yes      | The vendor's contacts, min length `1`; a vendor must be created with at least one contact |
+| Field | Type | Required | Notes |
+| --- | --- | --- | --- |
+| `active` | bool | no | Whether or not the vendor is active, defaults to `true` |
+| `name` | string | yes | The name of the vendor, min length `1` |
+| `contacts` | array[[`VendorContactCreateNested`](#vendorcontactcreatenested)] | yes | The vendor's contacts, min length `1`; a vendor must be created with at least one contact |
 
 ### VendorRead
 
 Represents a vendor and its associated contacts.
 
-| Field      | Type                                             | Required | Notes                                 |
-| ---------- | ------------------------------------------------ | -------- | ------------------------------------- |
-| `id`       | int                                              | yes      | The vendor's unique identifier        |
-| `active`   | bool                                             | yes      | Whether or not the vendor is active   |
-| `name`     | string                                           | yes      | The name of the vendor                |
-| `contacts` | array[[`VendorContactRead`](#vendorcontactread)] | yes      | The vendor's contacts, min length `1` |
+| Field | Type | Required | Notes |
+| --- | --- | --- | --- |
+| `id` | int | yes | The vendor's unique identifier |
+| `active` | bool | yes | Whether or not the vendor is active |
+| `name` | string | yes | The name of the vendor |
+| `contacts` | array[[`VendorContactRead`](#vendorcontactread)] | yes | The vendor's contacts, min length `1` |
 
 ### VendorUpdate
 
 Input schema for updating an existing vendor.
 
-| Field      | Type                                                             | Required | Notes                                                                          |
-| ---------- | ---------------------------------------------------------------- | -------- | ------------------------------------------------------------------------------ |
-| `active`   | bool                                                             | no       | Whether or not the vendor is active, defaults to `true`                        |
-| `name`     | string                                                           | yes      | The name of the vendor, min length `1`                                         |
-| `contacts` | array[[`VendorContactUpdateNested`](#vendorcontactupdatenested)] | yes      | The vendor's contacts, min length `1`; a vendor must have at least one contact |
+| Field | Type | Required | Notes |
+| --- | --- | --- | --- |
+| `active` | bool | no | Whether or not the vendor is active, defaults to `true` |
+| `name` | string | yes | The name of the vendor, min length `1` |
+| `contacts` | array[[`VendorContactUpdateNested`](#vendorcontactupdatenested)] | yes | The vendor's contacts, min length `1`; a vendor must have at least one contact |

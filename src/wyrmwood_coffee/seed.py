@@ -33,7 +33,7 @@ from wyrmwood_coffee.models import (
     VendorContact,
 )
 from wyrmwood_coffee.models.drink import DrinkIngredient
-from wyrmwood_coffee.models.inventory import InventoryChangeType
+from wyrmwood_coffee.models.inventory_transaction import InventoryChangeType
 from wyrmwood_coffee.security import hash_password
 from wyrmwood_coffee.settings import Environment, script_settings
 
@@ -264,6 +264,7 @@ def _seed_inventory_transactions(
             )
         )
 
+
 def _seed_purchases(
     session,
     entries: list[dict],
@@ -358,19 +359,12 @@ def seed(overwrite: bool = False, confirm_staging_seed: bool = False) -> None:
         ingredient_ids = _seed_ingredients(session, data["ingredients"], vendor_ids)
         baked_good_ids = _seed_baked_goods(session, data["baked_goods"])
         _seed_drinks(session, data["drinks"], ingredient_ids)
-<<<<<<< HEAD
-        _seed_baked_goods(session, data["baked_goods"])
         customer_ids = _seed_customers(session, data["customers"])
-        _seed_employees(session, data["employees"])
         promo_ids = _seed_promotions(session, data["promotions"])
-=======
-        _seed_customers(session, data["customers"])
         _seed_employees(session, data["employees"])
         _seed_inventory_transactions(
             session, data["inventory_transactions"], ingredient_ids, baked_good_ids
         )
-        _seed_promotions(session, data["promotions"])
->>>>>>> cacdacd (Add reporting endpoints, inventory repository, and report service)
 
         if "purchases" in data:
             _seed_purchases(session, data["purchases"], customer_ids, promo_ids)
