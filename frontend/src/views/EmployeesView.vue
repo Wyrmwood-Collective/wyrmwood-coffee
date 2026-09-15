@@ -1,10 +1,34 @@
 <script setup lang="ts">
-import { ref, onMounted } from "vue";
+import { computed, ref, onMounted } from "vue";
+import { useRouter } from "vue-router";
+import { client, authHeaders, extractErrorDetail } from "@/api/client";
+import { useSession } from "@/composables/useSession";
+import FormMessage from "@/components/FormMessage.vue";
+import LinkButton from "@/components/LinkButton.vue";
+import type { components } from "@/types/api";
 
-type EmployeeRole = "employee" | "manager" | "admin";
+type Employee = components["schemas"]["EmployeeRead"];
+type EmployeeRole = components["schemas"]["EmployeeRole"];
 
-interface Employee {
-  id: number;
+const router = useRouter();
+const { can } = useSession();
+
+const employees = ref<Employee[]>([]);
+const loading = ref(true);
+const errorMessage = ref("");
+
+onMounted(async () => {
+  const { data, error } = await client.GET("/employees");
+  if (error) {
+    errorMessage.value = "Could not load employees.";
+  } else {
+    employees.value = data;
+  }
+  loading.value = false;
+});
+
+// represents an employee being in-place edited
+interface EmployeeDraft {
   active: boolean;
   first_name: string;
   last_name: string;
@@ -15,92 +39,119 @@ interface Employee {
   username: string;
 }
 
-const employees = ref<Employee[]>([]);
-const loading = ref(true);
+const drafts = ref<Record<number, EmployeeDraft>>({});
+const savingEmployeeIds = ref<Set<number>>(new Set());
+const deletingEmployeeId = ref<number | null>(null);
 
-onMounted(async () => {
-  try {
-    const response = await fetch("/employees");
-    employees.value = await response.json();
-  } catch (error) {
-    console.log(error);
-  } finally {
-    loading.value = false;
-  }
-});
-</script>
+// the actual rendered values (saved or draft)
+const rows = computed(() =>
+  employees.value.map((employee) => ({
+    employee,
+    draft: drafts.value[employee.id],
+  })),
+);
 
-<style scoped lang="scss">
-/* Ledger layout, built from nested lists rather than a table — see
-   VendorsView.vue for the full rationale. Each employee is one entry
-   (bordered as a whole, like a ledger account) with an indented "memo" line
-   for the less central account details. */
-.page {
-  display: block;
-  color: var(--ink, #2b2420);
+function startEdit(employee: Employee) {
+  drafts.value[employee.id] = {
+    active: employee.active,
+    first_name: employee.first_name,
+    last_name: employee.last_name,
+    role: employee.role,
+    hourly_rate: employee.hourly_rate,
+    hire_date: employee.hire_date,
+    term_date: employee.term_date ?? null,
+    username: employee.username,
+  };
 }
 
-.ledger {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  width: 100%;
-  font-size: 80%;
+function cancelEdit(employeeId: number) {
+  delete drafts.value[employeeId];
+}
+
+async function saveEdit(employeeId: number) {
+  const draft = drafts.value[employeeId];
+  if (!draft) {
+    return;
+  }
+
+  savingEmployeeIds.value.add(employeeId);
+  errorMessage.value = "";
+
+  const { data, error } = await client.PUT("/employees/{id}", {
+    params: { path: { id: employeeId } },
+    headers: authHeaders(),
+    body: draft,
+  });
+
+  savingEmployeeIds.value.delete(employeeId);
+
+  if (!data) {
+    errorMessage.value = extractErrorDetail(error, "Could not save employee.");
+    return;
+  }
+
+  const index = employees.value.findIndex((employee) => employee.id === data.id);
+  employees.value[index] = data;
+  cancelEdit(employeeId);
+}
+
+async function deleteEmployee(employee: Employee) {
+  errorMessage.value = "";
+  deletingEmployeeId.value = employee.id;
+
+  const { error } = await client.DELETE("/employees/{id}", {
+    params: { path: { id: employee.id } },
+    headers: authHeaders(),
+  });
+
+  deletingEmployeeId.value = null;
+
+  if (error) {
+    errorMessage.value = extractErrorDetail(error, "Could not delete employee.");
+    return;
+  }
+
+  employees.value = employees.value.filter((e) => e.id !== employee.id);
+  cancelEdit(employee.id);
+}
+
+// Employee creation collects a password and lives on its own page (with
+// confirmation + strength validation) rather than as an inline ledger row.
+function goToCreateEmployee() {
+  router.push({ name: "signup" });
+}
+</script>
+
+<style scoped>
+/* Ledger layout — see VendorsView.vue for the full rationale. Shared
+   ledger styling lives in the main stylesheet; only this page's column
+   widths stay here. */
+.page {
+  display: block;
+  color: var(--ink);
 }
 
 .ledger-head,
-.employee-main {
-  display: grid;
+.row-main {
   grid-template-columns: 3em 1fr 1fr 110px 90px auto;
-  gap: 16px;
-  padding: 10px 16px;
-}
-
-.ledger-head {
-  padding-bottom: 10px;
-  border-bottom: 3px double var(--ink-soft, #6b5f4f);
-  font-weight: 700;
-  letter-spacing: 0.03em;
-}
-
-.employee-main {
-  align-items: baseline;
-}
-
-/* closes out each employee's block with a heavier rule, the way a ledger
-   separates one account from the next */
-.employee {
-  border-bottom: 2px solid var(--ink-soft, #6b5f4f);
-
-  &:last-child {
-    border-bottom: none;
-  }
-}
-
-.employee-id {
-  color: var(--ink-soft, #6b5f4f);
-  text-align: right;
-  white-space: nowrap;
-  font-variant-numeric: tabular-nums;
 }
 
 .detail-line {
-  display: grid;
   grid-template-columns: 110px 130px 130px 1fr;
-  gap: 2px 16px;
-  padding: 5px 16px 5px 40px;
-  font-size: 0.94em;
-  color: var(--ink-soft, #6b5f4f);
 }
 </style>
 
 <template>
   <main class="page">
     <h1>Employees</h1>
+    <FormMessage :text="errorMessage" type="error" />
     <div v-if="loading">Loading...</div>
     <template v-else>
+      <div v-if="can('createEmployee')" class="ledger-toolbar">
+        <LinkButton @click="goToCreateEmployee">New employee</LinkButton>
+      </div>
       <div class="ledger-head">
-        <span class="employee-id">ID</span>
+        <span class="row-id">ID</span>
         <span>First Name</span>
         <span>Last Name</span>
         <span>Role</span>
@@ -108,24 +159,67 @@ onMounted(async () => {
         <span></span>
       </div>
       <ul class="ledger">
-        <li
-          v-for="employee in employees"
-          :key="employee.id"
-          class="employee"
-        >
-          <div class="employee-main">
-            <span class="employee-id">{{ employee.id }}</span>
-            <span>{{ employee.first_name }}</span>
-            <span>{{ employee.last_name }}</span>
-            <span>{{ employee.role }}</span>
-            <span>{{ employee.active }}</span>
-            <span></span>
+        <li v-for="row in rows" :key="row.employee.id" class="ledger-row">
+          <div class="row-main">
+            <span class="row-id">{{ row.employee.id }}</span>
+            <template v-if="row.draft">
+              <input v-model="row.draft.first_name" type="text" class="field" />
+              <input v-model="row.draft.last_name" type="text" class="field" />
+              <select v-model="row.draft.role" class="field">
+                <option value="employee">employee</option>
+                <option value="manager">manager</option>
+                <option value="admin">admin</option>
+              </select>
+              <select v-model="row.draft.active" class="field">
+                <option :value="true">true</option>
+                <option :value="false">false</option>
+              </select>
+              <span class="row-actions">
+                <LinkButton
+                  :disabled="savingEmployeeIds.has(row.employee.id)"
+                  @click="saveEdit(row.employee.id)"
+                >
+                  {{ savingEmployeeIds.has(row.employee.id) ? "Saving..." : "Save" }}
+                </LinkButton>
+                <LinkButton
+                  :disabled="savingEmployeeIds.has(row.employee.id)"
+                  @click="cancelEdit(row.employee.id)"
+                >
+                  Cancel
+                </LinkButton>
+              </span>
+            </template>
+            <template v-else>
+              <span>{{ row.employee.first_name }}</span>
+              <span>{{ row.employee.last_name }}</span>
+              <span>{{ row.employee.role }}</span>
+              <span>{{ row.employee.active }}</span>
+              <span class="row-actions">
+                <LinkButton v-if="can('updateEmployee')" @click="startEdit(row.employee)">
+                  Edit
+                </LinkButton>
+                <LinkButton
+                  v-if="can('deleteEmployee')"
+                  :disabled="deletingEmployeeId === row.employee.id"
+                  @click="deleteEmployee(row.employee)"
+                >
+                  {{ deletingEmployeeId === row.employee.id ? "Deleting..." : "Delete" }}
+                </LinkButton>
+              </span>
+            </template>
           </div>
-          <div class="detail-line">
-            <span>${{ employee.hourly_rate }}/hr</span>
-            <span>hired {{ employee.hire_date }}</span>
-            <span>{{ employee.term_date ? `term ${employee.term_date}` : "" }}</span>
-            <span>{{ employee.username }}</span>
+          <div v-if="row.draft" class="detail-line">
+            <input v-if="can('viewHourlyRate')" v-model="row.draft.hourly_rate" type="text" class="field" placeholder="Hourly Rate" />
+            <span v-else></span>
+            <input v-model="row.draft.hire_date" type="date" class="field" />
+            <input v-model="row.draft.term_date" type="date" class="field" />
+            <input v-model="row.draft.username" type="text" class="field" placeholder="Username" />
+          </div>
+          <div v-else class="detail-line">
+            <span>{{ can("viewHourlyRate") ? `$${row.employee.hourly_rate}/hr` : "" }}</span>
+            <span>hired {{ row.employee.hire_date }}</span>
+            <span>{{ row.employee.term_date ? `term ${row.employee.term_date}` : "" }}</span>
+            <span>{{ row.employee.username }}</span>
           </div>
         </li>
       </ul>
