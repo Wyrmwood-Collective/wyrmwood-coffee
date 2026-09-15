@@ -14,6 +14,7 @@ from wyrmwood_coffee.models.customer import (
     CustomerFavoriteRead,
     CustomerId,
     CustomerRead,
+    CustomerUpdate,
 )
 from wyrmwood_coffee.models.purchase import Purchase, PurchaseItem
 
@@ -201,3 +202,62 @@ def create_customer(session: DbSession, payload: CustomerCreate) -> CustomerRead
             status_code=status.HTTP_409_CONFLICT,
             detail="User is already registered in the system with phone or email",
         ) from None
+
+
+@router.put(
+    "/{id}",
+    status_code=status.HTTP_200_OK,
+    response_model=CustomerRead,
+    response_description="The updated customer",
+    responses={
+        401: {"description": "Could not validate credentials."},
+        404: {"description": "The customer was not found."},
+        status.HTTP_409_CONFLICT: {
+            "description": "A customer with the given email or phone already exists"
+        },
+        422: {
+            "description": (
+                "The provided CustomerUpdate is malformed or invalid, "
+                "or the provided path parameter is malformed or invalid."
+            )
+        },
+    },
+    dependencies=[Depends(require_auth)],
+)
+def update_customer(
+    session: DbSession, id: CustomerId, payload: CustomerUpdate
+) -> CustomerRead:
+    """
+    Update an existing customer.
+
+    Loyalty expiration is not editable here; it is only ever set on creation.
+    """
+    customer = session.get(Customer, id)
+    if customer is None:
+        customer_logger.log_resource_not_found(id)
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="The customer was not found.",
+        )
+
+    for field, value in payload.model_dump().items():
+        setattr(customer, field, value)
+
+    try:
+        session.commit()
+        customer_logger.log_resource_updated(id)
+    except IntegrityError as err:
+        session.rollback()
+        constraint_name = (
+            (err.orig.diag.constraint_name or "")
+            if isinstance(err.orig, psycopg.Error)
+            else ""
+        )
+        customer_logger.log_attrs_not_unique(DUPLICATE_ATTRS.get(constraint_name, []))
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail="User is already registered in the system with phone or email",
+        ) from None
+
+    session.refresh(customer)
+    return CustomerRead.model_validate(customer)
