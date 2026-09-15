@@ -2,7 +2,7 @@ from decimal import Decimal
 from typing import Annotated
 
 from pydantic import BaseModel, ConfigDict, Field, PositiveInt, StringConstraints
-from sqlalchemy import ARRAY, CheckConstraint, Numeric, String, true
+from sqlalchemy import ARRAY, CheckConstraint, Integer, Numeric, String, true
 from sqlalchemy.orm import (
     Mapped,
     mapped_column,
@@ -37,6 +37,9 @@ class BakedGood(Base):
     allergens: Mapped[list[str]] = mapped_column(
         ARRAY(String), server_default="{}", nullable=False
     )
+    quantity_on_hand: Mapped[int] = mapped_column(Integer, nullable=False)
+    reorder_threshold: Mapped[int] = mapped_column(Integer, nullable=False)
+    reorder_quantity: Mapped[int] = mapped_column(Integer, nullable=False)
 
 
 class BakedGoodBase(BaseModel):
@@ -71,6 +74,30 @@ class BakedGoodBase(BaseModel):
         title="Allergens",
         description="A list of any allergens present in the baked good",
     )
+    quantity_on_hand: Annotated[
+        int,
+        Field(
+            ge=0,
+            title="Available Quantity",
+            description="The available amount of baked good for sale",
+        ),
+    ]
+    reorder_threshold: Annotated[
+        int,
+        Field(
+            ge=0,
+            title="Reorder Trigger Point",
+            description="The exact baked good stock level initiating a reorder alert",
+        ),
+    ]
+    reorder_quantity: Annotated[
+        int,
+        Field(
+            ge=0,
+            title="Reorder Batch Amount",
+            description="The total amount of baked good for a batch order",
+        ),
+    ]
 
 
 class BakedGoodCreate(BakedGoodBase):
