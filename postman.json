@@ -252,6 +252,25 @@
             }
           },
           "response": []
+        },
+        {
+          "name": "Delete Customer",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "localhost:8000/customers/1",
+              "host": [
+                "localhost"
+              ],
+              "port": "8000",
+              "path": [
+                "customers",
+                "1"
+              ]
+            }
+          },
+          "response": []
         }
       ]
     },

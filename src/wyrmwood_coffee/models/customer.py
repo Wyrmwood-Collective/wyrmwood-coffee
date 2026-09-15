@@ -58,6 +58,7 @@ class Customer(Base):
     phone: Mapped[str] = mapped_column(unique=True, index=True, nullable=True)
     loyalty_points: Mapped[int] = mapped_column(Integer, nullable=False)
     loyalty_expires_at: Mapped[datetime] = mapped_column(DateTime)
+    is_deleted: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
 
 
 class CustomerBase(BaseModel):
