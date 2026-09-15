@@ -70,3 +70,42 @@ export function extractErrorDetail(error: unknown, fallback: string): string {
 
   return fallback;
 }
+
+export class ApiError extends Error {
+  status: number;
+
+  constructor(message: string, status: number) {
+    super(message);
+    this.status = status;
+  }
+}
+
+/** Legacy fetch helper for endpoints not yet migrated to the typed client. */
+export async function apiFetch<T>(
+  path: string,
+  init: RequestInit = {},
+  { contentType = "application/json" as string | null } = {},
+): Promise<T> {
+  const headers: Record<string, string> = { ...authHeaders() };
+  if (contentType) {
+    headers["Content-Type"] = contentType;
+  }
+
+  const response = await fetch(path, {
+    ...init,
+    headers: { ...headers, ...init.headers },
+  });
+
+  if (response.status === 204) {
+    return undefined as T;
+  }
+
+  const data = await response.json().catch(() => null);
+  if (!response.ok) {
+    throw new ApiError(
+      extractErrorDetail(data, "Something went wrong. Please try again."),
+      response.status,
+    );
+  }
+  return data as T;
+}
