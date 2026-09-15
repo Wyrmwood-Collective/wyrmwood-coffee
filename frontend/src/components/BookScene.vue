@@ -48,6 +48,7 @@ const sections = computed(() => {
   const items = [
     { to: "/dashboard", label: "My Profile", colour: "#7c8b6f" },
     { to: "/customer-favorites", label: "Customer Favorites", colour: "#8a6f5a" },
+    { to: "/orders", label: "Order History", colour: "#8a6a4e" },
   ];
   if (can("listEmployees")) {
     items.push({ to: "/employees", label: "Team Roster", colour: "#4f7086" });

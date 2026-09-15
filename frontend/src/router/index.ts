@@ -25,9 +25,9 @@ const router = createRouter({
       meta: { requiresAuth: true },
     },
     {
-      path: "/customer-favorites",
-      name: "customer-favorites",
-      component: () => import("@/views/CustomerFavoritesView.vue"),
+      path: "/orders",
+      name: "orders",
+      component: () => import("@/views/CustomerOrdersView.vue"),
       meta: { requiresAuth: true },
     },
     {

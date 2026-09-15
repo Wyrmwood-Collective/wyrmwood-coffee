@@ -7,7 +7,7 @@ from conftest import _persist_employee
 
 from wyrmwood_coffee.models.token import BlacklistedToken
 from wyrmwood_coffee.security import create_access_token, decode_access_token
-from wyrmwood_coffee.settings import settings
+from wyrmwood_coffee.settings import app_settings
 
 
 @pytest.fixture
@@ -39,7 +39,9 @@ def make_expired_token(employee):
         "jti": str(uuid.uuid4()),
     }
     return jwt.encode(
-        payload, settings.jwt_secret_key, algorithm=settings.jwt_algorithm
+        payload,
+        app_settings().auth.jwt_secret_key,
+        algorithm=app_settings().auth.jwt_algorithm,
     )
 
 
@@ -51,7 +53,9 @@ def make_token_bad_signature(employee):
         "jti": str(uuid.uuid4()),
     }
     return jwt.encode(
-        payload, "this-may-or-may-not-be-the-secret", algorithm=settings.jwt_algorithm
+        payload,
+        "this-may-or-may-not-be-the-secret",
+        algorithm=app_settings().auth.jwt_algorithm,
     )
 
 
@@ -76,14 +80,14 @@ def test_login_should_return_token(
 
     payload = jwt.decode(
         body["access_token"],
-        settings.jwt_secret_key,
-        algorithms=[settings.jwt_algorithm],
+        app_settings().auth.jwt_secret_key,
+        algorithms=[app_settings().auth.jwt_algorithm],
     )
     assert payload["sub"] == str(employee.id)
     assert payload["role"] == employee.role
 
     exp = datetime.fromtimestamp(payload["exp"], tz=UTC)
-    expected = issued_at + timedelta(minutes=settings.jwt_expiration_minutes)
+    expected = issued_at + timedelta(minutes=app_settings().auth.jwt_expiration_minutes)
     assert abs((exp - expected).total_seconds()) < 5
 
 

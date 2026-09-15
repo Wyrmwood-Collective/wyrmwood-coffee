@@ -21,7 +21,7 @@ Mutating routes require a Bearer JWT from `POST /auth/login`. `Manager` means ro
 | `POST` | `/employees` | Manager | [Create Employee](#post-employees) |
 | `PUT` | `/employees/{id}` | Manager | [Update Employee](#put-employeesid) |
 | `DELETE` | `/employees/{id}` | Manager | [Delete Employee](#delete-employeesid) |
-| `GET` | `/health` | No | [Welcome Message](#get-health) |
+| `GET` | `/health` | No | [API Health Check](#get-health) |
 | `GET` | `/ingredients` | No | [List Ingredients](#get-ingredients) |
 | `GET` | `/ingredients/{id}` | No | [Get Ingredient](#get-ingredientsid) |
 | `POST` | `/ingredients` | Manager | [Create Ingredient](#post-ingredients) |
@@ -33,6 +33,7 @@ Mutating routes require a Bearer JWT from `POST /auth/login`. `Manager` means ro
 | `PUT` | `/promotions/{id}` | Manager | [Update Promotion](#put-promotionsid) |
 | `DELETE` | `/promotions/{id}` | Manager | [Delete Promotion](#delete-promotionsid) |
 | `POST` | `/purchases` | Employee | [Create Purchase](#post-purchases) |
+| `GET` | `/ready` | No | [Database Health Check](#get-ready) |
 | `GET` | `/vendors` | No | [List Vendors](#get-vendors) |
 | `POST` | `/vendors` | Manager | [Create Vendor](#post-vendors) |
 | `PUT` | `/vendors/{id}` | Manager | [Update Vendor](#put-vendorsid) |
@@ -344,15 +345,15 @@ Deactivate an employee. This performs a soft delete by setting the employee's ac
 
 ### `GET` /health
 
-**Welcome Message**
+**API Health Check**
 
-Returns a simple welcome message. Used as a basic liveness check for the service.
+Checks that the API process itself is running and reachable. Does not check the database. Used as a basic liveness check for the service.
 
 **Responses**
 
 | Status | Description | Body |
 | --- | --- | --- |
-| `200` | The welcome message | `application/json` `{ "message": string }` |
+| `200` | The API is running and reachable. | `application/json` `{ "message": string }` |
 
 [Back to Summary](#summary)
 
@@ -624,6 +625,23 @@ Process a new purchase. Looks up item prices, applies active promotions, calcula
 | `403` | Insufficient permissions. | `application/json` `{ "detail": string }` |
 | `404` | The customer was not found, or the promotion was not found. | `application/json` `{ "detail": string }` |
 | `422` | The provided PurchaseCreate is malformed or invalid, an unknown item name was provided, or the promotion is inactive/expired. | `application/json` [`HTTPValidationError`](#httpvalidationerror) |
+
+[Back to Summary](#summary)
+
+---
+
+### `GET` /ready
+
+**Database Health Check**
+
+Checks that the API can successfully reach the database. Used as a readiness check to confirm the service can serve requests that depend on the database.
+
+**Responses**
+
+| Status | Description | Body |
+| --- | --- | --- |
+| `200` | The database is running and reachable. | `application/json` `{ "message": string }` |
+| `500` | The database server is not reachable. | `application/json` `{ "detail": string }` |
 
 [Back to Summary](#summary)
 
