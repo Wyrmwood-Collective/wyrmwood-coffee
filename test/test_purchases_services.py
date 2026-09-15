@@ -198,11 +198,11 @@ def test_process_purchase_with_valid_payload_should_return_purchase(
 
 
 def test_process_purchase_with_guest_customer_should_return_purchase(
-    db_session, sample_baked_good
+    db_session, make_baked_good
 ):
     payload = PurchaseCreate(
         customer_id=None,
-        items=[PurchaseItemCreateNested(name=sample_baked_good.name, quantity=1)],
+        items=[PurchaseItemCreateNested(name=make_baked_good().name, quantity=1)],
     )
 
     purchase = process_purchase(db_session, payload)
@@ -212,7 +212,7 @@ def test_process_purchase_with_guest_customer_should_return_purchase(
 
 
 def test_process_purchase_with_inactive_customer_should_return_purchase(
-    db_session, sample_baked_good
+    db_session, make_baked_good
 ):
     inactive_customer = Customer(
         active=False,
@@ -229,7 +229,7 @@ def test_process_purchase_with_inactive_customer_should_return_purchase(
 
     payload = PurchaseCreate(
         customer_id=inactive_customer.id,
-        items=[PurchaseItemCreateNested(name=sample_baked_good.name, quantity=1)],
+        items=[PurchaseItemCreateNested(name=make_baked_good().name, quantity=1)],
     )
 
     purchase = process_purchase(db_session, payload)
@@ -238,9 +238,7 @@ def test_process_purchase_with_inactive_customer_should_return_purchase(
     assert inactive_customer.loyalty_points == 0
 
 
-def test_process_purchase_with_invalid_customer_should_return_404(
-    db_session, sample_baked_good
-):
+def test_process_purchase_with_invalid_customer_should_return_404(db_session):
     payload = PurchaseCreate(
         customer_id=9999,
         items=[PurchaseItemCreateNested(name="Test Muffin", quantity=1)],

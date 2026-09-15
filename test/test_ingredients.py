@@ -34,6 +34,9 @@ def ingredient_valid_kwargs(client, vendor_kwargs):
         "unit_of_measure": "mL",
         "allergens": ["corn"],
         "vendor_id": vendor_id,
+        "quantity_on_hand": 15.00,
+        "reorder_threshold": 4.50,
+        "reorder_quantity": 11.00,
     }
 
 
@@ -52,6 +55,9 @@ def single_ingredient(db_session):
         unit_amount=1000,
         unit_of_measure="mL",
         allergens=["corn"],
+        quantity_on_hand=15.00,
+        reorder_threshold=4.50,
+        reorder_quantity=11.00,
         vendor_id=vendor.id,
         active=True,
     )
@@ -206,6 +212,9 @@ def test_create_ingredient_should_return_ingredient(client, ingredient_valid_kwa
         "active": True,
         "purchasing_cost": "3.50",
         "unit_amount": "1000.00",
+        "quantity_on_hand": "15.00",
+        "reorder_threshold": "4.50",
+        "reorder_quantity": "11.00",
     }
     assert ingredient.model_dump(mode="json") == expected
 
@@ -337,6 +346,9 @@ def test_update_ingredient_should_return_ingredient(client, single_ingredient):
         "unit_of_measure": "mL",
         "vendor_id": single_ingredient.vendor_id,
         "allergens": [],
+        "quantity_on_hand": 14.00,
+        "reorder_threshold": 6.00,
+        "reorder_quantity": 8.50,
         "active": False,
     }
 
@@ -362,6 +374,9 @@ def test_update_ingredient_with_invalid_id_should_return_404(client, single_ingr
         "unit_of_measure": "g",
         "vendor_id": single_ingredient.vendor_id,
         "allergens": [],
+        "quantity_on_hand": 18.00,
+        "reorder_threshold": 7.00,
+        "reorder_quantity": 9.00,
         "active": True,
     }
     response = client.put("/ingredients/99999", json=update_payload)
@@ -389,6 +404,9 @@ def test_update_ingredient_with_invalid_vendor_should_return_404(
         "unit_of_measure": "mL",
         "vendor_id": 99999,
         "allergens": [],
+        "quantity_on_hand": 15.00,
+        "reorder_threshold": 5.50,
+        "reorder_quantity": 14.50,
         "active": True,
     }
     response = client.put(f"/ingredients/{single_ingredient.id}", json=update_payload)
@@ -410,6 +428,9 @@ def test_update_ingredient_should_persist_to_db(db_session, client, single_ingre
         "unit_of_measure": "mL",
         "vendor_id": single_ingredient.vendor_id,
         "allergens": [],
+        "quantity_on_hand": 17.00,
+        "reorder_threshold": 6.50,
+        "reorder_quantity": 12.50,
         "active": True,
     }
     client.put(f"/ingredients/{single_ingredient.id}", json=update_payload)

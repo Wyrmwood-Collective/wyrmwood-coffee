@@ -9,21 +9,6 @@ from wyrmwood_coffee.main import app
 
 
 @pytest.fixture()
-def unauthenticated_client(db_session):
-    app.dependency_overrides[get_db] = lambda: db_session
-    yield TestClient(app)
-    app.dependency_overrides.clear()
-
-
-@pytest.fixture()
-def employee_client(db_session):
-    app.dependency_overrides[get_db] = lambda: db_session
-    _override_current_employee("employee")
-    yield TestClient(app)
-    app.dependency_overrides.clear()
-
-
-@pytest.fixture()
 def admin_client(db_session):
     app.dependency_overrides[get_db] = lambda: db_session
     _override_current_employee("admin")
