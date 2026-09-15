@@ -1,27 +1,24 @@
 <script setup lang="ts">
 import { ref, onMounted } from "vue";
 
-type EmployeeRole = "employee" | "manager" | "admin";
-
-interface Employee {
+interface Customer {
   id: number;
   active: boolean;
   first_name: string;
   last_name: string;
-  role: EmployeeRole;
-  hourly_rate: string;
-  hire_date: string;
-  term_date: string | null;
-  username: string;
+  email: string | null;
+  phone: string | null;
+  loyalty_points: number;
+  loyalty_expires_at: string;
 }
 
-const employees = ref<Employee[]>([]);
+const customers = ref<Customer[]>([]);
 const loading = ref(true);
 
 onMounted(async () => {
   try {
-    const response = await fetch("/employees");
-    employees.value = await response.json();
+    const response = await fetch("/customers");
+    customers.value = await response.json();
   } catch (error) {
     console.log(error);
   } finally {
@@ -32,7 +29,7 @@ onMounted(async () => {
 
 <style scoped lang="scss">
 /* Ledger layout, built from nested lists rather than a table — see
-   VendorsView.vue for the full rationale. Each employee is one entry
+   VendorsView.vue for the full rationale. Each customer is one entry
    (bordered as a whole, like a ledger account) with an indented "memo" line
    for the less central account details. */
 .page {
@@ -49,9 +46,9 @@ onMounted(async () => {
 }
 
 .ledger-head,
-.employee-main {
+.customer-main {
   display: grid;
-  grid-template-columns: 3em 1fr 1fr 110px 90px auto;
+  grid-template-columns: 3em 1fr 1fr 90px auto;
   gap: 16px;
   padding: 10px 16px;
 }
@@ -63,13 +60,13 @@ onMounted(async () => {
   letter-spacing: 0.03em;
 }
 
-.employee-main {
+.customer-main {
   align-items: baseline;
 }
 
-/* closes out each employee's block with a heavier rule, the way a ledger
+/* closes out each customer's block with a heavier rule, the way a ledger
    separates one account from the next */
-.employee {
+.customer {
   border-bottom: 2px solid var(--ink-soft, #6b5f4f);
 
   &:last-child {
@@ -77,7 +74,7 @@ onMounted(async () => {
   }
 }
 
-.employee-id {
+.customer-id {
   color: var(--ink-soft, #6b5f4f);
   text-align: right;
   white-space: nowrap;
@@ -86,7 +83,7 @@ onMounted(async () => {
 
 .detail-line {
   display: grid;
-  grid-template-columns: 110px 130px 130px 1fr;
+  grid-template-columns: 1.4fr 140px 90px 140px;
   gap: 2px 16px;
   padding: 5px 16px 5px 40px;
   font-size: 0.94em;
@@ -96,36 +93,34 @@ onMounted(async () => {
 
 <template>
   <main class="page">
-    <h1>Employees</h1>
+    <h1>Customers</h1>
     <div v-if="loading">Loading...</div>
     <template v-else>
       <div class="ledger-head">
-        <span class="employee-id">ID</span>
+        <span class="customer-id">ID</span>
         <span>First Name</span>
         <span>Last Name</span>
-        <span>Role</span>
         <span>Active</span>
         <span></span>
       </div>
       <ul class="ledger">
         <li
-          v-for="employee in employees"
-          :key="employee.id"
-          class="employee"
+          v-for="customer in customers"
+          :key="customer.id"
+          class="customer"
         >
-          <div class="employee-main">
-            <span class="employee-id">{{ employee.id }}</span>
-            <span>{{ employee.first_name }}</span>
-            <span>{{ employee.last_name }}</span>
-            <span>{{ employee.role }}</span>
-            <span>{{ employee.active }}</span>
+          <div class="customer-main">
+            <span class="customer-id">{{ customer.id }}</span>
+            <span>{{ customer.first_name }}</span>
+            <span>{{ customer.last_name }}</span>
+            <span>{{ customer.active }}</span>
             <span></span>
           </div>
           <div class="detail-line">
-            <span>${{ employee.hourly_rate }}/hr</span>
-            <span>hired {{ employee.hire_date }}</span>
-            <span>{{ employee.term_date ? `term ${employee.term_date}` : "" }}</span>
-            <span>{{ employee.username }}</span>
+            <span>{{ customer.email }}</span>
+            <span>{{ customer.phone }}</span>
+            <span>{{ customer.loyalty_points }} pts</span>
+            <span>expires {{ customer.loyalty_expires_at }}</span>
           </div>
         </li>
       </ul>
