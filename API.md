@@ -16,6 +16,7 @@ Mutating routes require a Bearer JWT from `POST /auth/login`. `Manager` means ro
 | `GET`    | `/customers/{id}`      | No            | [Get Customer](#get-customersid)                  |
 | `POST`   | `/customers`           | Employee      | [Create Customer](#post-customers)                |
 | `PUT`    | `/customers/{id}`      | Employee      | [Update Customer](#put-customersid)               |
+| `DELETE` | `/customers/{id}`      | Employee      | [Delete Customer](#delete-customersid)            |
 | `POST`   | `/drinks`              | Manager       | [Create Drink](#post-drinks)                      |
 | `GET`    | `/employees`           | No            | [List Employees](#get-employees)                  |
 | `GET`    | `/employees/{id}`      | No            | [Get Employee](#get-employeesid)                  |
@@ -224,6 +225,33 @@ Loyalty expiration is not editable here; it is only ever set on creation.
 | `404` | The customer was not found. | `application/json` `{ "detail": string }` |
 | `409` | A customer with the given email or phone already exists. | `application/json` `{ "detail": string }` |
 | `422` | The provided CustomerUpdate is malformed or invalid, or the provided path parameter is malformed or invalid. | `application/json` [`HTTPValidationError`](#httpvalidationerror) |
+
+[Back to Summary](#summary)
+
+---
+
+### `DELETE` /customers/{id}
+
+**Delete Customer**
+
+Soft delete a customer.
+
+The customer remains in the database for historical records but is no longer visible or available for use. Its email and phone number are cleared to free them up for future customers.
+
+**Path parameters**
+
+| Name | Type | Required | Notes |
+| --- | --- | --- | --- |
+| `id` | int | yes | The unique identifier of the customer; must be a positive integer at most 2,147,483,647 |
+
+**Responses**
+
+| Status | Description | Body |
+| --- | --- | --- |
+| `204` | The customer was deleted successfully. | No content |
+| `401` | Could not validate credentials. | `application/json` `{ "detail": string }` |
+| `404` | The customer was not found. | `application/json` `{ "detail": string }` |
+| `422` | The provided path parameter is malformed or invalid. | `application/json` [`HTTPValidationError`](#httpvalidationerror) |
 
 [Back to Summary](#summary)
 
