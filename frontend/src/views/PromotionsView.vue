@@ -1,27 +1,22 @@
 <script setup lang="ts">
 import { ref, onMounted } from "vue";
 
-type EmployeeRole = "employee" | "manager" | "admin";
-
-interface Employee {
+interface Promotion {
   id: number;
   active: boolean;
-  first_name: string;
-  last_name: string;
-  role: EmployeeRole;
-  hourly_rate: string;
-  hire_date: string;
-  term_date: string | null;
-  username: string;
+  promo_code: string;
+  discount_percentage: string;
+  start_date: string;
+  end_date: string;
 }
 
-const employees = ref<Employee[]>([]);
+const promotions = ref<Promotion[]>([]);
 const loading = ref(true);
 
 onMounted(async () => {
   try {
-    const response = await fetch("/employees");
-    employees.value = await response.json();
+    const response = await fetch("/promotions");
+    promotions.value = await response.json();
   } catch (error) {
     console.log(error);
   } finally {
@@ -32,9 +27,9 @@ onMounted(async () => {
 
 <style scoped lang="scss">
 /* Ledger layout, built from nested lists rather than a table — see
-   VendorsView.vue for the full rationale. Each employee is one entry
+   VendorsView.vue for the full rationale. Each promotion is one entry
    (bordered as a whole, like a ledger account) with an indented "memo" line
-   for the less central account details. */
+   for its discount window. */
 .page {
   display: block;
   color: var(--ink, #2b2420);
@@ -49,9 +44,9 @@ onMounted(async () => {
 }
 
 .ledger-head,
-.employee-main {
+.promotion-main {
   display: grid;
-  grid-template-columns: 3em 1fr 1fr 110px 90px auto;
+  grid-template-columns: 3em 1fr 90px auto;
   gap: 16px;
   padding: 10px 16px;
 }
@@ -63,13 +58,13 @@ onMounted(async () => {
   letter-spacing: 0.03em;
 }
 
-.employee-main {
+.promotion-main {
   align-items: baseline;
 }
 
-/* closes out each employee's block with a heavier rule, the way a ledger
+/* closes out each promotion's block with a heavier rule, the way a ledger
    separates one account from the next */
-.employee {
+.promotion {
   border-bottom: 2px solid var(--ink-soft, #6b5f4f);
 
   &:last-child {
@@ -77,7 +72,7 @@ onMounted(async () => {
   }
 }
 
-.employee-id {
+.promotion-id {
   color: var(--ink-soft, #6b5f4f);
   text-align: right;
   white-space: nowrap;
@@ -86,7 +81,7 @@ onMounted(async () => {
 
 .detail-line {
   display: grid;
-  grid-template-columns: 110px 130px 130px 1fr;
+  grid-template-columns: 110px 130px 130px;
   gap: 2px 16px;
   padding: 5px 16px 5px 40px;
   font-size: 0.94em;
@@ -96,36 +91,31 @@ onMounted(async () => {
 
 <template>
   <main class="page">
-    <h1>Employees</h1>
+    <h1>Promotions</h1>
     <div v-if="loading">Loading...</div>
     <template v-else>
       <div class="ledger-head">
-        <span class="employee-id">ID</span>
-        <span>First Name</span>
-        <span>Last Name</span>
-        <span>Role</span>
+        <span class="promotion-id">ID</span>
+        <span>Promo Code</span>
         <span>Active</span>
         <span></span>
       </div>
       <ul class="ledger">
         <li
-          v-for="employee in employees"
-          :key="employee.id"
-          class="employee"
+          v-for="promotion in promotions"
+          :key="promotion.id"
+          class="promotion"
         >
-          <div class="employee-main">
-            <span class="employee-id">{{ employee.id }}</span>
-            <span>{{ employee.first_name }}</span>
-            <span>{{ employee.last_name }}</span>
-            <span>{{ employee.role }}</span>
-            <span>{{ employee.active }}</span>
+          <div class="promotion-main">
+            <span class="promotion-id">{{ promotion.id }}</span>
+            <span>{{ promotion.promo_code }}</span>
+            <span>{{ promotion.active }}</span>
             <span></span>
           </div>
           <div class="detail-line">
-            <span>${{ employee.hourly_rate }}/hr</span>
-            <span>hired {{ employee.hire_date }}</span>
-            <span>{{ employee.term_date ? `term ${employee.term_date}` : "" }}</span>
-            <span>{{ employee.username }}</span>
+            <span>{{ promotion.discount_percentage }}% off</span>
+            <span>from {{ promotion.start_date }}</span>
+            <span>to {{ promotion.end_date }}</span>
           </div>
         </li>
       </ul>

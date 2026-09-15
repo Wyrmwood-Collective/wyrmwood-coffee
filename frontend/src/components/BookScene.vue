@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { computed, nextTick, onMounted, onUnmounted, ref, watch } from "vue";
 import { useRoute } from "vue-router";
-import { useSession } from "@/composables/useSession";
 import AppSidebar from "@/components/AppSidebar.vue";
 import CounterHeader from "@/components/CounterHeader.vue";
 
@@ -32,7 +31,6 @@ const RISE_RATIO = 0.84;
 const FILLER_LAYERS = 2;
 const Z_BASE = 10;
 
-const { can } = useSession();
 const route = useRoute();
 
 /** Pick ink that stays legible on whatever colour the cloth is dyed. */
@@ -50,12 +48,10 @@ const sections = computed(() => {
     { to: "/customer-favorites", label: "Customer Favorites", colour: "#8a6f5a" },
     { to: "/orders", label: "Order History", colour: "#8a6a4e" },
   ];
-  if (can("listEmployees")) {
-    items.push({ to: "/employees", label: "Team Roster", colour: "#4f7086" });
-  }
-  if (can("createEmployee")) {
-    items.push({ to: "/signup", label: "New Employee", colour: "#c08a3e" });
-  }
+  items.push({ to: "/customers", label: "Customers", colour: "#A4C464" });
+  items.push({ to: "/employees", label: "Employees", colour: "#64C4A4" });
+  items.push({ to: "/ingredients", label: "Ingredients", colour: "#64A4C4" });
+  items.push({ to: "/promotions", label: "Promotions", colour: "#6464C4" });
   return items;
 });
 
