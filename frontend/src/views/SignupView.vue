@@ -87,7 +87,7 @@ async function handleSubmit() {
   const trimmedFirstName = firstName.value.trim();
   const trimmedLastName = lastName.value.trim();
   const trimmedUsername = username.value.trim();
-  const trimmedHourlyRate = hourlyRate.value.trim();
+  const trimmedHourlyRate = String(hourlyRate.value ?? "").trim();
 
   if (
     !trimmedFirstName ||
