@@ -110,7 +110,7 @@ class ResourceLogger:
     def log_resource_deleted(self, resource_id: int):
         self._log_result("Resource deleted", resource_id=resource_id)
 
-    def log_resource_not_found(self, resource_id: int):
+    def log_resource_not_found(self, resource_id: int | str):
         self._log_result("Resource not found", resource_id=resource_id)
 
     def log_attrs_not_unique(self, attributes: list[InstrumentedAttribute]):

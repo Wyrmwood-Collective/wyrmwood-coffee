@@ -1030,46 +1030,11 @@
     }
   ],
   "promotions": [
-    {
-      "active": true,
-      "deleted": false,
-      "promo_code": "FALL SPICE",
-      "discount_percentage": "15.00",
-      "start_date": "2026-09-01",
-      "end_date": "2026-11-30"
-    },
-    {
-      "active": true,
-      "deleted": false,
-      "promo_code": "STUDENT_DISCOUNT",
-      "discount_percentage": "10.00",
-      "start_date": "2026-01-01",
-      "end_date": "2026-12-31"
-    },
-    {
-      "active": false,
-      "deleted": false,
-      "promo_code": "SUMMER SIPPER",
-      "discount_percentage": "20.00",
-      "start_date": "2026-06-01",
-      "end_date": "2026-08-31"
-    },
-    {
-      "active": true,
-      "deleted": false,
-      "promo_code": "HOLIDAY CHEER",
-      "discount_percentage": "25.00",
-      "start_date": "2026-11-15",
-      "end_date": "2026-12-31"
-    },
-    {
-      "active": false,
-      "deleted": true,
-      "promo_code": "LOYALTY BONUS",
-      "discount_percentage": "5.00",
-      "start_date": "2025-01-01",
-      "end_date": "2025-12-31"
-    }
+    { "active": true, "deleted": false, "promo_code": "FALL SPICE", "discount_percentage": "15.00", "start_date": "2026-09-01", "end_date": "2026-11-30" },
+    { "active": true, "deleted": false, "promo_code": "STUDENT_DISCOUNT", "discount_percentage": "10.00", "start_date": "2026-01-01", "end_date": "2026-12-31" },
+    { "active": false, "deleted": false, "promo_code": "SUMMER SIPPER", "discount_percentage": "20.00", "start_date": "2026-06-01", "end_date": "2026-08-31" },
+    { "active": true, "deleted": false, "promo_code": "HOLIDAY CHEER", "discount_percentage": "25.00", "start_date": "2026-11-15", "end_date": "2026-12-31" },
+    { "active": false, "deleted": true, "promo_code": "LOYALTY BONUS", "discount_percentage": "5.00", "start_date": "2025-01-01", "end_date": "2025-12-31" }
   ],
   "purchases_histories": [
     {
