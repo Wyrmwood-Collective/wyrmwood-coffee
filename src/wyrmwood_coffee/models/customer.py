@@ -144,3 +144,13 @@ class CustomerFavoriteRead(BaseModel):
     customer: CustomerRead
     drink: CustomerFavoriteItemRead
     baked_good: CustomerFavoriteItemRead
+
+
+class CustomerUpdate(CustomerBase):
+    """
+    Payload for updating an existing customer.
+
+    Loyalty expiration is not editable here; it is only ever set on creation.
+    """
+
+    model_config = ConfigDict(from_attributes=True)

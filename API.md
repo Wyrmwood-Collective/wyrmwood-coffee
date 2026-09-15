@@ -15,6 +15,7 @@ Mutating routes require a Bearer JWT from `POST /auth/login`. `Manager` means ro
 | `GET`    | `/customers/favorites` | No            | [Get Customer Favorites](#get-customersfavorites) |
 | `GET`    | `/customers/{id}`      | No            | [Get Customer](#get-customersid)                  |
 | `POST`   | `/customers`           | Employee      | [Create Customer](#post-customers)                |
+| `PUT`    | `/customers/{id}`      | Employee      | [Update Customer](#put-customersid)               |
 | `POST`   | `/drinks`              | Manager       | [Create Drink](#post-drinks)                      |
 | `GET`    | `/employees`           | No            | [List Employees](#get-employees)                  |
 | `GET`    | `/employees/{id}`      | No            | [Get Employee](#get-employeesid)                  |
@@ -191,6 +192,38 @@ Both email and phone must be unique.
 | `401`  | Could not validate credentials.                          | `application/json` `{ "detail": string }`                        |
 | `409`  | A customer with the given email or phone already exists. | `application/json` `{ "detail": string }`                        |
 | `422`  | Missing or invalid values.                               | `application/json` [`HTTPValidationError`](#httpvalidationerror) |
+
+[Back to Summary](#summary)
+
+---
+
+### `PUT` /customers/{id}
+
+**Update Customer**
+
+Update an existing customer.
+
+Loyalty expiration is not editable here; it is only ever set on creation.
+
+**Path parameters**
+
+| Name | Type | Required | Notes |
+| --- | --- | --- | --- |
+| `id` | int | yes | The unique identifier of the customer; must be a positive integer at most 2,147,483,647 |
+
+**Request body** (required)
+
+`application/json` — [`CustomerUpdate`](#customerupdate)
+
+**Responses**
+
+| Status | Description | Body |
+| --- | --- | --- |
+| `200` | The updated customer | `application/json` [`CustomerRead`](#customerread) |
+| `401` | Could not validate credentials. | `application/json` `{ "detail": string }` |
+| `404` | The customer was not found. | `application/json` `{ "detail": string }` |
+| `409` | A customer with the given email or phone already exists. | `application/json` `{ "detail": string }` |
+| `422` | The provided CustomerUpdate is malformed or invalid, or the provided path parameter is malformed or invalid. | `application/json` [`HTTPValidationError`](#httpvalidationerror) |
 
 [Back to Summary](#summary)
 
@@ -843,6 +876,19 @@ Represents a customer in the system.
 | `loyalty_points`     | int      | no                   | The customer's loyalty points, defaults to `0`                                                       |
 | `id`                 | int      | yes                  | The unique identifier of the customer                                                                |
 | `loyalty_expires_at` | datetime | no                   | The expiration date of the customer's loyalty points; set to one year after customer record creation |
+
+### CustomerUpdate
+
+Input schema for updating an existing customer. At least `email` or `phone` must be provided. Does not include `loyalty_expires_at`, which is only ever set on creation.
+
+| Field | Type | Required | Notes |
+| --- | --- | --- | --- |
+| `active` | bool | no | Whether the customer is currently active; defaults to `true` |
+| `first_name` | string | yes | The customer's first name, min length of `1` |
+| `last_name` | string | yes | The customer's last name, min length of `1` |
+| `email` | string | yes, if `phone=None` | The customer's email; syntax must be a proper email address, and defaults to `None` |
+| `phone` | string | yes, if `email=None` | The customer's phone number; must match pattern `\d{3}-\d{3}-\d{4}`, and defaults to `None` |
+| `loyalty_points` | int | no | The customer's loyalty points, defaults to `0` |
 
 ### DrinkBase
 
