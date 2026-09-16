@@ -3,8 +3,8 @@ import { computed, ref } from "vue";
 import { apiListCustomers, resolveActiveCustomer } from "@/api/customers";
 import { filterCustomerOrderHistory, loadAllPurchases } from "@/api/purchases";
 import { apiListPromotions } from "@/api/promotions";
-import AppChrome from "@/components/AppChrome.vue";
 import FormMessage from "@/components/FormMessage.vue";
+import LinkButton from "@/components/LinkButton.vue";
 import type { CustomerRead } from "@/types/customer";
 import type { PromotionRead } from "@/types/promotion";
 import type { PurchaseHistoryRead } from "@/types/purchase";
@@ -190,164 +190,155 @@ function viewOrder(order: PurchaseHistoryRead) {
 
 <template>
   <main class="orders-page">
-    <section class="orders-shell">
-      <header class="orders-brand">
-        <h1>Wyrmwood Coffee</h1>
-        <p>Customer order history</p>
-      </header>
+    <h1>Order History</h1>
 
-      <AppChrome />
+    <p class="orders-hint">
+      Look up an active customer by phone or email to review their purchases and loyalty activity.
+      Guest orders are not included.
+    </p>
 
-      <div class="orders-heading">
-        <h2>Order History</h2>
+    <form class="orders-search" @submit.prevent="searchCustomer">
+      <div class="orders-field">
+        <label for="customer-phone">Phone number</label>
+        <input
+          id="customer-phone"
+          :value="phoneInput"
+          type="tel"
+          inputmode="numeric"
+          autocomplete="tel-national"
+          placeholder="206-555-0101"
+          maxlength="12"
+          @input="onPhoneInput"
+        />
       </div>
-
-      <p class="orders-hint">
-        Look up an active customer by phone or email to review their purchases and loyalty activity.
-        Guest orders are not included.
-      </p>
-
-      <form class="orders-search" @submit.prevent="searchCustomer">
-        <div class="orders-field">
-          <label for="customer-phone">Phone number</label>
-          <input
-            id="customer-phone"
-            :value="phoneInput"
-            type="tel"
-            inputmode="numeric"
-            autocomplete="tel-national"
-            placeholder="206-555-0101"
-            maxlength="12"
-            @input="onPhoneInput"
-          />
-        </div>
-        <div class="orders-field">
-          <label for="customer-email">Email</label>
-          <input
-            id="customer-email"
-            v-model="emailInput"
-            type="email"
-            autocomplete="email"
-            placeholder="ava.thompson@example.com"
-          />
-        </div>
-        <button class="orders-submit" type="submit" :disabled="searching">
+      <div class="orders-field">
+        <label for="customer-email">Email</label>
+        <input
+          id="customer-email"
+          v-model="emailInput"
+          type="email"
+          autocomplete="email"
+          placeholder="ava.thompson@example.com"
+        />
+      </div>
+      <div class="orders-submit">
+        <LinkButton type="submit" :disabled="searching">
           {{ searching ? "Searching…" : "Find customer" }}
-        </button>
-      </form>
+        </LinkButton>
+      </div>
+    </form>
 
-      <FormMessage :text="errorMessage" type="error" />
-      <FormMessage :text="infoMessage" type="success" />
+    <FormMessage :text="errorMessage" type="error" />
+    <FormMessage :text="infoMessage" type="success" />
 
-      <section v-if="customer" class="orders-customer">
-        <h3>{{ customerLabel }}</h3>
-        <p class="orders-hint">
-          {{ contactHint(customer) }} · {{ customer.loyalty_points }} loyalty points
-          <template v-if="customer.loyalty_expires_at">
-            (expires {{ formatDateTime(customer.loyalty_expires_at) }})
-          </template>
-        </p>
-      </section>
+    <section v-if="customer" class="orders-customer">
+      <h2>{{ customerLabel }}</h2>
+      <p class="orders-hint">
+        {{ contactHint(customer) }} · {{ customer.loyalty_points }} loyalty points
+        <template v-if="customer.loyalty_expires_at">
+          (expires {{ formatDateTime(customer.loyalty_expires_at) }})
+        </template>
+      </p>
+    </section>
 
-      <div v-if="orders.length" class="orders-ledger">
-        <div class="orders-table-wrap">
-          <table class="orders-table">
-            <thead>
-              <tr>
-                <th>Order ID</th>
-                <th>Date &amp; time</th>
-                <th>Items</th>
-                <th>Promo</th>
-                <th>Tax</th>
-                <th>Total</th>
-                <th>Points</th>
-                <th></th>
-              </tr>
-            </thead>
-            <tbody :key="currentPage">
-              <tr v-for="order in pageOrders" :key="order.id">
-                <td>{{ order.id }}</td>
-                <td>{{ formatDateTime(order.created_at) }}</td>
-                <td>{{ formatItems(order) }}</td>
-                <td>{{ order.promo_code || "—" }}</td>
-                <td>{{ formatMoney(order.tax) }}</td>
-                <td>{{ formatMoney(order.total) }}</td>
-                <td>{{ order.loyalty_points_earned }}</td>
-                <td>
-                  <button type="button" class="orders-link" @click="viewOrder(order)">View</button>
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-
-        <nav class="orders-pager" aria-label="Order history pages">
-          <button type="button" class="orders-turn" :disabled="!canGoPrev" @click="goNewer">
-            ← Newer
-          </button>
-          <div class="orders-pager-meta">
-            <p class="orders-leaf">Leaf {{ currentPage }} of {{ totalPages }}</p>
-            <p class="orders-range">{{ pageRangeLabel }}</p>
-          </div>
-          <button type="button" class="orders-turn" :disabled="!canGoNext" @click="goOlder">
-            Older →
-          </button>
-        </nav>
+    <div v-if="orders.length" class="orders-ledger">
+      <div class="orders-table-wrap">
+        <table class="orders-table">
+          <thead>
+            <tr>
+              <th>Order ID</th>
+              <th>Date &amp; time</th>
+              <th>Items</th>
+              <th>Promo</th>
+              <th>Tax</th>
+              <th>Total</th>
+              <th>Points</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody :key="currentPage">
+            <tr v-for="order in pageOrders" :key="order.id">
+              <td>{{ order.id }}</td>
+              <td>{{ formatDateTime(order.created_at) }}</td>
+              <td>{{ formatItems(order) }}</td>
+              <td>{{ order.promo_code || "—" }}</td>
+              <td>{{ formatMoney(order.tax) }}</td>
+              <td>{{ formatMoney(order.total) }}</td>
+              <td>{{ order.loyalty_points_earned }}</td>
+              <td>
+                <LinkButton @click="viewOrder(order)">View</LinkButton>
+              </td>
+            </tr>
+          </tbody>
+        </table>
       </div>
 
-      <section v-if="selected" class="orders-detail">
-        <h3>Order #{{ selected.id }}</h3>
-        <dl class="orders-detail-list">
-          <div>
-            <dt>Date &amp; time</dt>
-            <dd>{{ formatDateTime(selected.created_at) }}</dd>
-          </div>
-          <div>
-            <dt>Promotion code</dt>
-            <dd>{{ selected.promo_code || "None" }}</dd>
-          </div>
-          <div>
-            <dt>Subtotal</dt>
-            <dd>{{ formatMoney(selected.subtotal) }}</dd>
-          </div>
-          <div>
-            <dt>Tax</dt>
-            <dd>{{ formatMoney(selected.tax) }}</dd>
-          </div>
-          <div>
-            <dt>Final total</dt>
-            <dd>{{ formatMoney(selected.total) }}</dd>
-          </div>
-          <div>
-            <dt>Loyalty points earned</dt>
-            <dd>{{ selected.loyalty_points_earned }}</dd>
-          </div>
-        </dl>
-
-        <h4 class="orders-subhead">Items purchased</h4>
-        <div class="orders-table-wrap">
-          <table class="orders-table">
-            <thead>
-              <tr>
-                <th>Item</th>
-                <th v-if="selected.items.some((item) => item.item_type)">Type</th>
-                <th>Qty</th>
-                <th>Unit price</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr v-for="item in selected.items" :key="item.id">
-                <td>{{ item.name }}</td>
-                <td v-if="selected.items.some((row) => row.item_type)">
-                  {{ item.item_type || "—" }}
-                </td>
-                <td>{{ item.quantity }}</td>
-                <td>{{ formatMoney(item.unit_price) }}</td>
-              </tr>
-            </tbody>
-          </table>
+      <nav class="orders-pager" aria-label="Order history pages">
+        <button type="button" class="orders-turn" :disabled="!canGoPrev" @click="goNewer">
+          ← Newer
+        </button>
+        <div class="orders-pager-meta">
+          <p class="orders-leaf">Leaf {{ currentPage }} of {{ totalPages }}</p>
+          <p class="orders-range">{{ pageRangeLabel }}</p>
         </div>
-      </section>
+        <button type="button" class="orders-turn" :disabled="!canGoNext" @click="goOlder">
+          Older →
+        </button>
+      </nav>
+    </div>
+
+    <section v-if="selected" class="orders-detail">
+      <h3>Order #{{ selected.id }}</h3>
+      <dl class="orders-detail-list">
+        <div>
+          <dt>Date &amp; time</dt>
+          <dd>{{ formatDateTime(selected.created_at) }}</dd>
+        </div>
+        <div>
+          <dt>Promotion code</dt>
+          <dd>{{ selected.promo_code || "None" }}</dd>
+        </div>
+        <div>
+          <dt>Subtotal</dt>
+          <dd>{{ formatMoney(selected.subtotal) }}</dd>
+        </div>
+        <div>
+          <dt>Tax</dt>
+          <dd>{{ formatMoney(selected.tax) }}</dd>
+        </div>
+        <div>
+          <dt>Final total</dt>
+          <dd>{{ formatMoney(selected.total) }}</dd>
+        </div>
+        <div>
+          <dt>Loyalty points earned</dt>
+          <dd>{{ selected.loyalty_points_earned }}</dd>
+        </div>
+      </dl>
+
+      <h4 class="orders-subhead">Items purchased</h4>
+      <div class="orders-table-wrap">
+        <table class="orders-table">
+          <thead>
+            <tr>
+              <th>Item</th>
+              <th v-if="selected.items.some((item) => item.item_type)">Type</th>
+              <th>Qty</th>
+              <th>Unit price</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="item in selected.items" :key="item.id">
+              <td>{{ item.name }}</td>
+              <td v-if="selected.items.some((row) => row.item_type)">
+                {{ item.item_type || "—" }}
+              </td>
+              <td>{{ item.quantity }}</td>
+              <td>{{ formatMoney(item.unit_price) }}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
     </section>
   </main>
 </template>
@@ -364,50 +355,8 @@ function viewOrder(order: PurchaseHistoryRead) {
   --orders-panel: rgba(255, 248, 228, 0.45);
   --orders-font-display: "MedievalSharp", Georgia, serif;
 
-  display: flex;
-  align-items: flex-start;
-  justify-content: center;
+  display: block;
   width: 100%;
-  color: var(--orders-ink);
-}
-
-.orders-shell {
-  width: 100%;
-  max-width: 900px;
-  padding: 0.25rem 0 1rem;
-}
-
-.orders-brand {
-  text-align: center;
-  margin-bottom: 1.25rem;
-}
-
-.orders-brand h1 {
-  margin: 0;
-  font-family: var(--orders-font-display);
-  font-size: 1.55rem;
-  font-weight: 400;
-  color: var(--orders-ink);
-}
-
-.orders-brand p {
-  margin: 0.35rem 0 0;
-  color: var(--orders-ink-soft);
-  font-size: 0.95rem;
-}
-
-.orders-heading {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 0.5rem;
-}
-
-.orders-heading h2 {
-  margin: 0;
-  font-family: var(--orders-font-display);
-  font-size: 1.2rem;
-  font-weight: 400;
   color: var(--orders-ink);
 }
 
@@ -456,35 +405,20 @@ function viewOrder(order: PurchaseHistoryRead) {
 }
 
 .orders-submit {
-  appearance: none;
-  width: auto;
-  margin: 0;
-  padding: 0.55rem 1rem;
-  border: 1px solid rgba(43, 36, 32, 0.4);
-  border-radius: 2px;
-  font: inherit;
-  font-family: var(--orders-font-display);
-  font-size: 0.95rem;
-  letter-spacing: 0.03em;
-  cursor: pointer;
-  background: rgba(91, 46, 34, 0.92);
-  color: #f7f0df;
-}
-
-.orders-submit:hover:not(:disabled) {
-  background: rgba(61, 30, 22, 0.95);
-}
-
-.orders-submit:disabled {
-  opacity: 0.55;
-  cursor: default;
+  display: flex;
+  align-items: center;
+  /* Offsets the button's text baseline to match the phone/email inputs':
+     their text sits above their box's bottom edge by their vertical
+     padding (0.65rem) plus their 1px border, so this reproduces that same
+     inset on the button's otherwise unpadded box. */
+  padding-bottom: calc(0.65rem + 1px);
 }
 
 .orders-customer {
   margin: 0 0 1rem;
 }
 
-.orders-customer h3 {
+.orders-customer h2 {
   margin: 0 0 0.25rem;
   font-family: var(--orders-font-display);
   font-size: 1.1rem;
@@ -522,23 +456,6 @@ function viewOrder(order: PurchaseHistoryRead) {
 
 .orders-table tbody tr:hover {
   background: var(--orders-accent);
-}
-
-.orders-link {
-  appearance: none;
-  border: none;
-  background: none;
-  padding: 0;
-  font: inherit;
-  color: var(--orders-ink-soft);
-  text-decoration: underline dotted;
-  text-underline-offset: 3px;
-  cursor: pointer;
-}
-
-.orders-link:hover {
-  color: var(--orders-ink);
-  text-decoration: underline solid;
 }
 
 .orders-pager {
