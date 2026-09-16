@@ -1,7 +1,8 @@
 <script setup lang="ts">
+import { computed } from "vue";
 import { useRoute } from "vue-router";
 
-defineProps<{
+const props = defineProps<{
   tabs: {
     to: string;
     label: string;
@@ -14,6 +15,14 @@ defineProps<{
 }>();
 
 const route = useRoute();
+
+// Several sections still share a placeholder destination while their real
+// pages are unbuilt, so matching every tab whose `to` equals the current
+// route would mark them all active at once (every one showing its laid-open
+// tab-ext, none buried). Only the first tab bound to that route counts as
+// "here" — later sections built out with their own routes will resolve to
+// distinct indices naturally.
+const activeIndex = computed(() => props.tabs.findIndex((tab) => tab.to === route.path));
 </script>
 
 <template>
@@ -21,7 +30,7 @@ const route = useRoute();
     <!-- buried: the real link, its root covered by the layer above it -->
     <RouterLink
       v-for="tab in tabs"
-      :key="tab.to"
+      :key="tab.label"
       :to="tab.to"
       class="tab"
       :style="{ '--c': tab.colour, '--c-ink': tab.ink, top: tab.top, zIndex: tab.z }"
@@ -31,10 +40,10 @@ const route = useRoute();
 
     <!-- on-top copy, faded in only for the active section (3.2 Active tab) -->
     <div
-      v-for="tab in tabs"
-      :key="tab.to + '-ext'"
+      v-for="(tab, i) in tabs"
+      :key="tab.label + '-ext'"
       class="tab-ext"
-      :class="{ 'tab-ext-active': route.path === tab.to }"
+      :class="{ 'tab-ext-active': i === activeIndex }"
       :style="{ '--c': tab.colour, '--c-ink': tab.ink, top: tab.top, zIndex: tab.extZ }"
       aria-hidden="true"
     >

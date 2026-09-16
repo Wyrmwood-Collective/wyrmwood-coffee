@@ -58,6 +58,7 @@ class Customer(Base):
     phone: Mapped[str] = mapped_column(unique=True, index=True, nullable=True)
     loyalty_points: Mapped[int] = mapped_column(Integer, nullable=False)
     loyalty_expires_at: Mapped[datetime] = mapped_column(DateTime)
+    is_deleted: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
 
 
 class CustomerBase(BaseModel):
@@ -144,3 +145,13 @@ class CustomerFavoriteRead(BaseModel):
     customer: CustomerRead
     drink: CustomerFavoriteItemRead
     baked_good: CustomerFavoriteItemRead
+
+
+class CustomerUpdate(CustomerBase):
+    """
+    Payload for updating an existing customer.
+
+    Loyalty expiration is not editable here; it is only ever set on creation.
+    """
+
+    model_config = ConfigDict(from_attributes=True)

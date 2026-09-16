@@ -43,6 +43,30 @@ const router = createRouter({
       meta: { requiresAuth: true },
     },
     {
+      path: "/customers",
+      name: "customers",
+      component: () => import("@/views/CustomersView.vue"),
+      meta: { requiresAuth: true },
+    },
+    {
+      path: "/ingredients",
+      name: "ingredients",
+      component: () => import("@/views/IngredientsView.vue"),
+      meta: { requiresAuth: true },
+    },
+    {
+      path: "/promotions",
+      name: "promotions",
+      component: () => import("@/views/PromotionsView.vue"),
+      meta: { requiresAuth: true },
+    },
+    {
+      path: "/vendors",
+      name: "vendors",
+      component: () => import("@/views/VendorsView.vue"),
+      meta: { requiresAuth: true },
+    },
+    {
       path: "/signup",
       name: "signup",
       component: () => import("@/views/SignupView.vue"),

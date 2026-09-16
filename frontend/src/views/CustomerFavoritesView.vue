@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref } from "vue";
-import AppChrome from "@/components/AppChrome.vue";
+import FormMessage from "@/components/FormMessage.vue";
+import LinkButton from "@/components/LinkButton.vue";
 
 const phoneNumber = ref("");
 const hasSearched = ref(false);
@@ -106,28 +107,161 @@ function clearSearch() {
 }
 </script>
 
+<style scoped>
+.page {
+  display: block;
+  color: var(--ink);
+}
+
+.hint {
+  max-width: 46em;
+}
+
+.favorites-search {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 0.75rem 0.5rem;
+  margin: 1.25rem 0;
+}
+
+.favorites-search .form-field {
+  flex: 1 1 220px;
+  margin: 0;
+  max-width: 280px;
+}
+
+.input-clear {
+  position: relative;
+}
+
+.input-clear input {
+  padding-right: 2.25rem;
+}
+
+.input-clear-btn {
+  position: absolute;
+  top: 50%;
+  right: 6px;
+  transform: translateY(-50%);
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  border: none;
+  background: transparent;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.3rem;
+  line-height: 1;
+  color: var(--ink-soft);
+  cursor: pointer;
+}
+
+.input-clear-btn:hover {
+  color: var(--ink);
+}
+
+.favorites-actions {
+  display: flex;
+  align-items: center;
+  /* Offsets the button's text baseline to match the phone input's: the
+     input's own text sits above its box's bottom edge by its vertical
+     padding (0.65rem) plus its 1px border, so this reproduces that same
+     inset on the button's otherwise unpadded box. */
+  padding-bottom: calc(0.65rem + 1px);
+}
+
+.favorites-customer {
+  margin: 1.25rem 0;
+}
+
+.favorites-customer h2 {
+  margin-bottom: 0.75rem;
+}
+
+.favorites-section {
+  margin-top: 1.75rem;
+}
+
+.favorites-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1.25rem;
+  margin-top: 1rem;
+}
+
+.favorite-card {
+  padding: 1rem 1.25rem;
+  border: 1px solid rgba(43, 36, 32, 0.3);
+  border-radius: 2px;
+  background: rgba(255, 248, 228, 0.45);
+}
+
+.favorite-card h3 {
+  margin: 0.35rem 0 0.75rem;
+  font-family: "MedievalSharp", Georgia, serif;
+  font-weight: 400;
+  font-size: 1.1rem;
+  color: var(--ink);
+}
+
+.favorite-type {
+  margin: 0;
+  color: var(--ink-soft);
+  font-size: 0.8rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.favorite-count {
+  margin: 0;
+  color: var(--ink-soft);
+}
+
+.favorite-count strong {
+  color: var(--ink);
+}
+
+.favorite-progress {
+  margin-top: 0.6rem;
+  height: 8px;
+  border: 1px solid rgba(43, 36, 32, 0.3);
+  border-radius: 2px;
+  background: rgba(43, 36, 32, 0.08);
+  overflow: hidden;
+}
+
+.favorite-progress-fill {
+  height: 100%;
+  background: var(--leather);
+}
+
+.favorites-note {
+  margin-top: 1.25rem;
+}
+
+@media (max-width: 600px) {
+  .favorites-grid {
+    grid-template-columns: 1fr;
+  }
+}
+</style>
+
 <template>
   <main class="page">
-    <section class="card card-full">
-      <header class="brand">
-        <h1>Wyrmwood Coffee</h1>
-        <p>Customer favorites</p>
-      </header>
+    <h1>Customer Favorites</h1>
 
-      <AppChrome />
+    <p class="hint">
+      Search for an active customer by phone number to view their favorite items.
+    </p>
 
-      <div class="section-header">
-        <h2>Find Customer Favorites</h2>
-      </div>
+    <form class="favorites-search" @submit.prevent="searchCustomer">
+      <div class="form-field">
+        <label for="customer-phone">Phone number</label>
 
-      <p class="hint">
-        Search for an active customer by phone number to view their favorite items.
-      </p>
-
-      <form @submit.prevent="searchCustomer">
-        <div class="form-field">
-          <label for="customer-phone">Phone number</label>
-
+        <div class="input-clear">
           <input
             id="customer-phone"
             v-model="phoneNumber"
@@ -140,161 +274,108 @@ function clearSearch() {
             required
             @input="formatPhoneNumber"
           />
+          <button
+            v-if="phoneNumber || hasSearched || searchError"
+            type="button"
+            class="input-clear-btn"
+            aria-label="Clear search"
+            @click="clearSearch"
+          >
+            ×
+          </button>
         </div>
-
-        <button class="btn btn-primary" type="submit" :disabled="isLoading">
-          {{ isLoading ? "Searching..." : "Search Customer" }}
-        </button>
-
-        <button
-          v-if="hasSearched || searchError"
-          class="btn btn-secondary"
-          type="button"
-          @click="clearSearch"
-        >
-          Clear Search
-        </button>
-      </form>
-
-      <p v-if="searchError" class="message message-error">
-        {{ searchError }}
-      </p>
-
-      <div v-if="hasSearched && customer" class="detail-panel">
-        <h3>Customer</h3>
-
-        <ul class="profile-list">
-          <li>
-            <span>Name</span>
-            <strong> {{ customer.firstName }} {{ customer.lastName }} </strong>
-          </li>
-
-          <li>
-            <span>Phone</span>
-            <strong>{{ customer.phone }}</strong>
-          </li>
-        </ul>
       </div>
 
-      <section v-if="hasSearched && customer" class="favorites-section">
-        <h2>Favorite Items</h2>
+      <div class="favorites-actions">
+        <LinkButton type="submit" :disabled="isLoading">
+          {{ isLoading ? "Searching..." : "Search Customer" }}
+        </LinkButton>
+      </div>
+    </form>
 
-        <div class="favorites-grid">
-          <article class="favorite-card">
-            <p class="favorite-type">Favorite Drink</p>
+    <FormMessage :text="searchError" type="error" />
 
-            <template v-if="favoriteDrink.isFavorite">
-              <h3>{{ favoriteDrink.name }}</h3>
+    <section v-if="hasSearched && customer" class="favorites-customer">
+      <h2>Customer</h2>
 
-              <p class="favorite-count">
-                Total purchased:
-                <strong>{{ favoriteDrink.quantity }}</strong>
-              </p>
-            </template>
+      <ul class="profile-list">
+        <li>
+          <span>Name</span>
+          <strong> {{ customer.firstName }} {{ customer.lastName }} </strong>
+        </li>
 
-            <template v-else>
-              <h3>No favorite yet</h3>
+        <li>
+          <span>Phone</span>
+          <strong>{{ customer.phone }}</strong>
+        </li>
+      </ul>
+    </section>
 
-              <p class="favorite-count">{{ favoriteDrink.quantity }} of 5 purchases</p>
+    <section v-if="hasSearched && customer" class="favorites-section">
+      <h2>Favorite Items</h2>
 
-              <div class="favorite-progress">
-                <div
-                  class="favorite-progress-fill"
-                  :style="{
-                    width: `${Math.min((favoriteDrink.quantity / 5) * 100, 100)}%`,
-                  }"
-                ></div>
-              </div>
-            </template>
-          </article>
+      <div class="favorites-grid">
+        <article class="favorite-card">
+          <p class="favorite-type">Favorite Drink</p>
 
-          <article class="favorite-card">
-            <p class="favorite-type">Favorite Baked Good</p>
+          <template v-if="favoriteDrink.isFavorite">
+            <h3>{{ favoriteDrink.name }}</h3>
 
-            <template v-if="favoriteBakedGood.isFavorite">
-              <h3>{{ favoriteBakedGood.name }}</h3>
+            <p class="favorite-count">
+              Total purchased:
+              <strong>{{ favoriteDrink.quantity }}</strong>
+            </p>
+          </template>
 
-              <p class="favorite-count">
-                Total purchased:
-                <strong>{{ favoriteBakedGood.quantity }}</strong>
-              </p>
-            </template>
+          <template v-else>
+            <h3>No favorite yet</h3>
 
-            <template v-else>
-              <h3>No favorite yet</h3>
+            <p class="favorite-count">{{ favoriteDrink.quantity }} of 5 purchases</p>
 
-              <p class="favorite-count">{{ favoriteBakedGood.quantity }} of 5 purchases</p>
+            <div class="favorite-progress">
+              <div
+                class="favorite-progress-fill"
+                :style="{
+                  width: `${Math.min((favoriteDrink.quantity / 5) * 100, 100)}%`,
+                }"
+              ></div>
+            </div>
+          </template>
+        </article>
 
-              <div class="favorite-progress">
-                <div
-                  class="favorite-progress-fill"
-                  :style="{
-                    width: `${Math.min((favoriteBakedGood.quantity / 5) * 100, 100)}%`,
-                  }"
-                ></div>
-              </div>
-            </template>
-          </article>
-        </div>
+        <article class="favorite-card">
+          <p class="favorite-type">Favorite Baked Good</p>
 
-        <p class="hint favorites-note">
-          Favorites are based on completed customer orders and do not include guest orders. 5
-          purchases unlocks a customer favorite.
-        </p>
-      </section>
+          <template v-if="favoriteBakedGood.isFavorite">
+            <h3>{{ favoriteBakedGood.name }}</h3>
+
+            <p class="favorite-count">
+              Total purchased:
+              <strong>{{ favoriteBakedGood.quantity }}</strong>
+            </p>
+          </template>
+
+          <template v-else>
+            <h3>No favorite yet</h3>
+
+            <p class="favorite-count">{{ favoriteBakedGood.quantity }} of 5 purchases</p>
+
+            <div class="favorite-progress">
+              <div
+                class="favorite-progress-fill"
+                :style="{
+                  width: `${Math.min((favoriteBakedGood.quantity / 5) * 100, 100)}%`,
+                }"
+              ></div>
+            </div>
+          </template>
+        </article>
+      </div>
+
+      <p class="hint favorites-note">
+        Favorites are based on completed customer orders and do not include guest orders. 5
+        purchases unlocks a customer favorite.
+      </p>
     </section>
   </main>
 </template>
-
-<style scoped>
-.favorites-section {
-  margin-top: 1.5rem;
-}
-
-.favorites-grid {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 1rem;
-}
-
-.favorite-card {
-  padding: 1.25rem;
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius);
-  background: #faf7f2;
-}
-
-.favorite-card h3 {
-  margin: 0.35rem 0 0.75rem;
-  color: var(--color-primary);
-  font-size: 1.1rem;
-}
-
-.favorite-type {
-  margin: 0;
-  color: var(--color-muted);
-  font-size: 0.8rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-}
-
-.favorite-count {
-  margin: 0;
-  color: var(--color-muted);
-}
-
-.favorite-count strong {
-  color: var(--color-text);
-}
-
-.favorites-note {
-  margin-top: 1rem;
-}
-
-@media (max-width: 600px) {
-  .favorites-grid {
-    grid-template-columns: 1fr;
-  }
-}
-</style>

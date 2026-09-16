@@ -219,6 +219,58 @@
             }
           },
           "response": []
+        },
+        {
+          "name": "Update Customer",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"first_name\": \"SpongeBob\",\r\n    \"last_name\": \"SquarePants\",\r\n    \"email\": \"ilovegary@bikinibottom.com\",\r\n    \"phone\": \"929-573-0156\",\r\n    \"loyalty_points\": 10,\r\n    \"active\": true\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "localhost:8000/customers/1",
+              "host": [
+                "localhost"
+              ],
+              "port": "8000",
+              "path": [
+                "customers",
+                "1"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Customer",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "localhost:8000/customers/1",
+              "host": [
+                "localhost"
+              ],
+              "port": "8000",
+              "path": [
+                "customers",
+                "1"
+              ]
+            }
+          },
+          "response": []
         }
       ]
     },

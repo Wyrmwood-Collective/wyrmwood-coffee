@@ -770,3 +770,201 @@ def test_create_customer_with_duplicate_email_should_not_persist(
 
     current_count = db_session.query(Customer).count()
     assert previous_count == current_count
+
+
+# ==========================================
+# UPDATE CUSTOMER
+# ==========================================
+
+
+def _update_payload(customer, **overrides):
+    payload = {
+        "active": customer.active,
+        "first_name": customer.first_name,
+        "last_name": customer.last_name,
+        "email": customer.email,
+        "phone": customer.phone,
+        "loyalty_points": customer.loyalty_points,
+    }
+    payload.update(overrides)
+    return payload
+
+
+# --------------------
+# Successful Responses
+# --------------------
+def test_update_customer_should_return_updated_customer(client, make_customer):
+    customer = make_customer()
+    payload = _update_payload(customer, first_name="Changed", loyalty_points=42)
+
+    response = client.put(f"/customers/{customer.id}", json=payload)
+    assert response.status_code == 200
+
+    body = response.json()
+    assert body["id"] == customer.id
+    assert body["first_name"] == "Changed"
+    assert body["loyalty_points"] == 42
+
+
+def test_update_customer_should_not_change_loyalty_expires_at(client, make_customer):
+    customer = make_customer()
+    payload = _update_payload(customer)
+
+    response = client.put(f"/customers/{customer.id}", json=payload)
+    assert response.status_code == 200
+    assert (
+        response.json()["loyalty_expires_at"] == customer.loyalty_expires_at.isoformat()
+    )
+
+
+# --------------------
+# Error / Invalid Responses
+# --------------------
+def test_update_customer_with_nonexistent_id_should_return_404(
+    client, make_customer, unused_customer_id
+):
+    customer = make_customer()
+    payload = _update_payload(customer)
+
+    response = client.put(f"/customers/{unused_customer_id()}", json=payload)
+    assert response.status_code == 404
+    assert response.json()["detail"] == "The customer was not found."
+
+
+def test_update_customer_with_duplicate_email_should_return_409(client, make_customer):
+    customer_1 = make_customer()
+    customer_2 = make_customer()
+    payload = _update_payload(customer_2, email=customer_1.email)
+
+    response = client.put(f"/customers/{customer_2.id}", json=payload)
+    assert response.status_code == 409
+
+
+def test_update_customer_with_duplicate_phone_should_return_409(client, make_customer):
+    customer_1 = make_customer()
+    customer_2 = make_customer()
+    payload = _update_payload(customer_2, phone=customer_1.phone)
+
+    response = client.put(f"/customers/{customer_2.id}", json=payload)
+    assert response.status_code == 409
+
+
+def test_update_customer_with_no_email_or_phone_should_return_422(
+    client, make_customer
+):
+    customer = make_customer()
+    payload = _update_payload(customer, email=None, phone=None)
+
+    response = client.put(f"/customers/{customer.id}", json=payload)
+    assert response.status_code == 422
+
+
+def test_update_customer_with_missing_required_field_should_return_422(
+    client, make_customer
+):
+    customer = make_customer()
+    payload = _update_payload(customer, first_name=None)
+
+    response = client.put(f"/customers/{customer.id}", json=payload)
+    assert response.status_code == 422
+
+
+@pytest.mark.parametrize("id", [0, -1, -999999])
+def test_update_customer_with_non_positive_integer_id_should_return_422(
+    client, make_customer, id
+):
+    payload = _update_payload(make_customer())
+    response = client.put(f"/customers/{id}", json=payload)
+    assert response.status_code == 422
+
+
+# --------------------
+# Side Effects
+# --------------------
+def test_update_customer_should_persist_changes_to_db(
+    db_session, client, make_customer
+):
+    customer = make_customer()
+    payload = _update_payload(customer, first_name="Persisted")
+
+    response = client.put(f"/customers/{customer.id}", json=payload)
+    assert response.status_code == 200
+
+    db_session.expire_all()
+    updated = db_session.get(Customer, customer.id)
+    assert updated.first_name == "Persisted"
+
+
+# ==========================================
+# DELETE CUSTOMER
+# ==========================================
+
+
+# --------------------
+# Successful Responses
+# --------------------
+def test_delete_customer_with_existing_customer_should_return_no_content(
+    client, make_customer
+):
+    customer = make_customer()
+    response = client.delete(f"/customers/{customer.id}")
+    assert response.status_code == 204
+
+
+# --------------------
+# Error / Invalid Responses
+# --------------------
+def test_delete_customer_with_nonexistent_id_should_return_404(
+    client, unused_customer_id
+):
+    response = client.delete(f"/customers/{unused_customer_id()}")
+    assert response.status_code == 404
+    assert response.json()["detail"] == "The customer was not found."
+
+
+def test_delete_customer_twice_should_return_404(client, make_customer):
+    customer = make_customer()
+    client.delete(f"/customers/{customer.id}")
+
+    response = client.delete(f"/customers/{customer.id}")
+    assert response.status_code == 404
+
+
+@pytest.mark.parametrize("id", [0, -1, -999999])
+def test_delete_customer_with_non_positive_integer_id_should_return_422(client, id):
+    response = client.delete(f"/customers/{id}")
+    assert response.status_code == 422
+
+
+# --------------------
+# Side Effects
+# --------------------
+def test_delete_customer_should_soft_delete_customer(db_session, client, make_customer):
+    customer = make_customer()
+    client.delete(f"/customers/{customer.id}")
+
+    db_session.expire_all()
+    deleted = db_session.get(Customer, customer.id)
+    assert deleted is not None
+    assert deleted.is_deleted is True
+    assert deleted.active is False
+
+
+def test_delete_customer_should_release_email_and_phone(
+    db_session, client, make_customer
+):
+    customer = make_customer()
+    client.delete(f"/customers/{customer.id}")
+
+    db_session.expire_all()
+    deleted = db_session.get(Customer, customer.id)
+    assert deleted.email is None
+    assert deleted.phone is None
+
+
+def test_delete_customer_should_not_appear_in_list(client, make_customer):
+    customer = make_customer()
+    client.delete(f"/customers/{customer.id}")
+
+    response = client.get("/customers")
+    assert all(c["id"] != customer.id for c in response.json())

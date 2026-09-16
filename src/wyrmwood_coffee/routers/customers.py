@@ -1,7 +1,7 @@
 import logging
 
 import psycopg
-from fastapi import APIRouter, Depends, HTTPException, Query, status
+from fastapi import APIRouter, Depends, HTTPException, Query, Response, status
 from sqlalchemy import func, select
 from sqlalchemy.exc import IntegrityError
 
@@ -14,6 +14,7 @@ from wyrmwood_coffee.models.customer import (
     CustomerFavoriteRead,
     CustomerId,
     CustomerRead,
+    CustomerUpdate,
 )
 from wyrmwood_coffee.models.purchase import Purchase, PurchaseItem
 
@@ -77,7 +78,7 @@ def list_customers(session: DbSession) -> list[CustomerRead]:
     """
     List all customer records in the system.
     """
-    customers = session.scalars(select(Customer)).all()
+    customers = session.scalars(select(Customer).where(~Customer.is_deleted)).all()
     return [CustomerRead.model_validate(c) for c in customers]
 
 
@@ -151,7 +152,7 @@ def get_customer(session: DbSession, id: CustomerId) -> CustomerRead:
     Retrieve a single customer by ID.
     """
     customer = session.get(Customer, id)
-    if customer is None:
+    if customer is None or customer.is_deleted:
         customer_logger.log_resource_not_found(id)
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
@@ -201,3 +202,99 @@ def create_customer(session: DbSession, payload: CustomerCreate) -> CustomerRead
             status_code=status.HTTP_409_CONFLICT,
             detail="User is already registered in the system with phone or email",
         ) from None
+
+
+@router.put(
+    "/{id}",
+    status_code=status.HTTP_200_OK,
+    response_model=CustomerRead,
+    response_description="The updated customer",
+    responses={
+        401: {"description": "Could not validate credentials."},
+        404: {"description": "The customer was not found."},
+        status.HTTP_409_CONFLICT: {
+            "description": "A customer with the given email or phone already exists"
+        },
+        422: {
+            "description": (
+                "The provided CustomerUpdate is malformed or invalid, "
+                "or the provided path parameter is malformed or invalid."
+            )
+        },
+    },
+    dependencies=[Depends(require_auth)],
+)
+def update_customer(
+    session: DbSession, id: CustomerId, payload: CustomerUpdate
+) -> CustomerRead:
+    """
+    Update an existing customer.
+
+    Loyalty expiration is not editable here; it is only ever set on creation.
+    """
+    customer = session.get(Customer, id)
+    if customer is None or customer.is_deleted:
+        customer_logger.log_resource_not_found(id)
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="The customer was not found.",
+        )
+
+    for field, value in payload.model_dump().items():
+        setattr(customer, field, value)
+
+    try:
+        session.commit()
+        customer_logger.log_resource_updated(id)
+    except IntegrityError as err:
+        session.rollback()
+        constraint_name = (
+            (err.orig.diag.constraint_name or "")
+            if isinstance(err.orig, psycopg.Error)
+            else ""
+        )
+        customer_logger.log_attrs_not_unique(DUPLICATE_ATTRS.get(constraint_name, []))
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail="User is already registered in the system with phone or email",
+        ) from None
+
+    session.refresh(customer)
+    return CustomerRead.model_validate(customer)
+
+
+@router.delete(
+    "/{id}",
+    status_code=status.HTTP_204_NO_CONTENT,
+    response_description="The customer was deleted successfully.",
+    responses={
+        401: {"description": "Could not validate credentials."},
+        404: {"description": "The customer was not found."},
+        422: {"description": "The provided path parameter is malformed or invalid."},
+    },
+    dependencies=[Depends(require_auth)],
+)
+def delete_customer(session: DbSession, id: CustomerId) -> Response:
+    """
+    Soft delete a customer.
+
+    The customer remains in the database for historical records but is no
+    longer visible or available for use. Its email and phone number are
+    cleared to free them up for future customers.
+    """
+    customer = session.get(Customer, id)
+    if customer is None or customer.is_deleted:
+        customer_logger.log_resource_not_found(id)
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="The customer was not found.",
+        )
+
+    customer.active = False
+    customer.is_deleted = True
+    customer.email = None
+    customer.phone = None
+    session.commit()
+
+    customer_logger.log_resource_deleted(id)
+    return Response(status_code=status.HTTP_204_NO_CONTENT)

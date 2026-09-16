@@ -1,8 +1,7 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from "vue";
-import { apiGetEmployee } from "@/api/employees";
+import { client } from "@/api/client";
 import { useSession } from "@/composables/useSession";
-import AppChrome from "@/components/AppChrome.vue";
 import FormMessage from "@/components/FormMessage.vue";
 import ProfileList from "@/components/ProfileList.vue";
 import type { EmployeeRead } from "@/types/employee";
@@ -29,29 +28,35 @@ onMounted(async () => {
     return;
   }
   try {
-    employee.value = await apiGetEmployee(session.value.employeeId);
+    const response = await client.GET("/employees/{id}", {
+      params: { path: { id: Number(session.value.employeeId) } },
+    });
+    if (!response.data) {
+      throw new Error("Could not load employee.");
+    }
+    employee.value = response.data;
   } catch (error) {
     errorMessage.value = error instanceof Error ? error.message : "Something went wrong.";
   }
 });
 </script>
 
+<style scoped>
+.page {
+  display: block;
+  color: var(--ink);
+}
+</style>
+
 <template>
   <main class="page">
-    <section class="card card-wide">
-      <header class="brand">
-        <h1>Wyrmwood Coffee</h1>
-        <p>Employee dashboard showcase</p>
-      </header>
+    <h1>Dashboard</h1>
 
-      <AppChrome />
+    <h2>{{ welcomeText }}</h2>
+    <p class="hint access-note">{{ accessNote }}</p>
 
-      <h2>{{ welcomeText }}</h2>
-      <p class="hint access-note">{{ accessNote }}</p>
+    <FormMessage :text="errorMessage" type="error" />
 
-      <FormMessage :text="errorMessage" type="error" />
-
-      <ProfileList v-if="employee" :employee="employee" :limited="limited" />
-    </section>
+    <ProfileList v-if="employee" :employee="employee" :limited="limited" />
   </main>
 </template>

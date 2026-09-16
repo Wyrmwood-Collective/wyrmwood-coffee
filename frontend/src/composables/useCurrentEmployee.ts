@@ -1,5 +1,5 @@
 import { ref, watch } from "vue";
-import { apiGetEmployee } from "@/api/employees";
+import { client } from "@/api/client";
 import { useSession } from "@/composables/useSession";
 import type { EmployeeRead } from "@/types/employee";
 
@@ -19,10 +19,15 @@ export function useCurrentEmployee() {
         employee.value = null;
         return;
       }
-      try {
-        employee.value = await apiGetEmployee(current.employeeId);
-      } catch {
+
+      const response = await client.GET("/employees/{id}", {
+        params: { path: { id: Number(current.employeeId) } },
+      });
+
+      if (!response.data) {
         employee.value = null;
+      } else {
+        employee.value = response.data;
       }
     },
     { immediate: true },
