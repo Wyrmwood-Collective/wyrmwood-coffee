@@ -3,8 +3,8 @@ import { ref } from "vue";
 const active = ref(false);
 let pendingNavigate: (() => void) | null = null;
 
-export function useFadeTransition() {
-  function fadeTransition(navigate: () => void) {
+export function useLogoutTransition() {
+  function reverseFireballTransition(navigate: () => void) {
     pendingNavigate = navigate;
     active.value = true;
   }
@@ -19,5 +19,5 @@ export function useFadeTransition() {
     active.value = false;
   }
 
-  return { active, fadeTransition, consumeNavigate, finish };
+  return { active, reverseFireballTransition, consumeNavigate, finish };
 }

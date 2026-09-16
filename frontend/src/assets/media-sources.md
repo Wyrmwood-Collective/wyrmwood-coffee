@@ -91,3 +91,53 @@ If a different source sound is dropped in later, rerun the
 a little past where the loud content ends (per silencedetect), and
 `afade`'s `st` (fade start) a bit before that, so the fade covers the
 natural tail without an audible hard cutoff.
+
+### finals/fireball-reverse.webm and finals/dragon-breath-reverse.mp3 (sign-out transition)
+
+Played forward by `App.vue` on sign-out to get the visual/audio mirror of
+the login transition (flame gathering in rather than dissipating, roar
+played backwards). A true reverse (rather than a hand-scrubbed
+`currentTime`, which is what `<video>`'s lack of negative `playbackRate`
+support would otherwise force) needs whole-clip filters
+(`reverse`/`areverse`), which is why these are pre-rendered files instead
+of something done at runtime.
+
+**fireball-reverse.webm is built from `originals/fireball.mov`, not from
+`finals/fireball.webm`** — i.e. it's the same recipe as `finals/fireball.webm`
+above with `reverse` appended to the end of the `-vf` chain, not a
+re-encode of the already-alpha-baked file:
+
+```sh
+ffmpeg -y -i originals/fireball.mov \
+  -map_metadata -1 -map_chapters -1 \
+  -vf "scale=1280:720:flags=lanczos,eq=gamma=0.55:saturation=1.7,format=yuva420p,geq=lum='lum(X,Y)':cb='cb(X,Y)':cr='cr(X,Y)':a='min(255,lum(X,Y)*4.5)',reverse" \
+  -c:v libvpx-vp9 -pix_fmt yuva420p -crf 32 -b:v 0 -cpu-used 2 -auto-alt-ref 0 -an \
+  finals/fireball-reverse.webm
+```
+
+This matters: an earlier version of this file was produced by re-encoding
+`finals/fireball.webm` itself (`ffmpeg -i finals/fireball.webm -vf reverse
+...`), decoding its already-baked alpha side-stream, reversing frame
+order, and re-encoding. That round-trip silently lost the alpha channel —
+ffmpeg's filtergraph negotiated the decode as plain `yuv420p` (no alpha
+plane) since `reverse` alone doesn't require one, and the `-pix_fmt
+yuva420p` on the encode side then just padded a fake fully-opaque channel
+onto it, producing a solid opaque video with no transparency at all
+(visible in the app as a black rectangle instead of the fire receding to
+reveal the page). Deriving alpha fresh from the raw master via `geq`
+(same as the forward file) and only reordering frames afterward with
+`reverse` avoids that failure mode entirely — always regenerate from
+`originals/fireball.mov`, not from `finals/fireball.webm`, if this needs
+retuning. `originals/fireball.mov` isn't committed (see the note above)
+and needs re-downloading from the source in the first bullet at the top
+of this file if it's not present locally.
+
+```sh
+ffmpeg -y -i finals/dragon-breath.mp3 -af areverse \
+  -c:a libmp3lame -b:a 160k \
+  finals/dragon-breath-reverse.mp3
+```
+
+The audio doesn't have an analogous gotcha — `dragon-breath-reverse.mp3`
+is a straightforward `areverse` of the already-finished
+`finals/dragon-breath.mp3`, no alpha channel involved.
