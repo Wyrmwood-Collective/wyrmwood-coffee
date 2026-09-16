@@ -2,7 +2,6 @@
 import { computed, onMounted, ref } from "vue";
 import { client } from "@/api/client";
 import { useSession } from "@/composables/useSession";
-import AppChrome from "@/components/AppChrome.vue";
 import FormMessage from "@/components/FormMessage.vue";
 import ProfileList from "@/components/ProfileList.vue";
 import type { EmployeeRead } from "@/types/employee";
@@ -42,10 +41,16 @@ onMounted(async () => {
 });
 </script>
 
+<style scoped>
+.page {
+  display: block;
+  color: var(--ink);
+}
+</style>
+
 <template>
   <main class="page">
     <h1>Dashboard</h1>
-    <AppChrome />
 
     <h2>{{ welcomeText }}</h2>
     <p class="hint access-note">{{ accessNote }}</p>
