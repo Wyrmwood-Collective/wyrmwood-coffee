@@ -17,9 +17,9 @@ def override_auth():
 
 
 def test_create_purchase_with_valid_payload_should_return_purchase(
-    db_session, client, sample_baked_good
+    db_session, client, make_baked_good
 ):
-    payload = {"items": [{"name": sample_baked_good.name, "quantity": 1}]}
+    payload = {"items": [{"name": make_baked_good().name, "quantity": 1}]}
     response = client.post("/purchases", json=payload)
 
     assert response.status_code == 201
@@ -33,8 +33,8 @@ def test_create_purchase_with_missing_items_should_return_422(db_session, client
     assert response.status_code == 422
 
 
-def test_create_purchase_should_persist_to_db(db_session, client, sample_baked_good):
-    payload = {"items": [{"name": sample_baked_good.name, "quantity": 1}]}
+def test_create_purchase_should_persist_to_db(db_session, client, make_baked_good):
+    payload = {"items": [{"name": make_baked_good().name, "quantity": 1}]}
     response = client.post("/purchases", json=payload)
 
     assert response.status_code == 201

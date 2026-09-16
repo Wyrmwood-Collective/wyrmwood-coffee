@@ -203,6 +203,9 @@ def make_ingredient(db_session, make_vendor):
             "unit_amount": 5,
             "unit_of_measure": "L",
             "allergens": ["seafood"],
+            "quantity_on_hand": 12.00,
+            "reorder_threshold": 7.00,
+            "reorder_quantity": 8.00,
             "vendor_id": kwargs.get("vendor_id") or make_vendor().id,
         }
         defaults.update(kwargs)
@@ -217,14 +220,56 @@ def make_ingredient(db_session, make_vendor):
 
 @pytest.fixture
 def sample_baked_good(db_session):
-    """Creates a fake baked good to use in purchase tests."""
     bg = BakedGood(
         name="Test Muffin",
         description="A delicious test muffin.",
         purchase_cost=Decimal("2.00"),
         retail_price=Decimal("5.00"),
+        quantity_on_hand=20,
+        reorder_threshold=5,
+        reorder_quantity=15,
     )
     db_session.add(bg)
     db_session.commit()
     db_session.refresh(bg)
     return bg
+
+
+@pytest.fixture
+def make_baked_good(db_session):
+    counter = itertools.count(1)
+
+    def _make_baked_good(**kwargs):
+        n = next(counter)
+        defaults = {
+            "name": f"Test Muffin {n}",
+            "description": "A delicious test muffin.",
+            "purchase_cost": Decimal("2.00"),
+            "retail_price": Decimal("5.00"),
+            "quantity_on_hand": 20,
+            "reorder_threshold": 5,
+            "reorder_quantity": 15,
+        }
+        defaults.update(kwargs)
+        baked_good = BakedGood(**defaults)
+        db_session.add(baked_good)
+        db_session.commit()
+        db_session.refresh(baked_good)
+        return baked_good
+
+    return _make_baked_good
+
+
+@pytest.fixture
+def employee_client(db_session):
+    app.dependency_overrides[get_db] = lambda: db_session
+    _override_current_employee("employee")
+    yield TestClient(app)
+    app.dependency_overrides.clear()
+
+
+@pytest.fixture
+def unauthenticated_client(db_session):
+    app.dependency_overrides[get_db] = lambda: db_session
+    yield TestClient(app)
+    app.dependency_overrides.clear()

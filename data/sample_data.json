@@ -81,7 +81,10 @@
       "purchasing_cost": "49.60",
       "unit_amount": "80.00",
       "unit_of_measure": "oz",
-      "allergens": []
+      "allergens": [],
+      "quantity_on_hand": "248.00",
+      "reorder_threshold": "16.00",
+      "reorder_quantity": "80.00"
     },
     {
       "key": "drip_coffee_beans",
@@ -92,7 +95,10 @@
       "purchasing_cost": "72.00",
       "unit_amount": "160.00",
       "unit_of_measure": "oz",
-      "allergens": []
+      "allergens": [],
+      "quantity_on_hand": "337.60",
+      "reorder_threshold": "35.20",
+      "reorder_quantity": "160.00"
     },
     {
       "key": "decaf_beans",
@@ -103,7 +109,10 @@
       "purchasing_cost": "54.40",
       "unit_amount": "80.00",
       "unit_of_measure": "oz",
-      "allergens": []
+      "allergens": [],
+      "quantity_on_hand": "255.20",
+      "reorder_threshold": "26.40",
+      "reorder_quantity": "80.00"
     },
     {
       "key": "black_tea_leaves",
@@ -114,7 +123,10 @@
       "purchasing_cost": "14.40",
       "unit_amount": "16.00",
       "unit_of_measure": "oz",
-      "allergens": []
+      "allergens": [],
+      "quantity_on_hand": "47.68",
+      "reorder_threshold": "3.20",
+      "reorder_quantity": "16.00"
     },
     {
       "key": "green_tea_leaves",
@@ -125,7 +137,10 @@
       "purchasing_cost": "17.60",
       "unit_amount": "16.00",
       "unit_of_measure": "oz",
-      "allergens": []
+      "allergens": [],
+      "quantity_on_hand": "4.48",
+      "reorder_threshold": "4.48",
+      "reorder_quantity": "16.00"
     },
     {
       "key": "whole_milk",
@@ -136,7 +151,12 @@
       "purchasing_cost": "7.68",
       "unit_amount": "128.00",
       "unit_of_measure": "fl oz",
-      "allergens": ["milk"]
+      "allergens": [
+        "milk"
+      ],
+      "quantity_on_hand": "371.20",
+      "reorder_threshold": "39.68",
+      "reorder_quantity": "256.00"
     },
     {
       "key": "oat_milk",
@@ -147,7 +167,10 @@
       "purchasing_cost": "3.52",
       "unit_amount": "32.00",
       "unit_of_measure": "fl oz",
-      "allergens": []
+      "allergens": [],
+      "quantity_on_hand": "65.60",
+      "reorder_threshold": "9.28",
+      "reorder_quantity": "32.00"
     },
     {
       "key": "heavy_cream",
@@ -158,7 +181,12 @@
       "purchasing_cost": "4.48",
       "unit_amount": "32.00",
       "unit_of_measure": "fl oz",
-      "allergens": ["milk"]
+      "allergens": [
+        "milk"
+      ],
+      "quantity_on_hand": "108.80",
+      "reorder_threshold": "7.04",
+      "reorder_quantity": "64.00"
     },
     {
       "key": "almond_milk",
@@ -169,7 +197,12 @@
       "purchasing_cost": "3.20",
       "unit_amount": "32.00",
       "unit_of_measure": "fl oz",
-      "allergens": ["tree nuts"]
+      "allergens": [
+        "tree nuts"
+      ],
+      "quantity_on_hand": "75.20",
+      "reorder_threshold": "7.04",
+      "reorder_quantity": "32.00"
     },
     {
       "key": "vanilla_syrup",
@@ -180,7 +213,10 @@
       "purchasing_cost": "30.00",
       "unit_amount": "250.00",
       "unit_of_measure": "pumps",
-      "allergens": []
+      "allergens": [],
+      "quantity_on_hand": "440.00",
+      "reorder_threshold": "65.00",
+      "reorder_quantity": "250.00"
     },
     {
       "key": "caramel_syrup",
@@ -191,7 +227,10 @@
       "purchasing_cost": "30.00",
       "unit_amount": "250.00",
       "unit_of_measure": "pumps",
-      "allergens": []
+      "allergens": [],
+      "quantity_on_hand": "905.00",
+      "reorder_threshold": "72.50",
+      "reorder_quantity": "250.00"
     },
     {
       "key": "hazelnut_syrup",
@@ -202,7 +241,12 @@
       "purchasing_cost": "32.50",
       "unit_amount": "250.00",
       "unit_of_measure": "pumps",
-      "allergens": ["tree nuts"]
+      "allergens": [
+        "tree nuts"
+      ],
+      "quantity_on_hand": "42.00",
+      "reorder_threshold": "70.00",
+      "reorder_quantity": "500.00"
     },
     {
       "key": "mocha_sauce",
@@ -213,7 +257,12 @@
       "purchasing_cost": "22.40",
       "unit_amount": "64.00",
       "unit_of_measure": "fl oz",
-      "allergens": ["milk"]
+      "allergens": [
+        "milk"
+      ],
+      "quantity_on_hand": "108.80",
+      "reorder_threshold": "15.36",
+      "reorder_quantity": "64.00"
     },
     {
       "key": "chai_concentrate",
@@ -224,7 +273,10 @@
       "purchasing_cost": "7.04",
       "unit_amount": "32.00",
       "unit_of_measure": "fl oz",
-      "allergens": []
+      "allergens": [],
+      "quantity_on_hand": "94.08",
+      "reorder_threshold": "9.92",
+      "reorder_quantity": "32.00"
     },
     {
       "key": "lemonade_base",
@@ -235,7 +287,10 @@
       "purchasing_cost": "11.52",
       "unit_amount": "64.00",
       "unit_of_measure": "fl oz",
-      "allergens": []
+      "allergens": [],
+      "quantity_on_hand": "201.60",
+      "reorder_threshold": "20.48",
+      "reorder_quantity": "64.00"
     },
     {
       "key": "soda_water",
@@ -246,7 +301,10 @@
       "purchasing_cost": "30.00",
       "unit_amount": "1000.00",
       "unit_of_measure": "fl oz",
-      "allergens": []
+      "allergens": [],
+      "quantity_on_hand": "3640.00",
+      "reorder_threshold": "330.00",
+      "reorder_quantity": "2000.00"
     },
     {
       "key": "whipped_cream",
@@ -257,7 +315,12 @@
       "purchasing_cost": "40.00",
       "unit_amount": "200.00",
       "unit_of_measure": "scoops",
-      "allergens": ["milk"]
+      "allergens": [
+        "milk"
+      ],
+      "quantity_on_hand": "438.00",
+      "reorder_threshold": "60.00",
+      "reorder_quantity": "200.00"
     },
     {
       "key": "cinnamon_dash",
@@ -268,7 +331,10 @@
       "purchasing_cost": "10.00",
       "unit_amount": "500.00",
       "unit_of_measure": "dashes",
-      "allergens": []
+      "allergens": [],
+      "quantity_on_hand": "955.00",
+      "reorder_threshold": "125.00",
+      "reorder_quantity": "500.00"
     },
     {
       "key": "pumpkin_spice_syrup",
@@ -279,7 +345,10 @@
       "purchasing_cost": "24.00",
       "unit_amount": "25.40",
       "unit_of_measure": "fl oz",
-      "allergens": []
+      "allergens": [],
+      "quantity_on_hand": "82.55",
+      "reorder_threshold": "7.62",
+      "reorder_quantity": "25.40"
     },
     {
       "key": "apple_syrup",
@@ -290,7 +359,10 @@
       "purchasing_cost": "22.00",
       "unit_amount": "25.40",
       "unit_of_measure": "fl oz",
-      "allergens": []
+      "allergens": [],
+      "quantity_on_hand": "76.71",
+      "reorder_threshold": "5.84",
+      "reorder_quantity": "25.40"
     },
     {
       "key": "caramel_sauce",
@@ -301,7 +373,12 @@
       "purchasing_cost": "18.50",
       "unit_amount": "32.00",
       "unit_of_measure": "fl oz",
-      "allergens": ["milk"]
+      "allergens": [
+        "milk"
+      ],
+      "quantity_on_hand": "61.12",
+      "reorder_threshold": "8.32",
+      "reorder_quantity": "32.00"
     },
     {
       "key": "pumpkin_spice",
@@ -312,7 +389,10 @@
       "purchasing_cost": "9.50",
       "unit_amount": "12.00",
       "unit_of_measure": "oz",
-      "allergens": []
+      "allergens": [],
+      "quantity_on_hand": "38.52",
+      "reorder_threshold": "3.96",
+      "reorder_quantity": "12.00"
     },
     {
       "key": "apple_cider",
@@ -323,7 +403,10 @@
       "purchasing_cost": "8.75",
       "unit_amount": "1.00",
       "unit_of_measure": "gal",
-      "allergens": []
+      "allergens": [],
+      "quantity_on_hand": "0.12",
+      "reorder_threshold": "0.20",
+      "reorder_quantity": "1.00"
     },
     {
       "key": "cold_brew_concentrate",
@@ -334,7 +417,173 @@
       "purchasing_cost": "28.00",
       "unit_amount": "64.00",
       "unit_of_measure": "fl oz",
-      "allergens": []
+      "allergens": [],
+      "quantity_on_hand": "160.00",
+      "reorder_threshold": "13.44",
+      "reorder_quantity": "64.00"
+    }
+  ],
+  "baked_goods": [
+    {
+      "active": true,
+      "name": "Blueberry Muffin",
+      "description": "A moist muffin studded with blueberries.",
+      "purchase_cost": "1.10",
+      "retail_price": "3.75",
+      "allergens": [
+        "gluten",
+        "egg",
+        "milk"
+      ],
+      "quantity_on_hand": 18,
+      "reorder_threshold": 7,
+      "reorder_quantity": 24
+    },
+    {
+      "active": true,
+      "name": "Butter Croissant",
+      "description": "A flaky, all-butter croissant.",
+      "purchase_cost": "1.35",
+      "retail_price": "4.25",
+      "allergens": [
+        "gluten",
+        "egg",
+        "milk"
+      ],
+      "quantity_on_hand": 32,
+      "reorder_threshold": 7,
+      "reorder_quantity": 20
+    },
+    {
+      "active": true,
+      "name": "Chocolate Chip Cookie",
+      "description": "A classic chewy chocolate chip cookie.",
+      "purchase_cost": "0.65",
+      "retail_price": "2.75",
+      "allergens": [
+        "gluten",
+        "egg",
+        "milk"
+      ],
+      "quantity_on_hand": 20,
+      "reorder_threshold": 5,
+      "reorder_quantity": 21
+    },
+    {
+      "active": true,
+      "name": "Cinnamon Scone",
+      "description": "A buttery scone with a cinnamon swirl.",
+      "purchase_cost": "0.95",
+      "retail_price": "3.50",
+      "allergens": [
+        "gluten",
+        "egg",
+        "milk"
+      ],
+      "quantity_on_hand": 35,
+      "reorder_threshold": 8,
+      "reorder_quantity": 26
+    },
+    {
+      "active": true,
+      "name": "Almond Biscotti",
+      "description": "A twice-baked almond biscotti, perfect for dunking.",
+      "purchase_cost": "0.80",
+      "retail_price": "3.00",
+      "allergens": [
+        "gluten",
+        "egg",
+        "tree nuts"
+      ],
+      "quantity_on_hand": 6,
+      "reorder_threshold": 8,
+      "reorder_quantity": 24
+    },
+    {
+      "active": true,
+      "name": "Banana Bread Slice",
+      "description": "A dense slice of banana bread.",
+      "purchase_cost": "1.05",
+      "retail_price": "3.95",
+      "allergens": [
+        "gluten",
+        "egg"
+      ],
+      "quantity_on_hand": 30,
+      "reorder_threshold": 7,
+      "reorder_quantity": 23
+    },
+    {
+      "active": true,
+      "name": "Gluten-Free Brownie",
+      "description": "A fudgy brownie made without wheat flour.",
+      "purchase_cost": "1.60",
+      "retail_price": "4.50",
+      "allergens": [
+        "egg",
+        "milk"
+      ],
+      "quantity_on_hand": 19,
+      "reorder_threshold": 5,
+      "reorder_quantity": 26
+    },
+    {
+      "active": false,
+      "name": "Bagel with Cream Cheese",
+      "description": "A toasted plain bagel with cream cheese, discontinued for the season.",
+      "purchase_cost": "1.20",
+      "retail_price": "3.60",
+      "allergens": [
+        "gluten",
+        "milk"
+      ],
+      "quantity_on_hand": 0,
+      "reorder_threshold": 0,
+      "reorder_quantity": 0
+    },
+    {
+      "active": true,
+      "name": "Pumpkin Bread",
+      "description": "A moist, spiced pumpkin quick bread.",
+      "purchase_cost": "1.15",
+      "retail_price": "4.10",
+      "allergens": [
+        "gluten",
+        "egg"
+      ],
+      "quantity_on_hand": 27,
+      "reorder_threshold": 4,
+      "reorder_quantity": 30
+    },
+    {
+      "active": true,
+      "name": "Pumpkin Coffee Cake",
+      "description": "A cinnamon-streusel coffee cake made with pumpkin puree.",
+      "purchase_cost": "1.45",
+      "retail_price": "4.75",
+      "allergens": [
+        "gluten",
+        "egg",
+        "milk"
+      ],
+      "quantity_on_hand": 2,
+      "reorder_threshold": 4,
+      "reorder_quantity": 20
+    },
+    {
+      "active": true,
+      "name": "Apple Crumble Cake",
+      "description": "A spiced apple cake topped with a buttery crumble.",
+      "purchase_cost": "1.30",
+      "retail_price": "4.50",
+      "allergens": [
+        "gluten",
+        "egg",
+        "milk"
+      ],
+      "quantity_on_hand": 32,
+      "reorder_threshold": 5,
+      "reorder_quantity": 30
     }
   ],
   "drinks": [
@@ -672,96 +921,6 @@
           "unit": "pumps"
         }
       ]
-    }
-  ],
-  "baked_goods": [
-    {
-      "active": true,
-      "name": "Blueberry Muffin",
-      "description": "A moist muffin studded with blueberries.",
-      "purchase_cost": "1.10",
-      "retail_price": "3.75",
-      "allergens": ["gluten", "egg", "milk"]
-    },
-    {
-      "active": true,
-      "name": "Butter Croissant",
-      "description": "A flaky, all-butter croissant.",
-      "purchase_cost": "1.35",
-      "retail_price": "4.25",
-      "allergens": ["gluten", "egg", "milk"]
-    },
-    {
-      "active": true,
-      "name": "Chocolate Chip Cookie",
-      "description": "A classic chewy chocolate chip cookie.",
-      "purchase_cost": "0.65",
-      "retail_price": "2.75",
-      "allergens": ["gluten", "egg", "milk"]
-    },
-    {
-      "active": true,
-      "name": "Cinnamon Scone",
-      "description": "A buttery scone with a cinnamon swirl.",
-      "purchase_cost": "0.95",
-      "retail_price": "3.50",
-      "allergens": ["gluten", "egg", "milk"]
-    },
-    {
-      "active": true,
-      "name": "Almond Biscotti",
-      "description": "A twice-baked almond biscotti, perfect for dunking.",
-      "purchase_cost": "0.80",
-      "retail_price": "3.00",
-      "allergens": ["gluten", "egg", "tree nuts"]
-    },
-    {
-      "active": true,
-      "name": "Banana Bread Slice",
-      "description": "A dense slice of banana bread.",
-      "purchase_cost": "1.05",
-      "retail_price": "3.95",
-      "allergens": ["gluten", "egg"]
-    },
-    {
-      "active": true,
-      "name": "Gluten-Free Brownie",
-      "description": "A fudgy brownie made without wheat flour.",
-      "purchase_cost": "1.60",
-      "retail_price": "4.50",
-      "allergens": ["egg", "milk"]
-    },
-    {
-      "active": false,
-      "name": "Bagel with Cream Cheese",
-      "description": "A toasted plain bagel with cream cheese, discontinued for the season.",
-      "purchase_cost": "1.20",
-      "retail_price": "3.60",
-      "allergens": ["gluten", "milk"]
-    },
-    {
-      "active": true,
-      "name": "Pumpkin Bread",
-      "description": "A moist, spiced pumpkin quick bread.",
-      "purchase_cost": "1.15",
-      "retail_price": "4.10",
-      "allergens": ["gluten", "egg"]
-    },
-    {
-      "active": true,
-      "name": "Pumpkin Coffee Cake",
-      "description": "A cinnamon-streusel coffee cake made with pumpkin puree.",
-      "purchase_cost": "1.45",
-      "retail_price": "4.75",
-      "allergens": ["gluten", "egg", "milk"]
-    },
-    {
-      "active": true,
-      "name": "Apple Crumble Cake",
-      "description": "A spiced apple cake topped with a buttery crumble.",
-      "purchase_cost": "1.30",
-      "retail_price": "4.50",
-      "allergens": ["gluten", "egg", "milk"]
     }
   ],
   "customers": [
@@ -23684,6 +23843,344 @@
           "unit_price": 6.83
         }
       ]
+    }
+  ],
+  "inventory_transactions": [
+    {
+      "ingredient_key": "espresso_beans",
+      "change_type": "SALE",
+      "quantity_delta": "-4.72",
+      "reference_id": "order-20260908-espr",
+      "created_at": "2026-09-08T17:03:00"
+    },
+    {
+      "ingredient_key": "whole_milk",
+      "change_type": "SALE",
+      "quantity_delta": "-11.65",
+      "reference_id": "order-20260908-whol",
+      "created_at": "2026-09-08T12:37:00"
+    },
+    {
+      "ingredient_key": "oat_milk",
+      "change_type": "SALE",
+      "quantity_delta": "-11.13",
+      "reference_id": "order-20260908-oat_",
+      "created_at": "2026-09-08T07:05:00"
+    },
+    {
+      "ingredient_key": "vanilla_syrup",
+      "change_type": "SALE",
+      "quantity_delta": "-3.26",
+      "reference_id": "order-20260908-vani",
+      "created_at": "2026-09-08T08:35:00"
+    },
+    {
+      "ingredient_key": "caramel_syrup",
+      "change_type": "SALE",
+      "quantity_delta": "-16.88",
+      "reference_id": "order-20260908-cara",
+      "created_at": "2026-09-08T08:14:00"
+    },
+    {
+      "ingredient_key": "green_tea_leaves",
+      "change_type": "SALE",
+      "quantity_delta": "-12.49",
+      "reference_id": "order-20260908-gree",
+      "created_at": "2026-09-08T07:36:00"
+    },
+    {
+      "ingredient_key": "chai_concentrate",
+      "change_type": "SALE",
+      "quantity_delta": "-2.89",
+      "reference_id": "order-20260908-chai",
+      "created_at": "2026-09-08T10:02:00"
+    },
+    {
+      "baked_good_name": "Blueberry Muffin",
+      "change_type": "SALE",
+      "quantity_delta": "-2",
+      "reference_id": "order-20260908-blue",
+      "created_at": "2026-09-08T11:26:00"
+    },
+    {
+      "baked_good_name": "Butter Croissant",
+      "change_type": "SALE",
+      "quantity_delta": "-1",
+      "reference_id": "order-20260908-butt",
+      "created_at": "2026-09-08T16:19:00"
+    },
+    {
+      "baked_good_name": "Pumpkin Coffee Cake",
+      "change_type": "SALE",
+      "quantity_delta": "-2",
+      "reference_id": "order-20260908-pump",
+      "created_at": "2026-09-08T08:37:00"
+    },
+    {
+      "ingredient_key": "espresso_beans",
+      "change_type": "SALE",
+      "quantity_delta": "-5.38",
+      "reference_id": "order-20260909-espr",
+      "created_at": "2026-09-09T08:35:00"
+    },
+    {
+      "ingredient_key": "oat_milk",
+      "change_type": "SALE",
+      "quantity_delta": "-13.14",
+      "reference_id": "order-20260909-oat_",
+      "created_at": "2026-09-09T14:43:00"
+    },
+    {
+      "ingredient_key": "vanilla_syrup",
+      "change_type": "SALE",
+      "quantity_delta": "-15.99",
+      "reference_id": "order-20260909-vani",
+      "created_at": "2026-09-09T14:37:00"
+    },
+    {
+      "ingredient_key": "green_tea_leaves",
+      "change_type": "SALE",
+      "quantity_delta": "-6.47",
+      "reference_id": "order-20260909-gree",
+      "created_at": "2026-09-09T09:44:00"
+    },
+    {
+      "baked_good_name": "Blueberry Muffin",
+      "change_type": "SALE",
+      "quantity_delta": "-3",
+      "reference_id": "order-20260909-blue",
+      "created_at": "2026-09-09T15:31:00"
+    },
+    {
+      "ingredient_key": "espresso_beans",
+      "change_type": "SALE",
+      "quantity_delta": "-19.64",
+      "reference_id": "order-20260910-espr",
+      "created_at": "2026-09-10T08:32:00"
+    },
+    {
+      "ingredient_key": "whole_milk",
+      "change_type": "SALE",
+      "quantity_delta": "-15.63",
+      "reference_id": "order-20260910-whol",
+      "created_at": "2026-09-10T09:59:00"
+    },
+    {
+      "ingredient_key": "oat_milk",
+      "change_type": "SALE",
+      "quantity_delta": "-2.71",
+      "reference_id": "order-20260910-oat_",
+      "created_at": "2026-09-10T17:04:00"
+    },
+    {
+      "ingredient_key": "caramel_syrup",
+      "change_type": "SALE",
+      "quantity_delta": "-17.76",
+      "reference_id": "order-20260910-cara",
+      "created_at": "2026-09-10T12:21:00"
+    },
+    {
+      "ingredient_key": "green_tea_leaves",
+      "change_type": "SALE",
+      "quantity_delta": "-12.70",
+      "reference_id": "order-20260910-gree",
+      "created_at": "2026-09-10T16:51:00"
+    },
+    {
+      "ingredient_key": "chai_concentrate",
+      "change_type": "SALE",
+      "quantity_delta": "-17.12",
+      "reference_id": "order-20260910-chai",
+      "created_at": "2026-09-10T11:30:00"
+    },
+    {
+      "baked_good_name": "Blueberry Muffin",
+      "change_type": "SALE",
+      "quantity_delta": "-1",
+      "reference_id": "order-20260910-blue",
+      "created_at": "2026-09-10T07:46:00"
+    },
+    {
+      "baked_good_name": "Pumpkin Coffee Cake",
+      "change_type": "SALE",
+      "quantity_delta": "-4",
+      "reference_id": "order-20260910-pump",
+      "created_at": "2026-09-10T11:45:00"
+    },
+    {
+      "ingredient_key": "espresso_beans",
+      "change_type": "SALE",
+      "quantity_delta": "-14.04",
+      "reference_id": "order-20260911-espr",
+      "created_at": "2026-09-11T07:29:00"
+    },
+    {
+      "ingredient_key": "whole_milk",
+      "change_type": "SALE",
+      "quantity_delta": "-13.00",
+      "reference_id": "order-20260911-whol",
+      "created_at": "2026-09-11T14:03:00"
+    },
+    {
+      "ingredient_key": "oat_milk",
+      "change_type": "SALE",
+      "quantity_delta": "-7.17",
+      "reference_id": "order-20260911-oat_",
+      "created_at": "2026-09-11T18:15:00"
+    },
+    {
+      "ingredient_key": "vanilla_syrup",
+      "change_type": "SALE",
+      "quantity_delta": "-18.50",
+      "reference_id": "order-20260911-vani",
+      "created_at": "2026-09-11T14:05:00"
+    },
+    {
+      "ingredient_key": "caramel_syrup",
+      "change_type": "SALE",
+      "quantity_delta": "-9.23",
+      "reference_id": "order-20260911-cara",
+      "created_at": "2026-09-11T11:56:00"
+    },
+    {
+      "ingredient_key": "green_tea_leaves",
+      "change_type": "SALE",
+      "quantity_delta": "-9.75",
+      "reference_id": "order-20260911-gree",
+      "created_at": "2026-09-11T15:17:00"
+    },
+    {
+      "baked_good_name": "Butter Croissant",
+      "change_type": "SALE",
+      "quantity_delta": "-4",
+      "reference_id": "order-20260911-butt",
+      "created_at": "2026-09-11T10:09:00"
+    },
+    {
+      "baked_good_name": "Pumpkin Coffee Cake",
+      "change_type": "SALE",
+      "quantity_delta": "-2",
+      "reference_id": "order-20260911-pump",
+      "created_at": "2026-09-11T10:42:00"
+    },
+    {
+      "ingredient_key": "espresso_beans",
+      "change_type": "SALE",
+      "quantity_delta": "-10.73",
+      "reference_id": "order-20260912-espr",
+      "created_at": "2026-09-12T16:11:00"
+    },
+    {
+      "ingredient_key": "whole_milk",
+      "change_type": "SALE",
+      "quantity_delta": "-2.07",
+      "reference_id": "order-20260912-whol",
+      "created_at": "2026-09-12T13:34:00"
+    },
+    {
+      "ingredient_key": "oat_milk",
+      "change_type": "SALE",
+      "quantity_delta": "-12.19",
+      "reference_id": "order-20260912-oat_",
+      "created_at": "2026-09-12T09:44:00"
+    },
+    {
+      "ingredient_key": "green_tea_leaves",
+      "change_type": "SALE",
+      "quantity_delta": "-15.32",
+      "reference_id": "order-20260912-gree",
+      "created_at": "2026-09-12T14:57:00"
+    },
+    {
+      "baked_good_name": "Butter Croissant",
+      "change_type": "SALE",
+      "quantity_delta": "-5",
+      "reference_id": "order-20260912-butt",
+      "created_at": "2026-09-12T13:25:00"
+    },
+    {
+      "baked_good_name": "Pumpkin Coffee Cake",
+      "change_type": "SALE",
+      "quantity_delta": "-1",
+      "reference_id": "order-20260912-pump",
+      "created_at": "2026-09-12T14:40:00"
+    },
+    {
+      "ingredient_key": "espresso_beans",
+      "change_type": "SALE",
+      "quantity_delta": "-5.43",
+      "reference_id": "order-20260913-espr",
+      "created_at": "2026-09-13T10:28:00"
+    },
+    {
+      "ingredient_key": "whole_milk",
+      "change_type": "SALE",
+      "quantity_delta": "-8.12",
+      "reference_id": "order-20260913-whol",
+      "created_at": "2026-09-13T07:06:00"
+    },
+    {
+      "ingredient_key": "oat_milk",
+      "change_type": "SALE",
+      "quantity_delta": "-4.72",
+      "reference_id": "order-20260913-oat_",
+      "created_at": "2026-09-13T08:23:00"
+    },
+    {
+      "ingredient_key": "vanilla_syrup",
+      "change_type": "SALE",
+      "quantity_delta": "-3.27",
+      "reference_id": "order-20260913-vani",
+      "created_at": "2026-09-13T10:39:00"
+    },
+    {
+      "ingredient_key": "caramel_syrup",
+      "change_type": "SALE",
+      "quantity_delta": "-13.42",
+      "reference_id": "order-20260913-cara",
+      "created_at": "2026-09-13T12:38:00"
+    },
+    {
+      "ingredient_key": "green_tea_leaves",
+      "change_type": "SALE",
+      "quantity_delta": "-4.21",
+      "reference_id": "order-20260913-gree",
+      "created_at": "2026-09-13T14:29:00"
+    },
+    {
+      "ingredient_key": "chai_concentrate",
+      "change_type": "SALE",
+      "quantity_delta": "-7.61",
+      "reference_id": "order-20260913-chai",
+      "created_at": "2026-09-13T09:06:00"
+    },
+    {
+      "baked_good_name": "Pumpkin Coffee Cake",
+      "change_type": "SALE",
+      "quantity_delta": "-2",
+      "reference_id": "order-20260913-pump",
+      "created_at": "2026-09-13T15:01:00"
+    },
+    {
+      "ingredient_key": "espresso_beans",
+      "change_type": "RECEIVE",
+      "quantity_delta": "80.00",
+      "reference_id": "po-2026-0912-sunridge",
+      "created_at": "2026-09-12T09:00:00"
+    },
+    {
+      "ingredient_key": "whole_milk",
+      "change_type": "WASTE",
+      "quantity_delta": "-16.00",
+      "reference_id": "spill-2026-0910",
+      "created_at": "2026-09-10T14:20:00"
+    },
+    {
+      "baked_good_name": "Blueberry Muffin",
+      "change_type": "ADJUSTMENT",
+      "quantity_delta": "-2",
+      "reference_id": "count-correction-2026-0911",
+      "created_at": "2026-09-11T08:00:00"
     }
   ]
 }

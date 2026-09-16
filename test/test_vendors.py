@@ -139,6 +139,9 @@ def vendor_with_ingredient(client, vendor_single_contact):
             "unit_amount": 1000,
             "unit_of_measure": "g",
             "vendor_id": vendor_single_contact.id,
+            "quantity_on_hand": 16.00,
+            "reorder_threshold": 3.50,
+            "reorder_quantity": 12.00,
         },
     )
     return vendor_single_contact

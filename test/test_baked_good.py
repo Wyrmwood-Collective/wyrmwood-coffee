@@ -13,6 +13,9 @@ def baked_good_kwargs():
         "purchase_cost": "1.50",
         "retail_price": "3.25",
         "allergens": ["gluten", "dairy"],
+        "quantity_on_hand": 10,
+        "reorder_threshold": 5,
+        "reorder_quantity": 10,
     }
 
 

@@ -36,6 +36,16 @@ class Ingredient(Base):
     unit_amount: Mapped[Decimal] = mapped_column(Numeric(10, 2), nullable=False)
     unit_of_measure: Mapped[str] = mapped_column(nullable=False)
     allergens: Mapped[list[str]] = mapped_column(ARRAY(String), default=list)
+    quantity_on_hand: Mapped[Decimal] = mapped_column(
+        Numeric(precision=10, scale=2),
+        nullable=False,
+    )
+    reorder_threshold: Mapped[Decimal] = mapped_column(
+        Numeric(precision=10, scale=2), nullable=False
+    )
+    reorder_quantity: Mapped[Decimal] = mapped_column(
+        Numeric(precision=10, scale=2), nullable=False
+    )
 
     vendor_id: Mapped[int] = mapped_column(ForeignKey("vendors.id"))
     vendor: Mapped["Vendor"] = relationship(back_populates="ingredients")
@@ -77,7 +87,6 @@ class IngredientBase(BaseModel):
         title="Vendor ID",
         description="The ID of the vendor supplying this ingredient",
     )
-
     active: bool = Field(
         default=True,
         title="Active",
@@ -87,6 +96,18 @@ class IngredientBase(BaseModel):
         default_factory=list,
         title="Allergens",
         description="A list of allergens present in the ingredient",
+    )
+    quantity_on_hand: Annotated[Decimal, Field(ge=0, decimal_places=2)] = Field(
+        title="Available Quantity",
+        description="The available amount of ingredient for use",
+    )
+    reorder_threshold: Annotated[Decimal, Field(gt=0, decimal_places=2)] = Field(
+        title="Reorder Trigger Point",
+        description="The exact ingredient stock level initiating a reorder alert",
+    )
+    reorder_quantity: Annotated[Decimal, Field(gt=0, decimal_places=2)] = Field(
+        title="Reorder Batch Amount",
+        description="The total amount of ingredient for a batch order",
     )
 
     @field_validator("unit_of_measure")
