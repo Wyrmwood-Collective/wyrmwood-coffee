@@ -1,5 +1,9 @@
 - [Fireball](https://motionarray.com/stock-motion-graphics/free-fireball-stock-video-footage-53/)
 - [Dragon Breath](https://freesound.org/people/CGEffex/sounds/94102/)
+- [Comic Runes](https://www.dafont.com/comicrunes.font) (`fonts/ComicRunes.otf`) — by
+  Adrian Candela ([behance.net/takuminokami](https://www.behance.net/takuminokami)),
+  Creative Commons Attribution-NoDerivatives. Used for the Edit/Delete buttons on
+  the Vendors page.
 
 ## Regenerating the processed login-transition assets
 

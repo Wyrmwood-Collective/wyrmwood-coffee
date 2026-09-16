@@ -24,6 +24,21 @@
   --ink-soft: #6b5f4f;
   --leather: #5b2e22;
   --leather-dark: #3d1e16;
+
+  /* Arcane glow (LinkButton / SigilButton hover effects) — tune these to
+     change the hover glow color and the color text/lines ignite to. */
+  --arcane: #8e2de2;
+  --arcane-bright: #e3baff;
+  --arcane-glow: rgba(142, 45, 226, 0.6);
+  --arcane-ignited-text: #fff;
+}
+
+/* Comic Runes — CC BY-ND, credited in src/assets/media-sources.md. Declared
+   globally (rather than per-component) so LinkButton and SigilButton both
+   render correctly regardless of which one is used first, or alone. */
+@font-face {
+  font-family: "Comic Runes";
+  src: url("@/assets/fonts/ComicRunes.otf") format("opentype");
 }
 
 /*
